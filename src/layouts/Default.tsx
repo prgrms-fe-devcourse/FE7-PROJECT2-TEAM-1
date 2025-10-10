@@ -1,7 +1,5 @@
+import { Outlet } from "react-router";
+
 export default function Default() {
-  return (
-    <>
-      <h1>Default Component</h1>
-    </>
-  );
+  return <Outlet />;
 }
