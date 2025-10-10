@@ -1,2 +1,12 @@
-.font {
+@import "galmuri/dist/galmuri.css";
+
+.galmuri-bold {
+  font-family: "Galmuri11", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+.press-start-2p-regular {
+  font-family: "Press Start 2P", system-ui;
+  font-weight: 400;
+  font-style: normal;
 }
