@@ -1,4 +1,4 @@
-import "./App.css";
+//import "./App.css";
 import { Route, Routes } from "react-router";
 import Default from "./layouts/Default";
 import Posts from "./pages/post/Posts";
@@ -25,9 +25,10 @@ function App() {
           <Route path="search/posts/:keyword" element={<SearchPosts />} />
           <Route path="search/users/:keyword" element={<SearchUsers />} />
           <Route path="profile/:userId" element={<Profile />} />
+          <Route path="write" element={<Write />} />
+          {/* 임의로 잠시 이동한 것 -> 커밋 X */}
 
           <Route element={<ProtectedRoute />}>
-            <Route path="write" element={<Write />} />
             <Route path="profile" element={<Profile />} />
           </Route>
         </Route>

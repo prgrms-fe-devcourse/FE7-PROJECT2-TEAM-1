@@ -71,3 +71,84 @@ export default defineConfig([
   },
 ])
 ```
+
+```
+FE7-PROJECT2-TEAM-1
+├─ .env
+├─ .prettierignore
+├─ .prettierrc
+├─ README.md
+├─ eslint.config.js
+├─ index.html
+├─ package-lock.json
+├─ package.json
+├─ src
+│  ├─ App.tsx
+│  ├─ assets
+│  │  └─ vite.svg
+│  ├─ components
+│  │  ├─ AuthBootstrap.tsx
+│  │  ├─ Header.tsx
+│  │  ├─ SearchBar.tsx
+│  │  ├─ common
+│  │  │  ├─ Button.tsx
+│  │  │  └─ Input.tsx
+│  │  ├─ loading
+│  │  │  ├─ PostsSkeleton.tsx
+│  │  │  ├─ ProfileSkeleton.tsx
+│  │  │  └─ UsersSkeleton.tsx
+│  │  ├─ modal
+│  │  │  ├─ Completed.tsx
+│  │  │  ├─ Report.tsx
+│  │  │  └─ Sure.tsx
+│  │  └─ routes
+│  │     ├─ ProtectedRoute.tsx
+│  │     └─ PublicOnlyRoute.tsx
+│  ├─ css
+│  │  ├─ font.css
+│  │  ├─ index.css
+│  │  └─ tailwind.css
+│  ├─ layouts
+│  │  └─ Default.tsx
+│  ├─ main.tsx
+│  ├─ pages
+│  │  ├─ NotFound.tsx
+│  │  ├─ auth
+│  │  │  ├─ SignIn.tsx
+│  │  │  └─ SignUp.tsx
+│  │  ├─ home
+│  │  │  └─ Home.tsx
+│  │  ├─ post
+│  │  │  ├─ Posts.tsx
+│  │  │  └─ Write.tsx
+│  │  ├─ profile
+│  │  │  └─ Profile.tsx
+│  │  └─ search
+│  │     ├─ Search.tsx
+│  │     ├─ SearchPosts.tsx
+│  │     └─ SearchUsers.tsx
+│  ├─ services
+│  │  ├─ alarm.ts
+│  │  ├─ post.ts
+│  │  ├─ signIn.ts
+│  │  └─ user.ts
+│  ├─ stores
+│  │  └─ authStore.ts
+│  ├─ types
+│  │  ├─ alarm.d.ts
+│  │  ├─ comment.d.ts
+│  │  ├─ database.d.ts
+│  │  ├─ like.d.ts
+│  │  ├─ option.d.ts
+│  │  ├─ post.d.ts
+│  │  ├─ profile.d.ts
+│  │  ├─ report.d.ts
+│  │  └─ vote.d.ts
+│  └─ utils
+│     └─ supabase.ts
+├─ tsconfig.app.json
+├─ tsconfig.json
+├─ tsconfig.node.json
+└─ vite.config.ts
+
+```
