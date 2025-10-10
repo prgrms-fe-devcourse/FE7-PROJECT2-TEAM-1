@@ -11,6 +11,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.74.0",
     "@tailwindcss/vite": "^4.1.14",
     "axios": "^1.12.2",
     "date-fns": "^4.1.0",

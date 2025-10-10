@@ -1,35 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import "./App.css";
+import { Route, Routes } from "react-router";
+import Default from "./layouts/Default";
+import Posts from "./pages/post/Posts";
+import Write from "./pages/post/Write";
+import SignIn from "./pages/auth/SignIn";
+import SignUp from "./pages/auth/SignUp";
+import SearchPosts from "./pages/search/SearchPosts";
+import SearchUsers from "./pages/search/SearchUsers";
+import Home from "./pages/home/Home";
+import Profile from "./pages/profile/Profile";
+import Search from "./pages/search/Search";
+import PublicOnlyRoute from "./components/routes/PublicOnlyRoute";
+import ProtectedRoute from "./components/routes/ProtectedRoute";
+import NotFound from "./pages/NotFound";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Routes>
+        <Route element={<Default />}>
+          <Route index element={<Home />} />
+          <Route path="posts/:topic" element={<Posts />} />
+          <Route path="search" element={<Search />} />
+          <Route path="search/posts/:keyword" element={<SearchPosts />} />
+          <Route path="search/users/:keyword" element={<SearchUsers />} />
+          <Route path="profile/:userId" element={<Profile />} />
+
+          <Route element={<ProtectedRoute />}>
+            <Route path="write" element={<Write />} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
+        </Route>
+        <Route element={<PublicOnlyRoute />}>
+          <Route path="signin" element={<SignIn />} />
+          <Route path="signup" element={<SignUp />} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
