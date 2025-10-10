@@ -249,25 +249,28 @@ export type Database = {
           bio: string | null
           created_at: string
           email: string
-          password: string
+          password: string | null
           profile_img: string | null
           uid: string
+          username: string
         }
         Insert: {
           bio?: string | null
           created_at?: string
           email: string
-          password: string
+          password?: string | null
           profile_img?: string | null
           uid?: string
+          username: string
         }
         Update: {
           bio?: string | null
           created_at?: string
           email?: string
-          password?: string
+          password?: string | null
           profile_img?: string | null
           uid?: string
+          username?: string
         }
         Relationships: []
       }
