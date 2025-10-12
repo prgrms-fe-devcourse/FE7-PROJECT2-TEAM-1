@@ -1,4 +1,3 @@
-import "./App.css";
 import { Route, Routes } from "react-router";
 import Default from "./layouts/Default";
 import Posts from "./pages/post/Posts";
