@@ -1,12 +1,27 @@
 @import "galmuri/dist/galmuri.css";
 
-.galmuri-bold {
-  font-family: "Galmuri11", sans-serif;
-  font-weight: 700;
-  font-style: normal;
+@font-face {
+  font-family: "MyEnglishFont";
+  src: url("./fonts/press-start-2p-v16-latin-regular.woff2") format("woff2");
+  unicode-range: U+0000-007F; /* Basic Latin: 영어, 숫자, 기호 */
 }
-.press-start-2p-regular {
-  font-family: "Press Start 2P", system-ui;
-  font-weight: 400;
-  font-style: normal;
+@font-face {
+  font-family: "MyKoreanFont";
+  src: url("./fonts/Galmuri11-Bold.woff2") format("woff2");
+  unicode-range: U+AC00-D7A3; /* 한글 완성형 */
+  font-weight: bold;
+}
+@font-face {
+  font-family: "MyKoreanFont";
+  src: url("./fonts/Galmuri11.woff2") format("woff2");
+  unicode-range: U+AC00-D7A3; /* 한글 완성형 */
+  font-weight: normal;
+}
+body {
+  font-family: "MyEnglishFont", "MyKoreanFont", sans-serif;
+  font-weight: bold;
+}
+
+p {
+  color: red;
 }
