@@ -9,9 +9,7 @@ type AuthStore = {
   isLoading?: boolean;
   claims: Claims;
   profile: Profile | null;
-  setProfile: (profile: Profile | null) => void;
-  setClaims: (c: Claims) => void;
-  hydrateFromAuth: () => void;
+  hydrateFromAuth: () => Promise<boolean>;
   clearAuth: () => void;
 };
 
@@ -22,41 +20,39 @@ export const useAuthStore = create<AuthStore>()(
         isLoading: true, // 데이터 패칭 로딩 여부
         claims: null, // JWTPayload
         profile: null, // profiles 테이블 데이터
-        setProfile: (profile: Profile | null) =>
-          set((state) => {
-            state.profile = profile;
-          }),
-        setClaims: (c: Claims) =>
-          set((state) => {
-            state.claims = c;
-          }),
+
         hydrateFromAuth: async () => {
-          set({ isLoading: true });
-          // (1) 클레임 가져오기
-          const { data, error } = await supabase.auth.getClaims();
-          if (error) {
-            // 세션 없음 or 초기화전일 수 있음
-            set({ claims: null, profile: null, isLoading: false });
-            return;
-          }
-          const claims = data?.claims as Claims;
-          set({ claims: claims });
-
-          // (2) 프로필 조회
-          if (claims?.sub) {
-            const { data: profiles, error: profilesError } = await supabase
-              .from("profiles")
-              .select("*")
-              .eq("uid", claims.sub || "")
-              .single();
-            if (profilesError) {
+          try {
+            set({ isLoading: true });
+            // (1) 클레임 가져오기
+            const { data, error } = await supabase.auth.getClaims();
+            if (error) {
+              // 세션 없음 or 초기화전일 수 있음
               set({ claims: null, profile: null, isLoading: false });
+              return false;
             }
+            const claims = data?.claims as Claims;
+            set({ claims: claims });
 
-            set({ profile: profiles ?? null });
+            // (2) 프로필 조회
+            if (claims?.sub) {
+              const { data: profiles, error: profilesError } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("uid", claims.sub || "")
+                .single();
+              if (profilesError) {
+                set({ claims: null, profile: null, isLoading: false });
+              }
+              set({ profile: profiles ?? null });
+              return true;
+            }
+            return false;
+          } catch (error) {
+            return false;
+          } finally {
+            set({ isLoading: false });
           }
-
-          set({ isLoading: false });
         },
         clearAuth: () =>
           set((state) => {
