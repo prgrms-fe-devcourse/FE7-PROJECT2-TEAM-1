@@ -12,6 +12,7 @@ import Search from "./pages/search/Search";
 import PublicOnlyRoute from "./components/routes/PublicOnlyRoute";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
 import NotFound from "./pages/NotFound";
+import AuthRedirect from "./pages/auth/AuthRedirect";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="search/posts/:keyword" element={<SearchPosts />} />
           <Route path="search/users/:keyword" element={<SearchUsers />} />
           <Route path="profile/:userId" element={<Profile />} />
+          <Route path='auth-redirect' element={<AuthRedirect />} />
 
           <Route element={<ProtectedRoute />}>
             <Route path="write" element={<Write />} />
