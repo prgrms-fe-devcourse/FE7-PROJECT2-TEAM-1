@@ -249,6 +249,7 @@ export type Database = {
           bio: string | null
           created_at: string
           email: string
+          handle: string
           password: string | null
           profile_img: string | null
           uid: string
@@ -258,6 +259,7 @@ export type Database = {
           bio?: string | null
           created_at?: string
           email: string
+          handle?: string
           password?: string | null
           profile_img?: string | null
           uid?: string
@@ -267,6 +269,7 @@ export type Database = {
           bio?: string | null
           created_at?: string
           email?: string
+          handle?: string
           password?: string | null
           profile_img?: string | null
           uid?: string

@@ -8,7 +8,18 @@ const checkEmailExists = async (email: string) => {
     return false;
   }
 
-  return data;
+  return !!data;
 };
 
-export { checkEmailExists };
+const checkHandleExists = async (handle: string) => {
+  const { data, error } = await supabase.from("profiles").select("*").eq("handle", handle).single();
+
+  if (error && error.code !== "PGRST116") {
+    console.error("Supabase error:", error);
+    return false;
+  }
+
+  return !!data;
+};
+
+export { checkEmailExists, checkHandleExists };
