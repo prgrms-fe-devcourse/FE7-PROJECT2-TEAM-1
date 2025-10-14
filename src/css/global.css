@@ -1,0 +1,5 @@
+@reference "tailwindcss";
+
+.overlay-gradient {
+  @apply absolute inset-0 bg-gradient-to-t from-black/80 to-transparent;
+}
