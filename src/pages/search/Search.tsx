@@ -1,7 +1,10 @@
 import search from "../../assets/search/search_search.svg";
 import ghosts from "../../assets/search/search_ghosts.svg";
+import { useState } from "react";
 
 export default function Search() {
+  const [selectedCategory, setSelectedCategory] = useState<"posts" | "users">("posts");
+
   return (
     <div>
       <div className="w-full flex justify-center border-b-2 border-[#FF8C00] h-[85px]">
@@ -16,16 +19,22 @@ export default function Search() {
               placeholder="Search..."
               className="flex-1 border-none outline-none bg-transparent"
             />
-            <div className="flex border border-[#FF8C00] rounded-[30px]">
+            <div className="flex border border-[#FF8C00] rounded-[30px] text-[#FFFFFF]">
               <button
                 type="button"
-                className="focus:bg-[#FF8C00] rounded-l-[30px] flex justify-center items-center gap-1 text-[#FFFFFF] cursor-pointer w-[80px] h-[34px] pl-6 pr-6 text-[12px]"
+                onClick={() => {
+                  setSelectedCategory("posts");
+                }}
+                className={`transition-colors rounded-l-[30px] flex justify-center items-center gap-1  cursor-pointer w-[80px] h-[34px] pl-6 pr-6 text-[12px] ${selectedCategory === "posts" ? "bg-[#FF8C00]" : ""}`}
               >
                 POSTS
               </button>
               <button
                 type="button"
-                className="focus:bg-[#FF8C00]  rounded-r-[30px] flex justify-center items-center gap-1 text-[#FFFFFF] cursor-pointer w-[80px] h-[34px] pl-6 pr-6 text-[12px]"
+                onClick={() => {
+                  setSelectedCategory("users");
+                }}
+                className={`transition-colors rounded-r-[30px] flex justify-center items-center gap-1  cursor-pointer w-[80px] h-[34px] pl-6 pr-6 text-[12px] ${selectedCategory === "users" ? "bg-[#FF8C00]" : ""}`}
               >
                 USERS
               </button>
