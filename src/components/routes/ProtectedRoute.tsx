@@ -6,7 +6,7 @@ export default function ProtectedRoutes() {
   const location = useLocation();
   const claims = useAuthStore((state) => state.claims);
   if (!claims) {
-    return <Navigate to={"login"} replace state={{ from: location }} />;
+    return <Navigate to={"/signin"} replace state={{ from: location }} />;
   }
   return <Outlet />;
 }
