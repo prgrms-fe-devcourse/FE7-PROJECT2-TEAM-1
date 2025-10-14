@@ -6,11 +6,13 @@ import "./css/index.css";
 import App from "./App.tsx";
 import { BrowserRouter } from "react-router";
 import AuthBootstrap from "./components/AuthBootstrap.tsx";
+import ToastProvider from "./components/toast/ToastProvider.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthBootstrap />
+      <ToastProvider />
       <App />
     </BrowserRouter>
   </StrictMode>,
