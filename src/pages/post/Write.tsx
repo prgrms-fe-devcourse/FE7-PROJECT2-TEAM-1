@@ -1,11 +1,13 @@
 import uploadButton from "../../assets/write/upload_button.svg";
+import categoryArrow from "../../assets/posts/categoryArrow.svg";
 
 export default function Write() {
   return (
     <>
       <div>
         <div>
-          <span>(화살표)새 밸런스 게임 만들기</span>
+          <img src={categoryArrow} className="w-[31px] h-[26px]" />
+          <p>새 밸런스 게임 만들기</p>
         </div>
 
         <div className="w-[1250px] h-[1150px] px-[59px] py-[35px] border-2 border-[#FF8C00]">
@@ -23,15 +25,15 @@ export default function Write() {
             <p className="mb-[10px]">제목</p>
             <input
               placeholder="예: 치킨 vs 피자, 당신의 선택은?"
-              className="w-[1138px] h-[36px] mb-[10px] border-2 border-[#FF8C00]"
+              className="w-[1138px] h-[36px] mb-[10px] pl-[15px] border-2 border-[#FF8C00]"
             ></input>
-            <p className="mb-[30px]">0/20</p>
+            <p className="mb-[30px] text-right">0/20</p>
             <p className="mb-[10px]">설명</p>
             <input
               placeholder="밸런스 게임에 대한 설명을 입력하세요"
-              className="w-[1138px] h-[96px] mb-[10px] border-2 border-[#FF8C00]"
+              className="w-[1138px] h-[105px] mb-[10px] pl-[15px] pb-[60px] border-2 border-[#FF8C00]"
             ></input>
-            <p className="mb-[46px]">0/200</p>
+            <p className="mb-[46px] text-right">0/200</p>
           </div>
 
           <div className="flex flex-cols-3 items-center mb-[42px]">
@@ -42,37 +44,56 @@ export default function Write() {
 
           <div className="grid grid-cols-2 gap-[82px] justify-items-center">
             <div>
-              <div className="mb-[16px]">
-                <p>(아이콘)선택지 A</p>
+              <div className="mb-[16px] flex items-center gap-[19px]">
+                <div
+                  className="w-[32px] h-[32px] border-2 rounded-[50%] border-[#FF8C00] text-[#FF8C00] bg-[#FF8C00]/30
+                flex items-center justify-center"
+                >
+                  <p>A</p>
+                </div>
+                <p>선택지 A</p>
               </div>
               <input
                 placeholder="선택지 텍스트"
-                className="w-[528px] h-[36px] mb-[10px] border-2 border-[#FF8C00]"
+                className="w-[528px] h-[36px] mb-[10px] pl-[15px] border-2 border-[#FF8C00]"
               ></input>
-              <p className="mb-[16px]">0/15</p>
-              <img src={uploadButton} className=" w-[35px] h-[35px]" />
-              <p className="w-[528px] h-[322px] mb-[60px] border-2 border-dashed border-[#FF8C00]">
-                이미지업로드
-              </p>
+              <p className="mb-[16px] text-right">0/15</p>
+
+              <div
+                className="w-[528px] h-[322px] mb-[60px] border-2 border-dashed border-[#FF8C00] 
+              flex flex-col items-center justify-center gap-[5px]"
+              >
+                <img src={uploadButton} className=" w-[35px] h-[35px]" />
+                <p className="opacity-50">이미지업로드</p>
+              </div>
             </div>
             <div>
-              <div className="mb-[16px]">
-                <p>(아이콘)선택지 B</p>
+              <div className="mb-[16px] flex items-center gap-[19px]">
+                <div
+                  className="w-[32px] h-[32px] border-2 rounded-[50%] border-[#FF8C00] text-[#FF8C00] bg-[#FF8C00]/30
+                flex items-center justify-center"
+                >
+                  <p>B</p>
+                </div>
+                <p>선택지 B</p>
               </div>
               <input
                 placeholder="선택지 텍스트"
-                className="w-[528px] h-[36px] mb-[10px] border-2 border-[#FF8C00]"
+                className="w-[528px] h-[36px] mb-[10px] pl-[15px] border-2 border-[#FF8C00]"
               ></input>
-              <p className="mb-[16px]">0/15</p>
-              <img src={uploadButton} className=" w-[35px] h-[35px]" />
-              <p className="w-[528px] h-[322px]  mb-[60px] border-2 border-dashed border-[#FF8C00]">
-                이미지업로드
-              </p>
+              <p className="mb-[16px] text-right">0/15</p>
+              <div
+                className="w-[528px] h-[322px] mb-[60px] border-2 border-dashed border-[#FF8C00] 
+              flex flex-col items-center justify-center gap-[5px]"
+              >
+                <img src={uploadButton} className=" w-[35px] h-[35px]" />
+                <p className="opacity-50">이미지업로드</p>
+              </div>
             </div>
           </div>
 
           <div className="grid justify-items-center">
-            <button className="w-[426px] h-[41px] bg-[#FF8C00]">게시하기 </button>
+            <button className="w-[426px] h-[41px] bg-[#FF8C00] text-black">게시하기 </button>
           </div>
         </div>
       </div>
