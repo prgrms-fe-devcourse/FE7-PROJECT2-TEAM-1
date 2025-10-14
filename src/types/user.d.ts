@@ -10,6 +10,7 @@ type Claims =
         phone_verified: boolean;
         sub: string;
         username: string;
+        handle: string;
       };
     })
   | null;
