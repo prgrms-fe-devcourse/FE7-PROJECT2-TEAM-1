@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Profile } from "../types/profile";
+// import type { Profile } from "../types/profile";
 import type { Claims } from "../types/user";
 import supabase from "../utils/supabase";
 import { immer } from "zustand/middleware/immer";
@@ -16,7 +16,7 @@ type AuthStore = {
 export const useAuthStore = create<AuthStore>()(
   devtools(
     persist(
-      immer((set) => ({
+      immer<AuthStore>((set) => ({
         isLoading: true, // 데이터 패칭 로딩 여부
         claims: null, // JWTPayload
         profile: null, // profiles 테이블 데이터
