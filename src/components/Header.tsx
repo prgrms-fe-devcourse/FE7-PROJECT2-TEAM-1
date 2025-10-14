@@ -6,8 +6,11 @@ import header_search from "../assets/header/header_search.svg";
 import header_user from "../assets/header/header_user.svg";
 import header_alarm from "../assets/header/header_alarm.svg";
 import { Link } from "react-router";
+import { useAuthStore } from "../stores/authStore";
 
 export default function Header() {
+  const profile = useAuthStore((state) => state.profile);
+
   return (
     <header
       className="
@@ -30,7 +33,10 @@ export default function Header() {
       <Link to="/search" className="col-start-22 col-span-1 justify-self-start">
         <img src={header_search} alt="header-search" className="w-[30px] h-[31px]" />
       </Link>
-      <Link to="/profile" className="col-start-23 col-span-1 justify-self-start">
+      <Link
+        to={profile ? "/profile" : "/signin"}
+        className="col-start-23 col-span-1 justify-self-start"
+      >
         <img src={header_user} alt="header-user" className="w-[31px] h-[31px]" />
       </Link>
       <img
