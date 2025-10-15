@@ -7,16 +7,30 @@ import header_user from "../assets/header/header_user.svg";
 import header_alarm from "../assets/header/header_alarm.svg";
 import { Link } from "react-router";
 import { useAuthStore } from "../stores/authStore";
+import { Activity, useEffect, useRef, useState } from "react";
+import Alarm from "./alarm/Alarm";
 
 export default function Header() {
   const profile = useAuthStore((state) => state.profile);
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <header
       className="
-        max-w-[1200px] mx-auto
-        grid items-center h-[65px]
-        [grid-template-columns:repeat(24,minmax(0,1fr))]
+      max-w-[1200px] mx-auto
+      grid items-center h-[65px]
+      [grid-template-columns:repeat(24,minmax(0,1fr))]
       "
     >
       <Link to="/" className="col-start-1 col-span-1 justify-self-start">
@@ -39,11 +53,18 @@ export default function Header() {
       >
         <img src={header_user} alt="header-user" className="w-[31px] h-[31px]" />
       </Link>
-      <img
-        src={header_alarm}
-        alt="header-alarm"
-        className="col-start-24 col-span-1 justify-self-start w-[28px] h-[34px]"
-      />
+      <div className="relative" ref={dropdownRef}>
+        <button className="cursor-pointer" onClick={() => setIsOpen((prev) => !prev)}>
+          <img
+            src={header_alarm}
+            alt="header-alarm"
+            className="col-start-24 col-span-1 justify-self-start w-[28px] h-[34px]"
+          />
+        </button>
+        <Activity mode={isOpen ? "visible" : "hidden"}>
+          <Alarm />
+        </Activity>
+      </div>
     </header>
   );
 }
