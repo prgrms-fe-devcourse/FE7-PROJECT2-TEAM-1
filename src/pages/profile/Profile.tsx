@@ -1,19 +1,21 @@
-import { useRef, useState } from "react";
+import { Activity, useEffect, useRef, useState } from "react";
 import profile_default from "../../assets/profile/profile_default.png";
 import edit_img from "../../assets/profile/profile_edit.png";
 import check from "../../assets/profile/profile_check.png";
 import close from "../../assets/profile/profile_close.png";
 import { useAuthStore } from "../../stores/authStore";
 import supabase from "../../utils/supabase";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { format } from "date-fns";
 import Toast from "../../components/toast/Toast";
 
 export default function Profile() {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
 
+  const params = useParams();
   const navigate = useNavigate();
-  const profile = useAuthStore((state) => state.profile);
+  const users = useAuthStore((state) => state.profile);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const hydrateFromAuth = useAuthStore((state) => state.hydrateFromAuth);
   const [newName, setNewName] = useState(profile?.username);
   const [newBio, setNewBio] = useState(profile?.bio);
@@ -109,6 +111,28 @@ export default function Profile() {
       setImageFile(file);
     }
   };
+  useEffect(() => {
+    async function handleParam() {
+      if (params.userId) {
+        try {
+          const { data: profiles, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("handle", params.userId)
+            .single();
+          if (error) throw error;
+          if (profiles) {
+            setProfile(profiles);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      } else if (users) {
+        setProfile(users);
+      }
+    }
+    handleParam();
+  }, []);
 
   return (
     <>
@@ -124,12 +148,14 @@ export default function Profile() {
           )}
 
           {!isEdit ? (
-            <button
-              className="absolute top-[20px] right-[50px] w-[31px] h-[31px] rounded-[6px] border-0 bg-[#FF8C00] flex items-center justify-center text-black hover:opacity-80 transition cursor-pointer"
-              onClick={() => setIsEdit((prev) => !prev)}
-            >
-              <img src={edit_img} alt="edit_btn" />
-            </button>
+            <Activity mode={!params.userId ? "visible" : "hidden"}>
+              <button
+                className="absolute top-[20px] right-[50px] w-[31px] h-[31px] rounded-[6px] border-0 bg-[#FF8C00] flex items-center justify-center text-black hover:opacity-80 transition cursor-pointer"
+                onClick={() => setIsEdit((prev) => !prev)}
+              >
+                <img src={edit_img} alt="edit_btn" />
+              </button>
+            </Activity>
           ) : (
             <button
               className="absolute top-[20px] right-[50px] w-[31px] h-[31px] rounded-[6px] border-2 border-[#842727] flex items-center justify-center text-[#FFFFFF] hover:opacity-80 transition cursor-pointer"
