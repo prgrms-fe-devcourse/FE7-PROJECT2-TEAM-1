@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Activity, useState } from "react";
 import supabase from "../../utils/supabase";
 import { Link } from "react-router";
 import hotPotato from "../../assets/sign/hotpotato_logo.png";
@@ -73,11 +73,17 @@ export default function SignIn() {
               </div>
 
               {/* 에러(400) div 처리 */}
-              {!loginStatus && (
+              <Activity mode={loginStatus ? "hidden" : "visible"}>
                 <p className="w-[515px] text-[#c85c5c] font-bold text-[13px]">
                   아이디 또는 비밀번호가 잘못 되었습니다. 아이디와 비밀번호를 정확히 입력해 주세요.
                 </p>
-              )}
+              </Activity>
+              
+              {/* {!loginStatus && (
+                <p className="w-[515px] text-[#c85c5c] font-bold text-[13px]">
+                  아이디 또는 비밀번호가 잘못 되었습니다. 아이디와 비밀번호를 정확히 입력해 주세요.
+                </p>
+              )} */}
 
               <button className="w-[528px] h-[48px] rounded-[6px] bg-[#FF8C00] text-[18px] text-black font-bold transition-shadow duration-200 cursor-pointer hover:shadow-[0_0_10px_#FF8C00] hover:scale-101 ">
                 Sign in

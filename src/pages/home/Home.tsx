@@ -24,7 +24,7 @@ export default function Home() {
             className=" h-[620px] w-[100vw] place-items-center space-y-[36px] whitespace-nowrap overflow-hidden text-clip"
           >
             <br />
-            <p className="text-[#FF8C00] text-[80px] text-sm/23  mt-[108px]  ">
+            <p className="text-[#FF8C00] text-[80px] text-sm/23 mt-[108px]">
               "지금 선택할 순간, <br /> &nbsp; 당신의 선택은?"
             </p>
             <p className="text-white text-[28px] ">
