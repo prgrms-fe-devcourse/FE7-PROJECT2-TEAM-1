@@ -1,11 +1,17 @@
 import { useRef, useState } from "react";
 import profile_default from "../../assets/profile/profile_default.png";
+import edit_img from "../../assets/profile/profile_edit.png";
+import check from "../../assets/profile/profile_check.png";
+import close from "../../assets/profile/profile_close.png";
 import { useAuthStore } from "../../stores/authStore";
 import supabase from "../../utils/supabase";
 import { useNavigate } from "react-router";
 import { format } from "date-fns";
+import Toast from "../../components/toast/Toast";
 
 export default function Profile() {
+  const notify = (message: string, type: ToastType) => Toast({ message, type });
+
   const navigate = useNavigate();
   const profile = useAuthStore((state) => state.profile);
   const hydrateFromAuth = useAuthStore((state) => state.hydrateFromAuth);
@@ -13,6 +19,7 @@ export default function Profile() {
   const [newBio, setNewBio] = useState(profile?.bio);
   const [isEdit, setIsEdit] = useState(false);
 
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -28,13 +35,15 @@ export default function Profile() {
   };
 
   const editHandler = async () => {
+    if (newName!.length < 2) {
+      nameInputRef.current?.focus();
+      notify("이름을 2글자 이상 적어주세요", "ERROR");
+      return;
+    }
+
     try {
       if (newName === profile?.username && newBio === profile?.bio && imagePreview === "") {
         return;
-      }
-
-      if (newName!.length < 2) {
-        // 2글자 처리
       }
 
       let url = null;
@@ -66,14 +75,12 @@ export default function Profile() {
         .single();
 
       if (error) throw error;
-      console.log("업데이트 성공");
+      notify("프로필이 수정되었습니다.", "SUCCESS");
       hydrateFromAuth();
     } catch (error) {
       console.error(error);
     } finally {
       setIsEdit((prev) => !prev);
-      // setNewBio(profile?.bio);
-      setNewName(profile?.username);
       setImagePreview("");
       setImageFile(null);
     }
@@ -111,20 +118,24 @@ export default function Profile() {
             <button
               className="absolute top-[20px] right-[90px] w-[31px] h-[31px] rounded-[6px] border-0 bg-[#FF8C00] flex items-center justify-center text-black hover:opacity-80 transition cursor-pointer"
               onClick={editHandler}
-            ></button>
+            >
+              <img src={check} alt="edit_check" />
+            </button>
           )}
 
           {!isEdit ? (
             <button
               className="absolute top-[20px] right-[50px] w-[31px] h-[31px] rounded-[6px] border-0 bg-[#FF8C00] flex items-center justify-center text-black hover:opacity-80 transition cursor-pointer"
               onClick={() => setIsEdit((prev) => !prev)}
-            ></button>
+            >
+              <img src={edit_img} alt="edit_btn" />
+            </button>
           ) : (
             <button
               className="absolute top-[20px] right-[50px] w-[31px] h-[31px] rounded-[6px] border-2 border-[#842727] flex items-center justify-center text-[#FFFFFF] hover:opacity-80 transition cursor-pointer"
               onClick={cancelEditHandler}
             >
-              X
+              <img src={close} alt="edit_close" />
             </button>
           )}
 
@@ -140,7 +151,6 @@ export default function Profile() {
             <div className="relative w-[95px] h-[95px] rounded-full  border-2 border-[#EBBA7D] p-1.5 flex-shrink-0">
               {}
               <img
-                // src={profile?.profile_img || profile_default}
                 src={imagePreview ? imagePreview : profile?.profile_img || profile_default}
                 alt="profile_img"
                 className="w-full h-full object-cover rounded-full"
@@ -162,6 +172,7 @@ export default function Profile() {
                       className="w-full h-[36px] bg-[#0A0A0A] border border-[#FF8C00] rounded-[6px] text-white placeholder-[#999999] placeholder:font-bold shadow-[0_1px_2px_rgba(0,0,0,0.25)] px-3 
                   focus:outline-none mb-[10px]
                   "
+                      ref={nameInputRef}
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
                     />

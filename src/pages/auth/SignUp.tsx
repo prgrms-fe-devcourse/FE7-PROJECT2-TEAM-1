@@ -130,7 +130,7 @@ export default function SignUp() {
     <>
       <main className="max-w-dvw min-h-dvh bg-black overflow-hidden">
         <form onSubmit={(e) => submitHandler(e)}>
-          <div className="w-[1200px] min-h-[964px] bg-[#0A0A0A] border-2 border-[#FF8C00] rounded-[12px] m-auto flex flex-col items-center justify-center text-white">
+          <div className="w-[1200px] min-h-[1100px] bg-[#0A0A0A] border-2 border-[#FF8C00] rounded-[12px] m-auto mt-[15px] mb-[15px] flex flex-col items-center justify-center text-white">
             <div className="flex flex-col items-center gap-[45px]">
               <div className="flex flex-col items-center gap-[5px]">
                 <p className="w-[515px] text-[#FF8C00] font-bold text-[38px] text-center">

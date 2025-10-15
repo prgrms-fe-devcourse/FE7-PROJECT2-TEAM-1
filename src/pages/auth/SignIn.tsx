@@ -1,31 +1,40 @@
-import { useState } from "react";
+import { Activity, useState } from "react";
 import supabase from "../../utils/supabase";
 import { Link } from "react-router";
 import hotPotato from "../../assets/sign/hotpotato_logo.png";
+import Toast from "../../components/toast/Toast";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginStatus, setLoginStatus] = useState(true);
+  const notify = (message: string, type: ToastType) => Toast({ message, type });
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { error } = await supabase.auth.signInWithPassword({
+    if (email.trim() === "" || password.trim() === "") {
+      setLoginStatus(false);
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
       if (error.status === 400) setLoginStatus(false);
-      console.error("로그인 실패:", error.message);
+      return;
     }
+    const name = data.user?.user_metadata.username;
+    notify(`${name}, 님 안녕하세요`, "SUCCESS");
   };
 
   return (
     <>
       <main className="max-w-dvw min-h-dvh bg-black overflow-hidden">
         <form onSubmit={(e) => submitHandler(e)}>
-          <div className="w-[1200px] min-h-[964px] bg-[#0A0A0A] border-2 border-[#FF8C00] rounded-[12px] m-auto flex flex-col items-center justify-center text-white">
+          <div className="w-[1200px] min-h-[950px] bg-[#0A0A0A] border-2 border-[#FF8C00] rounded-[12px] m-auto mt-[15px] mb-[15px] flex flex-col items-center justify-center text-white">
             <div className="flex flex-col items-center gap-[45px]">
               <img src={hotPotato} alt="hotPotato_logo" />
               <div className="flex flex-col items-center gap-[5px]">
@@ -73,11 +82,17 @@ export default function SignIn() {
               </div>
 
               {/* 에러(400) div 처리 */}
-              {!loginStatus && (
+              <Activity mode={loginStatus ? "hidden" : "visible"}>
                 <p className="w-[515px] text-[#c85c5c] font-bold text-[13px]">
                   아이디 또는 비밀번호가 잘못 되었습니다. 아이디와 비밀번호를 정확히 입력해 주세요.
                 </p>
-              )}
+              </Activity>
+              
+              {/* {!loginStatus && (
+                <p className="w-[515px] text-[#c85c5c] font-bold text-[13px]">
+                  아이디 또는 비밀번호가 잘못 되었습니다. 아이디와 비밀번호를 정확히 입력해 주세요.
+                </p>
+              )} */}
 
               <button className="w-[528px] h-[48px] rounded-[6px] bg-[#FF8C00] text-[18px] text-black font-bold transition-shadow duration-200 cursor-pointer hover:shadow-[0_0_10px_#FF8C00] hover:scale-101 ">
                 Sign in
