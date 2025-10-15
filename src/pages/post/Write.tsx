@@ -1,7 +1,27 @@
 import uploadButton from "../../assets/write/upload_button.svg";
 import categoryArrow from "../../assets/posts/categoryArrow.svg";
+import { useRef, useState } from "react";
 
 export default function Write() {
+  const imageUploadInputRef = useRef<HTMLInputElement>(null);
+  const [imageUploadPreview, setImageUploadPreview] = useState("");
+
+  const imageUploadHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const file = e.target.files[0];
+
+    if (!file.type.startsWith("image/")) {
+      alert("이미지 파일만 첨부해주세요.");
+      return;
+    }
+
+    if (file) {
+      const imagePreviewUrl = URL.createObjectURL(file);
+      setImageUploadPreview(imagePreviewUrl);
+      //setImageFile(file);
+    }
+  };
+
   return (
     <>
       <div className="flex flex-col items-center">
@@ -9,6 +29,7 @@ export default function Write() {
           <img src={categoryArrow} className="w-[31px] h-[26px] mt-[7px]" />
           <p className="w-[1000px] text-[#FF8C00] text-3xl">새 밸런스 게임 만들기</p>
         </div>
+
         {/* 본문 컨테이너 */}
         <div className="max-w-[1200px] w-full h-auto min-h-[1200px] px-[59px] py-[35px] border-2 border-[#FF8C00] rounded-xl">
           <div className="flex flex-col space-y-2">
@@ -43,13 +64,24 @@ export default function Write() {
             ></textarea>
             <p className="mb-[46px] text-right">0/200</p>
           </div>
+
           <div className="flex items-center mb-[42px]">
             <div className="flex-1 h-[1px] bg-[#FF8C00]"></div>
             <p className="text-[#FF8C00]">선택지</p>
             <div className="flex-1 h-[1px] bg-[#FF8C00]"></div>
           </div>
+
+          <input
+            type="file"
+            className="hidden"
+            ref={imageUploadInputRef}
+            accept="image/*"
+            onChange={(e) => imageUploadHandler(e)}
+          />
+
           <div className="w-full grid grid-cols-2 gap-[82px] justify-items-center">
             <div>
+              {/* 1 */}
               <div className="mb-[16px] flex items-center gap-[19px]">
                 <div
                   className="w-[32px] h-[32px] border-2 rounded-[50%] border-[#FF8C00] text-[#FF8C00] bg-[#FF8C00]/30
@@ -59,21 +91,37 @@ export default function Write() {
                 </div>
                 <p>선택지 A</p>
               </div>
+              {/* 2 */}
               <input
                 placeholder="선택지 텍스트"
                 className="w-full h-[40px] mb-[10px] pl-[15px] border-2 border-[#FF8C00]/60 rounded-md outline-none focus:border-[#FF8C00]
                 focus-within:shadow-[0_0_10px_4px_rgba(255,140,0,0.5)] "
               ></input>
               <p className="mb-[16px] text-right">0/15</p>
-
+              {/* 3 */}
               <div
-                className="w-[528px] h-auto min-h-[322px] mb-[50px] border-2 border-dashed border-[#FF8C00]/60 rounded-lg
-              flex flex-col items-center justify-center gap-[5px] hover:border-[#FF8C00]"
+                className="w-[528px] h-[322px] mb-[50px] border-2 border-dashed border-[#FF8C00]/60 rounded-lg
+                hover:border-[#FF8C00]"
               >
-                <img src={uploadButton} className=" w-[35px] h-[35px]" />
-                <p className="opacity-50">이미지업로드</p>
+                {imageUploadPreview ? (
+                  <img
+                    src={imageUploadPreview}
+                    alt="선택지 사진 미리보기"
+                    className="w-full h-full flex flex-col items-center justify-center hover:blur-sm"
+                    onClick={() => setImageUploadPreview("")}
+                  />
+                ) : (
+                  <div
+                    className="w-full h-full flex flex-col items-center justify-center gap-[3px]"
+                    onClick={() => imageUploadInputRef?.current?.click()}
+                  >
+                    <img src={uploadButton} className="w-[35px] h-[35px]" />
+                    <p className="opacity-50">이미지업로드</p>
+                  </div>
+                )}
               </div>
             </div>
+            {/* (1~3을 감싼) div 반복 - map */}
             <div>
               <div className="mb-[16px] flex items-center gap-[19px]">
                 <div
@@ -99,8 +147,8 @@ export default function Write() {
                 <p className="opacity-50">이미지업로드</p>
               </div>
             </div>
-          </div>{" "}
-          {/*map*/}
+          </div>
+
           <div className="grid justify-items-center">
             <button
               className="w-[426px] h-[41px] bg-[#FF8C00] text-black rounded-md
