@@ -2,11 +2,22 @@ import uploadButton from "../../assets/write/upload_button.svg";
 import categoryArrow from "../../assets/posts/categoryArrow.svg";
 import { useRef, useState } from "react";
 
-export default function Write() {
-  const imageUploadInputRef = useRef<HTMLInputElement>(null);
-  const [imageUploadPreview, setImageUploadPreview] = useState("");
+type Choices = { key: string; label: string; image: string }[];
 
-  const imageUploadHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+export default function Write() {
+  const choices: Choices = [
+    { key: "A", label: "선택지 A", image: "" },
+    { key: "B", label: "선택지 B", image: "" },
+  ];
+  // useState로 개선할 수 있음 (추후)
+
+  const imageUploadInputRefA = useRef<HTMLInputElement>(null);
+  const imageUploadInputRefB = useRef<HTMLInputElement>(null);
+  const [imageUploadPreviewA, setImageUploadPreviewA] = useState("");
+  const [imageUploadPreviewB, setImageUploadPreviewB] = useState("");
+  const [imageUploadFile, setImageUploadFile] = useState<File | null>(null);
+
+  const imageUploadHandler = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
 
@@ -17,8 +28,9 @@ export default function Write() {
 
     if (file) {
       const imagePreviewUrl = URL.createObjectURL(file);
-      setImageUploadPreview(imagePreviewUrl);
-      //setImageFile(file);
+      if (type === "A") setImageUploadPreviewA(imagePreviewUrl);
+      else setImageUploadPreviewB(imagePreviewUrl);
+      setImageUploadFile(file);
     }
   };
 
@@ -64,94 +76,83 @@ export default function Write() {
             ></textarea>
             <p className="mb-[46px] text-right">0/200</p>
           </div>
-
           <div className="flex items-center mb-[42px]">
             <div className="flex-1 h-[1px] bg-[#FF8C00]"></div>
             <p className="text-[#FF8C00]">선택지</p>
             <div className="flex-1 h-[1px] bg-[#FF8C00]"></div>
-          </div>
-
+          </div>{" "}
           <input
             type="file"
             className="hidden"
-            ref={imageUploadInputRef}
+            ref={imageUploadInputRefA}
             accept="image/*"
-            onChange={(e) => imageUploadHandler(e)}
+            onChange={(e) => imageUploadHandler(e, "A")}
           />
-
-          <div className="w-full grid grid-cols-2 gap-[82px] justify-items-center">
-            <div>
-              {/* 1 */}
-              <div className="mb-[16px] flex items-center gap-[19px]">
-                <div
-                  className="w-[32px] h-[32px] border-2 rounded-[50%] border-[#FF8C00] text-[#FF8C00] bg-[#FF8C00]/30
-                flex items-center justify-center"
-                >
-                  <p>A</p>
-                </div>
-                <p>선택지 A</p>
-              </div>
-              {/* 2 */}
-              <input
-                placeholder="선택지 텍스트"
-                className="w-full h-[40px] mb-[10px] pl-[15px] border-2 border-[#FF8C00]/60 rounded-md outline-none focus:border-[#FF8C00]
-                focus-within:shadow-[0_0_10px_4px_rgba(255,140,0,0.5)] "
-              ></input>
-              <p className="mb-[16px] text-right">0/15</p>
-              {/* 3 */}
-              <div
-                className="w-[528px] h-[322px] mb-[50px] border-2 border-dashed border-[#FF8C00]/60 rounded-lg
-                hover:border-[#FF8C00]"
-              >
-                {imageUploadPreview ? (
-                  <img
-                    src={imageUploadPreview}
-                    alt="선택지 사진 미리보기"
-                    className="w-full h-full flex flex-col items-center justify-center hover:blur-sm"
-                    onClick={() => setImageUploadPreview("")}
-                  />
-                ) : (
+          <input
+            type="file"
+            className="hidden"
+            ref={imageUploadInputRefB}
+            accept="image/*"
+            onChange={(e) => imageUploadHandler(e, "B")}
+          />
+          <div className="w-full h-[480px] grid grid-cols-2 gap-[82px] justify-items-center">
+            {choices.map((choice) => (
+              <div key={choice.key} className="w-full h-full">
+                {/* 1 */}
+                <div className="mb-[16px] flex items-center gap-[19px]">
                   <div
-                    className="w-full h-full flex flex-col items-center justify-center gap-[3px]"
-                    onClick={() => imageUploadInputRef?.current?.click()}
-                  >
-                    <img src={uploadButton} className="w-[35px] h-[35px]" />
-                    <p className="opacity-50">이미지업로드</p>
-                  </div>
-                )}
-              </div>
-            </div>
-            {/* (1~3을 감싼) div 반복 - map */}
-            <div>
-              <div className="mb-[16px] flex items-center gap-[19px]">
-                <div
-                  className="w-[32px] h-[32px] border-2 rounded-[50%] border-[#FF8C00] text-[#FF8C00] bg-[#FF8C00]/30
+                    className="w-[32px] h-[32px] border-2 rounded-[50%] border-[#FF8C00] text-[#FF8C00] bg-[#FF8C00]/30
                 flex items-center justify-center"
-                >
-                  <p>B</p>
+                  >
+                    <p>{choice.key}</p>
+                  </div>
+                  <p>{choice.label}</p>
                 </div>
-                <p>선택지 B</p>
-              </div>
-              <input
-                placeholder="선택지 텍스트"
-                className="w-full h-[40px] mb-[10px] pl-[15px] border-2  border-[#FF8C00]/60 rounded-md outline-none focus:border-[#FF8C00]
+                {/* 2 */}
+                <input
+                  placeholder="선택지 텍스트"
+                  className="w-full h-[40px] mb-[10px] pl-[15px] border-2 border-[#FF8C00]/60 rounded-md outline-none focus:border-[#FF8C00]
                 focus-within:shadow-[0_0_10px_4px_rgba(255,140,0,0.5)] "
-              ></input>
-              <p className="mb-[16px] text-right">0/15</p>
-              <div
-                className="w-[528px] h-auto min-h-[322px] mb-[50px] border-2 border-dashed border-[#FF8C00]/60 rounded-lg
-              flex flex-col items-center justify-center gap-[5px] hover:border-[#FF8C00]
-              "
-              >
-                <img src={uploadButton} className=" w-[35px] h-[35px]" />
-                <p className="opacity-50">이미지업로드</p>
+                ></input>
+                <p className="mb-[16px] text-right">0/15</p>
+                {/* 3 */}
+                <div
+                  className="w-full h-[350px] border-2 border-dashed border-[#FF8C00]/60 rounded-lg
+                hover:border-[#FF8C00]"
+                >
+                  {imageUploadPreviewA && choice.key === "A" ? (
+                    <img
+                      src={imageUploadPreviewA}
+                      alt="선택지 사진 미리보기"
+                      className="w-full h-full flex flex-col items-center justify-center hover:blur-sm"
+                      onClick={() => setImageUploadPreviewA("")}
+                    />
+                  ) : imageUploadPreviewB && choice.key === "B" ? (
+                    <img
+                      src={imageUploadPreviewB}
+                      alt="선택지 사진 미리보기"
+                      className="w-full h-full flex flex-col items-center justify-center hover:blur-sm"
+                      onClick={() => setImageUploadPreviewB("")}
+                    />
+                  ) : (
+                    <div
+                      className="h-full flex flex-col items-center justify-center gap-[3px]"
+                      onClick={() => {
+                        if (choice.key === "A") imageUploadInputRefA?.current?.click();
+                        else if (choice.key === "B") imageUploadInputRefB?.current?.click();
+                      }}
+                    >
+                      <img src={uploadButton} className="w-[35px] h-[35px]" />
+                      <p className="opacity-50">이미지업로드</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-
           <div className="grid justify-items-center">
             <button
-              className="w-[426px] h-[41px] bg-[#FF8C00] text-black rounded-md
+              className="w-[426px] h-[41px] mt-[35px] bg-[#FF8C00] text-black rounded-md
               hover:scale-105 hover:drop-shadow-[0_0_15px_#ff8c00]"
             >
               게시하기
