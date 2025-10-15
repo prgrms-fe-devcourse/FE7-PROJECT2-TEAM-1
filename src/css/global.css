@@ -3,3 +3,58 @@
 .overlay-gradient {
   @apply absolute inset-0 bg-gradient-to-t from-black/80 to-transparent;
 }
+
+/* 공통 */
+.gaugeFill {
+  --base: #ff8c00;
+  --stripe1: rgba(255, 255, 255, 0.22);
+  --stripe2: rgba(0, 0, 0, 0.12);
+
+  background-image:
+    linear-gradient(0deg, var(--base), var(--base)),
+    repeating-linear-gradient(135deg, var(--stripe1) 0 8px, var(--stripe2) 8px 16px);
+
+  /* 💡 background-size를 더 크게 (폭 200%) */
+  background-size:
+    auto,
+    200% 200%;
+  background-position:
+    0 0,
+    0 0;
+  background-blend-mode: overlay;
+  filter: drop-shadow(0 0 2px rgba(255, 140, 0, 0.35));
+}
+
+/* 왼쪽 게이지 → 오른쪽 흐름 */
+@keyframes stripes-flow-right {
+  from {
+    background-position:
+      0 0,
+      0 0;
+  }
+  to {
+    background-position:
+      0 0,
+      -200% 0;
+  } /* 폭 2배만큼 이동 → 무한 반복시 끊김 없음 */
+}
+.stripeRunRight {
+  animation: stripes-flow-right 25s linear infinite;
+}
+
+/* 오른쪽 게이지 → 왼쪽 흐름 */
+@keyframes stripes-flow-left {
+  from {
+    background-position:
+      0 0,
+      0 0;
+  }
+  to {
+    background-position:
+      0 0,
+      200% 0;
+  }
+}
+.stripeRunLeft {
+  animation: stripes-flow-left 25s linear infinite;
+}
