@@ -5,6 +5,7 @@ import FoodIcon from "../../assets/home/food.svg?react";
 import LifeIcon from "../../assets/home/life.svg?react";
 import WorkIcon from "../../assets/home/work.svg?react";
 import HobbyIcon from "../../assets/home/hobby.svg?react";
+import { useRef } from "react";
 
 export default function Home() {
   const categories = [
@@ -15,6 +16,14 @@ export default function Home() {
     { label: "직장", Icon: WorkIcon },
     { label: "취미", Icon: HobbyIcon },
   ];
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollHandler = () => {
+    scrollRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
+
   return (
     <>
       <main className="max-w-dvw min-h-dvh bg-black overflow-hidden">
@@ -30,11 +39,14 @@ export default function Home() {
             <p className="text-white text-[28px] ">
               "뜨거운 감자 같은 어려운 선택. 다른 사람들은 뭐를 골랐을까?"
             </p>
-            <div className="relative border-[#FF8C00] border-[2px] rounded-[8px] w-[285px] h-[56px] flex items-center justify-center">
+            <div
+              className="relative border-[#FF8C00] border-[2px] rounded-[8px] w-[285px] h-[56px] flex items-center justify-center cursor-pointer"
+              onClick={scrollHandler}
+            >
               <p className="text-[#FF8C00] text-[18px] ">Choose a Topic</p>
             </div>
           </section>
-          <section className="h-[525px] place-items-center">
+          <section className="h-[525px] place-items-center" ref={scrollRef}>
             <div className="grid grid-cols-3 gap-6 justify-items-center">
               {categories.map(({ label, Icon }) => (
                 <button key={label} className="relative group transition-transform hover:scale-105">
