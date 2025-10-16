@@ -3,17 +3,14 @@ import likeIcon from "../../assets/posts/likeIcon.svg";
 import likeFilledIcon from "../../assets/posts/likeFilled.svg";
 import commentIcon from "../../assets/posts/commentIcon.svg";
 import sendIcon from "../../assets/posts/paperPlane.svg";
-import profileImage2 from "../../assets/posts/profileImage2.svg";
 
 import PollCard from "../../components/PollCard";
 import { addComment, submitVote, toggleLike } from "../../api/postActions";
 
 import { useEffect, useState } from "react";
-import type { CommentDB, Option, Post } from "../../types/post";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
-import { getAuthorByPostId, getCommentsByPostId } from "../../api/postGet";
-import type { Profile } from "../../types/profile";
+import { getAuthorByPostId, getLikeByPostId } from "../../api/postGet";
 import Comment from "./Comment";
 
 export default function PostCard({ post }: { post: Post }) {
@@ -41,21 +38,6 @@ export default function PostCard({ post }: { post: Post }) {
     })();
   }, [post.uid]);
 
-  // Pending comment
-  useEffect(() => {
-    if (!pendingComment || !profile?.uid) return;
-    (async () => {
-      try {
-        await addComment(post.uid, pendingComment);
-        setCommentCounts((c) => c + 1);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setPendingComment(null);
-      }
-    })();
-  }, [pendingComment, profile?.uid, post.uid]);
-
   // Options
   useEffect(() => {
     const fetchOptions = async () => {
@@ -78,6 +60,38 @@ export default function PostCard({ post }: { post: Post }) {
 
   const leftOption = options.find((option) => option.position === "left");
   const rightOption = options.find((option) => option.position === "right");
+
+  // likeCount
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const { data, error } = await supabase
+  //         .from("posts")
+  //         .select("like_count")
+  //         .eq("uid", postId)
+  //         .single();
+  //       if (error) throw error;
+  //       setLikeCounts(data?.like_count ?? 0);
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   })();
+  // }, [post.uid]);
+
+  // Pending comment
+  useEffect(() => {
+    if (!pendingComment || !profile?.uid) return;
+    (async () => {
+      try {
+        await addComment(post.uid, pendingComment);
+        setCommentCounts((c) => c + 1);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setPendingComment(null);
+      }
+    })();
+  }, [pendingComment, profile?.uid, post.uid]);
 
   return (
     <div className="group w-[1098px] border-[2px] border-[#FF8C00]/30 rounded-[12px] mt-[30px] mx-auto transition-colors duration-300 hover:border-[#FF8C00]/60">
@@ -123,6 +137,16 @@ export default function PostCard({ post }: { post: Post }) {
               onClick={async () => {
                 const { liked } = await toggleLike(postId);
                 setLiked(liked);
+                try {
+                  const { data } = await supabase
+                    .from("posts")
+                    .select("like_count")
+                    .eq("uid", postId)
+                    .single();
+                  setLikeCounts(data?.like_count ?? 0);
+                } catch (e) {
+                  console.error(e);
+                }
               }}
               className="transition-transform hover:scale-130"
             >
@@ -177,7 +201,6 @@ export default function PostCard({ post }: { post: Post }) {
           </div>
         </div>
       </div>
-      ,
     </div>
   );
 }

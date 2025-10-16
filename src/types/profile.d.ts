@@ -1,8 +1,4 @@
-// import type { Database } from "./database";
-
-// type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-
-export interface Profile {
+interface Profile {
   uid: string;
   email: string;
   profile_img: string | null;
