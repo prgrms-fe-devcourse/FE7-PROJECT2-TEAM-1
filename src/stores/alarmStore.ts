@@ -1,0 +1,51 @@
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
+import { allReadAPI, fetchAlarmsAPI } from "../services/alarm";
+
+type AlarmStore = {
+  isOpen: boolean;
+  alarms: Alarm[];
+  unReadCount: number;
+  setUnReadCount: (value: number) => void;
+  setIsOpen: (value: boolean) => void;
+  setAlarms: (alarms: Alarm[] | []) => void;
+  addAlarm: (alarm: Alarm) => void;
+  getAlarms: (uid: string) => Promise<Alarm[]>;
+  allReadAlarm: (uid: string) => Promise<void>;
+};
+
+export const useAlarmStore = create<AlarmStore>()(
+  immer((set) => ({
+    isOpen: false,
+    alarms: [],
+    unReadCount: 0,
+    setUnReadCount: (value) =>
+      set((state) => {
+        state.unReadCount = value;
+      }),
+    setIsOpen: (value) =>
+      set((state) => {
+        state.isOpen = value;
+      }),
+    setAlarms: (alarms) =>
+      set((state) => {
+        state.alarms = alarms;
+      }),
+    addAlarm: (alarm) => {
+      set((state) => {
+        state.alarms.unshift(alarm);
+      });
+    },
+    getAlarms: async (uid: string) => {
+      const data = await fetchAlarmsAPI(uid);
+      if (data)
+        set((state) => {
+          state.alarms = data;
+        });
+      return data as Alarm[];
+    },
+    allReadAlarm: async (uid: string) => {
+      await allReadAPI(uid);
+    },
+  })),
+);

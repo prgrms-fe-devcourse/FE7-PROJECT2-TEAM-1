@@ -1,1 +1,1 @@
-type ToastType = "SUCCESS" | "ERROR";
+type ToastType = "SUCCESS" | "ERROR" | "INFO";

@@ -35,32 +35,32 @@ export type Database = {
     Tables: {
       alarm: {
         Row: {
-          created_at: string;
-          is_read: boolean;
-          receiver_id: string;
-          reference_id: string;
-          sender_id: string;
-          type: string;
-          uid: string;
-        };
+          created_at: string
+          is_read: boolean
+          receiver_id: string
+          reference_id: string
+          sender_id: string
+          type: string
+          uid: string
+        }
         Insert: {
-          created_at?: string;
-          is_read?: boolean;
-          receiver_id: string;
-          reference_id?: string;
-          sender_id: string;
-          type: string;
-          uid?: string;
-        };
+          created_at?: string
+          is_read?: boolean
+          receiver_id: string
+          reference_id?: string
+          sender_id: string
+          type: string
+          uid?: string
+        }
         Update: {
-          created_at?: string;
-          is_read?: boolean;
-          receiver_id?: string;
-          reference_id?: string;
-          sender_id?: string;
-          type?: string;
-          uid?: string;
-        };
+          created_at?: string
+          is_read?: boolean
+          receiver_id?: string
+          reference_id?: string
+          sender_id?: string
+          type?: string
+          uid?: string
+        }
         Relationships: [
           {
             foreignKeyName: "alarm_receiver_id_fkey";
@@ -161,29 +161,29 @@ export type Database = {
       };
       options: {
         Row: {
-          created_at: string;
-          option_img: string | null;
-          option_title: string;
-          position: string;
-          post_id: string;
-          uid: string;
-        };
+          created_at: string
+          option_img: string | null
+          option_title: string
+          position: string
+          post_id: string
+          uid: string
+        }
         Insert: {
-          created_at?: string;
-          option_img?: string | null;
-          option_title: string;
-          position: string;
-          post_id?: string;
-          uid?: string;
-        };
+          created_at?: string
+          option_img?: string | null
+          option_title: string
+          position: string
+          post_id?: string
+          uid?: string
+        }
         Update: {
-          created_at?: string;
-          option_img?: string | null;
-          option_title?: string;
-          position?: string;
-          post_id?: string;
-          uid?: string;
-        };
+          created_at?: string
+          option_img?: string | null
+          option_title?: string
+          position?: string
+          post_id?: string
+          uid?: string
+        }
         Relationships: [
           {
             foreignKeyName: "options_post_id_fkey";
@@ -196,47 +196,47 @@ export type Database = {
       };
       posts: {
         Row: {
-          category: string;
-          comment_count: number;
-          created_at: string;
-          is_visible: boolean;
-          like_count: number;
-          post_desc: string | null;
-          post_title: string;
-          report_count: number;
-          uid: string;
-          updated_at: string | null;
-          user_id: string;
-          vote_count: number;
-        };
+          category: string
+          comment_count: number
+          created_at: string
+          is_visible: boolean
+          like_count: number
+          post_desc: string | null
+          post_title: string
+          report_count: number
+          uid: string
+          updated_at: string | null
+          user_id: string
+          vote_count: number
+        }
         Insert: {
-          category: string;
-          comment_count?: number;
-          created_at?: string;
-          is_visible?: boolean;
-          like_count?: number;
-          post_desc?: string | null;
-          post_title: string;
-          report_count?: number;
-          uid?: string;
-          updated_at?: string | null;
-          user_id?: string;
-          vote_count?: number;
-        };
+          category: string
+          comment_count?: number
+          created_at?: string
+          is_visible?: boolean
+          like_count?: number
+          post_desc?: string | null
+          post_title: string
+          report_count?: number
+          uid?: string
+          updated_at?: string | null
+          user_id?: string
+          vote_count?: number
+        }
         Update: {
-          category?: string;
-          comment_count?: number;
-          created_at?: string;
-          is_visible?: boolean;
-          like_count?: number;
-          post_desc?: string | null;
-          post_title?: string;
-          report_count?: number;
-          uid?: string;
-          updated_at?: string | null;
-          user_id?: string;
-          vote_count?: number;
-        };
+          category?: string
+          comment_count?: number
+          created_at?: string
+          is_visible?: boolean
+          like_count?: number
+          post_desc?: string | null
+          post_title?: string
+          report_count?: number
+          uid?: string
+          updated_at?: string | null
+          user_id?: string
+          vote_count?: number
+        }
         Relationships: [
           {
             foreignKeyName: "posts_user_id_fkey";
