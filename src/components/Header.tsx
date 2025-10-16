@@ -5,25 +5,48 @@ import header_name2 from "../assets/header/header_name2.svg";
 import header_search from "../assets/header/header_search.svg";
 import header_user from "../assets/header/header_user.svg";
 import header_alarm from "../assets/header/header_alarm.svg";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { useAuthStore } from "../stores/authStore";
-import { Activity, useEffect, useRef, useState } from "react";
+import { Activity, useEffect, useRef } from "react";
 import Alarm from "./alarm/Alarm";
+import { useAlarmStore } from "../stores/alarmStore";
+import { allReadAPI } from "../services/alarm";
 
 export default function Header() {
   const profile = useAuthStore((state) => state.profile);
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { isOpen, setIsOpen, unReadCount, setUnReadCount, alarms } = useAlarmStore(
+    (state) => state,
+  );
+  const alarmDivRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
 
   useEffect(() => {
+    if (!profile) return;
+
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (alarmDivRef.current && !alarmDivRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const alarmClickHandler = async () => {
+    if (!profile) return;
+
+    if (isOpen && !!alarms.length && !!unReadCount) {
+      try {
+        await allReadAPI(profile.uid);
+        console.log("호출");
+        setUnReadCount(0);
+      } catch (error) {
+        console.error(error);
+      } finally {
+      }
+    }
+    setIsOpen(!isOpen);
+  };
 
   return (
     <header
@@ -48,13 +71,18 @@ export default function Header() {
         <img src={header_search} alt="header-search" className="w-[30px] h-[31px]" />
       </Link>
       <Link
-        to={profile ? "/profile" : "/signin"}
+        to={profile ? "/profile" : `/signin?url=${location.pathname}`}
         className="col-start-23 col-span-1 justify-self-start"
       >
         <img src={header_user} alt="header-user" className="w-[31px] h-[31px]" />
       </Link>
-      <div className="relative" ref={dropdownRef}>
-        <button className="cursor-pointer" onClick={() => setIsOpen((prev) => !prev)}>
+      <div className="relative" ref={alarmDivRef}>
+        <button className="cursor-pointer" onClick={alarmClickHandler}>
+          <Activity mode={unReadCount ? "visible" : "hidden"}>
+            <span className="absolute top-4 right-5 bg-red-600 text-white text-[10px] font-normal rounded-full w-4 h-4 flex items-center justify-center shadow-md">
+              {9}
+            </span>
+          </Activity>
           <img
             src={header_alarm}
             alt="header-alarm"

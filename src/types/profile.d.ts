@@ -3,6 +3,7 @@
 // type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 interface Profile {
+  uid: string;
   email: string;
   profile_img: string | null;
   bio: string | null;

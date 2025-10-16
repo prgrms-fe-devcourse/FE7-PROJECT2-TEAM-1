@@ -120,7 +120,7 @@ export default function Posts() {
                   if (!text) return;
 
                   try {
-                    const row = await addComment(postId, text);
+                    // const row = await addComment(postId, text);
                     setCommentCounts((c) => c + 1); // 등록 시 카운트 +1
                     setCommentText(""); // 입력창 비우기
                   } catch (err) {

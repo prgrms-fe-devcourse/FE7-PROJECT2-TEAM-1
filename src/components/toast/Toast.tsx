@@ -10,6 +10,8 @@ export default function Toast({ message, type }: { message: string; type: ToastT
       });
     case "ERROR":
       return toast.error(message);
+    case "INFO":
+      return toast.info(message);
     default:
       return null;
   }
