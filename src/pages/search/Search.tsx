@@ -99,6 +99,11 @@ export default function Search() {
           <p className="text-[28px]">무엇을 검색해볼까 . . .</p>
           <img src={ghosts} alt="ghosts" />
         </div>
+      ) : noSearch && searchResult.length === 0 ? (
+        <div className="flex flex-col justify-center items-center min-h-[calc(100vh-111px)]">
+          <p className="text-[28px]">검색한 기록이 없습니다 . . .</p>
+          <img src={ghosts} alt="ghosts" />
+        </div>
       ) : selectedCategory === "posts" ? (
         (searchResult as Post[]).map((post) => <SearchPosts key={post.uid} result={post} />)
       ) : (
