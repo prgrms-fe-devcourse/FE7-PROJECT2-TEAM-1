@@ -1,14 +1,59 @@
 import search from "../../assets/search/search_search.svg";
 import ghosts from "../../assets/search/search_ghosts.svg";
 import { useState } from "react";
+import supabase from "../../utils/supabase";
+import type { Database } from "../../types/database";
+import SearchPosts from "./SearchPosts";
+import SearchUsers from "./SearchUsers";
 
+type Post = Database["public"]["Tables"]["posts"]["Row"];
 export default function Search() {
   const [selectedCategory, setSelectedCategory] = useState<"posts" | "users">("posts");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResult, setSearchResult] = useState<Profile[] | Post[]>([]);
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (searchTerm.trim() === "") {
+      alert("검색어를 입력해주세요!");
+      setSearchResult([]);
+      return;
+    }
+
+    if (selectedCategory === "users") {
+      try {
+        const { data: profiles, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .or(`username.ilike.%${searchTerm}%,handle.ilike.%${searchTerm}%`);
+        if (error) throw error;
+        if (profiles) {
+          setSearchResult(profiles);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      try {
+        const { data: posts, error } = await supabase
+          .from("posts")
+          .select("*")
+          .or(`username.ilike.%${searchTerm}%,handle.ilike.%${searchTerm}%`);
+        if (error) throw error;
+        if (posts) {
+          setSearchResult(posts);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
 
   return (
     <div>
       <div className="w-full flex justify-center border-b-2 border-[#FF8C00] h-[85px]">
-        <form className="w-[1200px] flex items-center gap-4">
+        <form id="forSearch" className="w-[1200px] flex items-center gap-4" onSubmit={handleSearch}>
           <button type="submit">
             <img src={search} alt="search-logo" className="w-[31px] h-[31px] cursor-pointer" />
           </button>
@@ -18,6 +63,10 @@ export default function Search() {
               type="text"
               placeholder="Search..."
               className="flex-1 border-none outline-none bg-transparent"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+              }}
             />
             <div className="flex border border-[#FF8C00] rounded-[30px] text-[#FFFFFF]">
               <button
@@ -42,10 +91,21 @@ export default function Search() {
           </div>
         </form>
       </div>
-      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-111px)]">
+      {searchResult.length === 0 ? (
+        <div className="flex flex-col justify-center items-center min-h-[calc(100vh-111px)]">
+          <p className="text-[28px]">무엇을 검색해볼까 . . .</p>
+          <img src={ghosts} alt="ghosts" />
+        </div>
+      ) : selectedCategory === "posts" ? (
+        // searchResult.map((post: Post) => <SearchUsers key={post.uid} result={post} />)
+        ""
+      ) : (
+        (searchResult as Profile[]).map((user) => <SearchUsers key={user.handle} result={user} />)
+      )}
+      {/* <div className="flex flex-col justify-center items-center min-h-[calc(100vh-111px)]">
         <p className="text-[28px]">무엇을 검색해볼까 . . .</p>
         <img src={ghosts} alt="ghosts" />
-      </div>
+      </div> */}
     </div>
   );
 }
