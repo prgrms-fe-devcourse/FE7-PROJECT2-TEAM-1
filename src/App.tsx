@@ -5,7 +5,6 @@ import Write from "./pages/post/Write";
 import SignIn from "./pages/auth/SignIn";
 import SignUp from "./pages/auth/SignUp";
 import SearchPosts from "./pages/search/SearchPosts";
-import SearchUsers from "./pages/search/SearchUsers";
 import Home from "./pages/home/Home";
 import Profile from "./pages/profile/Profile";
 import Search from "./pages/search/Search";
@@ -23,7 +22,6 @@ function App() {
           <Route path="posts" element={<Posts />} />
           <Route path="search" element={<Search />} />
           <Route path="search/posts/:keyword" element={<SearchPosts />} />
-          <Route path="search/users/:keyword" element={<SearchUsers />} />
           <Route path="profile/:userId" element={<Profile />} />
 
           <Route element={<ProtectedRoute />}>

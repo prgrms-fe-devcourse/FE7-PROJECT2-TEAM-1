@@ -24,4 +24,5 @@ dist-ssr
 *.sw?
 
 # custom
-.env*
+.env
+.env.*
