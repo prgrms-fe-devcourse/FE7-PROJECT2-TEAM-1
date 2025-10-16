@@ -1,35 +1,117 @@
 import yellowWaring from "../../assets/report/yellowWarning.svg";
 import redLight from "../../assets/report/redLight.svg";
-export default function Report() {
+import { useCallback, useEffect, useState } from "react";
+import supabase from "../../utils/supabase";
+import { useAuthStore } from "../../stores/authStore";
+
+export default function Report({
+  id,
+  type,
+  onClose,
+}: {
+  id: string;
+  type: "post" | "comment";
+  onClose: () => void;
+}) {
+  const [reportText, setReportText] = useState("");
+  const [opening, setOpening] = useState(true);
+  const [closing, setClosing] = useState(false);
+  const profile = useAuthStore((state) => state.profile);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setOpening(false);
+    }, 10);
+    return () => clearTimeout(t);
+  }, []);
+
+  const handleCloseAnimation = useCallback(() => {
+    if (closing) return;
+    setClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 350);
+  }, [onClose, closing]);
+
+  const handleCompleted = async (e: React.FormEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!profile) {
+      alert("로그인 정보가 없습니다. 다시 로그인해주세요.");
+      return;
+    }
+
+    if (!reportText.trim()) {
+      alert("신고 사유를 입력해주세요.");
+      return;
+    }
+
+    const insertData =
+      type === "post"
+        ? { user_id: profile?.uid, post_id: id, comment_id: null, reason: reportText }
+        : { user_id: profile?.uid, post_id: null, comment_id: id, reason: reportText };
+
+    try {
+      const { data, error } = await supabase.from("reports").insert([insertData]).select().single();
+
+      if (error) throw error;
+      alert("신고가 정상적으로 접수되었습니다.");
+      setReportText("");
+      console.log(data);
+      handleCloseAnimation();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <>
-      <div className="bg-[rgb(132_124_124_/_0.3)] flex justify-center items-center h-screen font-normal">
-        <div className="bg-black text-white border-2 border-[#FF8C00] w-[470px] h-[470px] flex flex-col items-center rounded-[12px]">
+      <div className="fixed inset-0 z-[9999] bg-[rgb(132_124_124_/_0.3)] flex justify-center items-center font-normal">
+        <div
+          className={`bg-black text-white border-2 border-[#FF8C00] w-[470px] h-[470px] flex flex-col items-center rounded-[12px] shadow-[20px_20px_4px_rgba(0,0,0,0.25)] transition-all duration-300 ease-out 
+            ${closing ? "opacity-0 translate-y-10" : opening ? "opacity-0 translate-y-10" : "opacity-100 translate-y-0"}`}
+        >
           <div className="flex flex-row mt-6">
             <img src={redLight} alt="redLight" />
             <p className="text-[20px]">신고하기</p>
             <img src={redLight} alt="redLight" />
           </div>
 
-          <form className="flex flex-col">
+          <form className="flex flex-col" onSubmit={(e) => e.preventDefault()}>
             <p className="text-[14px] mt-7 mb-1">사유</p>
-            <textarea className="text-black rounded-[10px] bg-white outline-none focus:border-2 focus:border-[#FF8C00] w-[400px] h-[200px]" />
+            <div className="relative">
+              <textarea
+                className="text-black rounded-[10px] bg-white outline-none focus:border-2 focus:border-[#FF8C00] w-[400px] h-[200px] resize-none"
+                value={reportText}
+                onChange={(e) => {
+                  if (e.target.value.length <= 150) setReportText(e.target.value);
+                }}
+              />
+              <span className="absolute bottom-2 right-4 font-normal text-[#AAAAAA] text-[14px]">
+                {reportText.length}/150
+              </span>
+            </div>
+
             <div className="flex flex-row  mt-3">
               <img src={yellowWaring} alt="yellowWaring" />
               <p className="pl-1 text-[12px]">
                 무분별한 신고는 커뮤니티 이용에 제제를 받을 수 있습니다.
               </p>
             </div>
-            <div className="flex justify-center mt-10 gap-25">
+            <div className="flex justify-between mt-10 mr-13 ml-13">
               <button
                 type="submit"
                 className="hover:bg-[#FF8C00] hover:text-black cursor-pointer rounded-[5px] bg-[#AAAAAA] w-[100px] h-[34px]"
+                onClick={handleCompleted}
               >
                 완료
               </button>
               <button
                 type="button"
                 className="hover:bg-[#FF8C00] hover:text-black cursor-pointer rounded-[5px] bg-[#AAAAAA] w-[100px] h-[34px]"
+                onClick={() => {
+                  setReportText("");
+                  handleCloseAnimation();
+                }}
               >
                 취소
               </button>
