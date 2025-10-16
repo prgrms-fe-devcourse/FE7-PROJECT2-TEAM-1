@@ -40,17 +40,22 @@ export default function Home() {
               "뜨거운 감자 같은 어려운 선택. 다른 사람들은 뭐를 골랐을까?"
             </p>
             <div
-              className="relative border-[#FF8C00] border-[2px] rounded-[8px] w-[285px] h-[56px] flex items-center justify-center cursor-pointer"
+              className="relative border-[#FF8C00] border-[2px] rounded-[8px] w-[285px] h-[56px] flex items-center justify-center 
+              hover:scale-102 cursor-pointer group active:translate-y-1 transition-transform duration-200"
               onClick={scrollHandler}
             >
-              <p className="text-[#FF8C00] text-[18px] ">Choose a Topic</p>
+              <p className="text-[#FF8C00] text-[18px] group-hover:text-white">Choose a Topic</p>
             </div>
           </section>
           <section className="h-[525px] place-items-center" ref={scrollRef}>
             <div className="grid grid-cols-3 gap-6 justify-items-center">
               {categories.map(({ label, Icon }) => (
-                <button key={label} className="relative group transition-transform hover:scale-105">
-                  <Icon className="w-[383px] h-[191px] border-[#FF8C00] border-2 rounded-[12px] group-hover:drop-shadow-[0_0_15px_#ff8c00]" />
+                <button
+                  key={label}
+                  className="relative group transition-transform hover:scale-101 cursor-pointer
+                  active:translate-y-1ㄴㄴ duration-200"
+                >
+                  <Icon className="w-[383px] h-[191px] border-[#FF8C00] border-2 rounded-[12px] group-hover:bg-[rgba(218,218,218,0.33)]" />
                   <span className="absolute inset-0 flex items-center justify-center text-white text-[38px] opacity-70 group-hover:opacity-100 duration-300">
                     {label}
                   </span>
