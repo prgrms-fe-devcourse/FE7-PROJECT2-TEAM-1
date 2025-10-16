@@ -2,7 +2,7 @@
 
 // type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
-interface Profile {
+export interface Profile {
   uid: string;
   email: string;
   profile_img: string | null;
