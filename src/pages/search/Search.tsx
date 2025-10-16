@@ -5,12 +5,18 @@ import supabase from "../../utils/supabase";
 import type { Database } from "../../types/database";
 import SearchPosts from "./SearchPosts";
 import SearchUsers from "./SearchUsers";
+import Sure from "../../components/modal/Sure";
 
 type Post = Database["public"]["Tables"]["posts"]["Row"];
 export default function Search() {
   const [selectedCategory, setSelectedCategory] = useState<"posts" | "users">("posts");
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResult, setSearchResult] = useState<Profile[] | Post[]>([]);
+  const [report, setReport] = useState(false);
+
+  const handleReport = () => {
+    setReport(true);
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,6 +112,10 @@ export default function Search() {
         <p className="text-[28px]">무엇을 검색해볼까 . . .</p>
         <img src={ghosts} alt="ghosts" />
       </div> */}
+      <button className="cursor-pointer" onClick={handleReport}>
+        신고하기
+      </button>
+      {report && <Sure />}
     </div>
   );
 }
