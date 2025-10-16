@@ -1,4 +1,4 @@
-export interface Post {
+interface Post {
   uid: string;
   user_id: string;
   post_title: string;
@@ -13,7 +13,7 @@ export interface Post {
   category: "우정" | "연애" | "음식" | "생활" | "취미" | "일";
 }
 
-export interface Option {
+interface Option {
   uid: string;
   post_id: string;
   option_title: string;
@@ -21,21 +21,21 @@ export interface Option {
   created_at: string;
   position: "left" | "right";
 }
-export interface Vote {
+interface Vote {
   uid: string;
   user_id: string;
   option_id: string;
   created_at: string;
 }
 
-export interface Like {
+interface Like {
   uid: string;
   created_at: string;
   user_id: string;
   post_id: string;
 }
 
-export interface CommentDB {
+interface CommentDB {
   uid: string;
   created_at: string;
   user_id: string;
@@ -45,7 +45,7 @@ export interface CommentDB {
   is_visible: boolean;
 }
 
-export interface CommentWithProfile extends CommentDB {
+interface CommentWithProfile extends CommentDB {
   profiles?: {
     username: string | null;
     handle: string | null;

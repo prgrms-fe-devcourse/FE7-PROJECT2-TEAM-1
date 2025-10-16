@@ -13,7 +13,6 @@ import type { CommentDB, Option, Post } from "../../types/post";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
 import { getAuthorByPostId, getCommentsByPostId } from "../../api/postGet";
-import type { Profile } from "../../types/profile";
 import Comment from "./Comment";
 
 export default function PostCard({ post }: { post: Post }) {

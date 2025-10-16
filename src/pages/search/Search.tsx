@@ -11,6 +11,7 @@ export default function Search() {
   const [selectedCategory, setSelectedCategory] = useState<"posts" | "users">("posts");
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResult, setSearchResult] = useState<Profile[] | Post[]>([]);
+  const [noSearch, setNoSearch] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +29,7 @@ export default function Search() {
           .select("*")
           .or(`username.ilike.%${searchTerm}%,handle.ilike.%${searchTerm}%`);
         if (error) throw error;
+        setNoSearch(true);
         if (profiles) {
           setSearchResult(profiles);
         }
@@ -39,8 +41,9 @@ export default function Search() {
         const { data: posts, error } = await supabase
           .from("posts")
           .select("*")
-          .or(`username.ilike.%${searchTerm}%,handle.ilike.%${searchTerm}%`);
+          .or(`post_title.ilike.%${searchTerm}%,post_desc.ilike.%${searchTerm}%`);
         if (error) throw error;
+        setNoSearch(true);
         if (posts) {
           setSearchResult(posts);
         }
@@ -91,21 +94,16 @@ export default function Search() {
           </div>
         </form>
       </div>
-      {searchResult.length === 0 ? (
+      {!noSearch && searchResult.length === 0 ? (
         <div className="flex flex-col justify-center items-center min-h-[calc(100vh-111px)]">
           <p className="text-[28px]">무엇을 검색해볼까 . . .</p>
           <img src={ghosts} alt="ghosts" />
         </div>
       ) : selectedCategory === "posts" ? (
-        // searchResult.map((post: Post) => <SearchUsers key={post.uid} result={post} />)
-        ""
+        (searchResult as Post[]).map((post) => <SearchPosts key={post.uid} result={post} />)
       ) : (
         (searchResult as Profile[]).map((user) => <SearchUsers key={user.handle} result={user} />)
       )}
-      {/* <div className="flex flex-col justify-center items-center min-h-[calc(100vh-111px)]">
-        <p className="text-[28px]">무엇을 검색해볼까 . . .</p>
-        <img src={ghosts} alt="ghosts" />
-      </div> */}
     </div>
   );
 }
