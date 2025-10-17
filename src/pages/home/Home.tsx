@@ -6,22 +6,30 @@ import LifeIcon from "../../assets/home/life.svg?react";
 import WorkIcon from "../../assets/home/work.svg?react";
 import HobbyIcon from "../../assets/home/hobby.svg?react";
 import { useRef } from "react";
+import { useNavigate } from "react-router";
 
 export default function Home() {
   const categories = [
-    { label: "우정", Icon: FriendshipIcon },
-    { label: "연애", Icon: LoveIcon },
-    { label: "음식", Icon: FoodIcon },
-    { label: "일상", Icon: LifeIcon },
-    { label: "직장", Icon: WorkIcon },
-    { label: "취미", Icon: HobbyIcon },
+    { label: "우정", slug: "friendship", Icon: FriendshipIcon },
+    { label: "연애", slug: "love", Icon: LoveIcon },
+    { label: "음식", slug: "food", Icon: FoodIcon },
+    { label: "생활", slug: "life", Icon: LifeIcon },
+    { label: "직장", slug: "work", Icon: WorkIcon },
+    { label: "취미", slug: "hobby", Icon: HobbyIcon },
   ];
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
   const scrollHandler = () => {
     scrollRef.current?.scrollIntoView({
       behavior: "smooth",
     });
+  };
+
+  const goToPostsHandler = (slug: string) => {
+    navigate("/posts");
+    //navigate(`/posts/${slug}`);
   };
 
   return (
@@ -52,11 +60,12 @@ export default function Home() {
           </section>
           <section className="h-[525px] place-items-center" ref={scrollRef}>
             <div className="grid grid-cols-3 gap-6 justify-items-center">
-              {categories.map(({ label, Icon }) => (
+              {categories.map(({ label, slug, Icon }) => (
                 <button
                   key={label}
                   className="relative group transition-transform hover:scale-101 cursor-pointer
                   active:translate-y-1 duration-200"
+                  onClick={() => goToPostsHandler(slug)}
                 >
                   <Icon className="w-[383px] h-[191px] border-[#FF8C00] border-2 rounded-[12px] group-hover:bg-[rgba(218,218,218,0.33)]" />
                   <span className="absolute inset-0 flex items-center justify-center text-white text-[38px] opacity-70 group-hover:opacity-100 duration-300">
