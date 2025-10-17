@@ -1,16 +1,18 @@
-export interface Post {
+type category = "우정" | "연애" | "음식" | "생활" | "취미" | "일";
+
+interface Post {
   uid: string;
   user_id: string;
   post_title: string;
-  post_desc: string;
+  post_desc: string | null;
   created_at: string;
-  updated_at: string;
+  updated_at: string | null;
   like_count: number;
   report_count: number;
   is_visible: boolean;
   vote_count: number;
   comment_count: number;
-  category: "우정" | "연애" | "음식" | "생활" | "취미" | "일";
+  category: category | string;
 }
 
 export interface Option {

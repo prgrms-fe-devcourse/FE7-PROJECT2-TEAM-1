@@ -80,7 +80,7 @@ export default function Header() {
         <button className="cursor-pointer" onClick={alarmClickHandler}>
           <Activity mode={unReadCount ? "visible" : "hidden"}>
             <span className="absolute top-4 right-5 bg-red-600 text-white text-[10px] font-normal rounded-full w-4 h-4 flex items-center justify-center shadow-md">
-              {9}
+              {unReadCount}
             </span>
           </Activity>
           <img

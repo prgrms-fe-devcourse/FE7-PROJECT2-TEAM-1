@@ -1,6 +1,5 @@
 // import Profile from "../pages/profile/Profile";
 import type { CommentWithProfile, Post } from "../types/post";
-import type { Profile } from "../types/profile";
 import supabase from "../utils/supabase";
 
 export async function getProfile(userId: string) {}
