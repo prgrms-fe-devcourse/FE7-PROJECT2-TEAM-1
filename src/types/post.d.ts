@@ -28,6 +28,7 @@ interface Vote {
   user_id: string;
   option_id: string;
   created_at: string;
+  post_id: string;
 }
 
 interface Like {
