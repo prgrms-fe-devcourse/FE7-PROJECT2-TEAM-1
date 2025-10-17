@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "../stores/authStore";
 import supabase from "../utils/supabase";
 import { useNavigate, useSearchParams } from "react-router";
@@ -9,13 +9,23 @@ export default function AuthBootstrap() {
   const navigate = useNavigate();
   const [search] = useSearchParams();
 
+  const [initialLoaded, setInitialLoaded] = useState(false);
+
   useEffect(() => {
     hydrateFromAuth();
 
-    // supabase의 인증 상태가 변경될 때마다 실행
-    const { data: sub } = supabase.auth.onAuthStateChange(async (event) => {
-      if (event === "SIGNED_OUT") clearAuth();
-      if (event === "SIGNED_IN") {
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_OUT") {
+        clearAuth();
+        return;
+      }
+
+      if (event === "INITIAL_SESSION") {
+        setInitialLoaded(true);
+        return;
+      }
+      if (!initialLoaded) return;
+      else if (event === "SIGNED_IN" && session) {
         hydrateFromAuth();
         const query = search.get("url");
         if (query) {

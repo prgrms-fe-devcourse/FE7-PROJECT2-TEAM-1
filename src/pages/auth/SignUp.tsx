@@ -8,14 +8,14 @@ export default function SignUp() {
   const [inputState, setInputState] = useState({
     email: "",
     username: "",
-    handle: "",
+    // handle: "",
     password: "",
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({
     email: "",
     username: "",
-    handle: "",
+    // handle: "",
     password: "",
     cofirmPassword: "",
     total: "",
@@ -51,29 +51,29 @@ export default function SignUp() {
           setErrors((prev) => ({ ...prev, username: "" }));
         }
         break;
-      case "handle":
-        setInputState((prev) => ({ ...prev, handle: value.trim() }));
-        if (value.trim().length < 2) {
-          setErrors((prev) => ({ ...prev, handle: "핸들은 최소 2자 이상이어야 합니다." }));
-          return;
-        }
+      // case "handle":
+      //   setInputState((prev) => ({ ...prev, handle: value.trim() }));
+      //   if (value.trim().length < 2) {
+      //     setErrors((prev) => ({ ...prev, handle: "핸들은 최소 2자 이상이어야 합니다." }));
+      //     return;
+      //   }
 
-        if (!/^[a-zA-Z0-9가-힣._]+$/.test(value)) {
-          setErrors((prev) => ({ ...prev, handle: ". 또는 @ 기호만 사용 가능합니다." }));
-          return;
-        }
+      //   if (!/^[a-zA-Z0-9가-힣._]+$/.test(value)) {
+      //     setErrors((prev) => ({ ...prev, handle: ". 또는 @ 기호만 사용 가능합니다." }));
+      //     return;
+      //   }
 
-        const checkHandle = await checkHandleExists(value);
-        if (checkHandle) {
-          setErrors((prev) => ({
-            ...prev,
-            handle: "사용할 수 없는 핸들 입니다. 다른 핸들을 입력해주세요.",
-          }));
-          return;
-        }
+      //   const checkHandle = await checkHandleExists(value);
+      //   if (checkHandle) {
+      //     setErrors((prev) => ({
+      //       ...prev,
+      //       handle: "사용할 수 없는 핸들 입니다. 다른 핸들을 입력해주세요.",
+      //     }));
+      //     return;
+      //   }
 
-        setErrors((prev) => ({ ...prev, handle: "" }));
-        break;
+      //   setErrors((prev) => ({ ...prev, handle: "" }));
+      //   break;
       case "password":
         setInputState((prev) => ({ ...prev, password: value.trim() }));
         if (value.trim().length < 6) {
@@ -104,14 +104,19 @@ export default function SignUp() {
       return;
     }
 
-    const { email, password, username, handle } = inputState;
+    const {
+      email,
+      password,
+      username,
+      // , handle
+    } = inputState;
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           username,
-          handle,
+          // handle,
           profile_img:
             "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/profile/default/profile_default.png",
           bio: null,
@@ -184,7 +189,7 @@ export default function SignUp() {
                     }
                   />
                 </div>
-                <div className="relative w-[528px] h-[48px]">
+                {/* <div className="relative w-[528px] h-[48px]">
                   <label
                     htmlFor="handle-input"
                     className="absolute top-[-30px] text-[14px] text-white font-bold"
@@ -203,7 +208,7 @@ export default function SignUp() {
                     value={inputState.handle}
                     onChange={(e) => setInputState((prev) => ({ ...prev, handle: e.target.value }))}
                   />
-                </div>
+                </div> */}
 
                 <div className="relative w-[528px] h-[48px]">
                   <label
