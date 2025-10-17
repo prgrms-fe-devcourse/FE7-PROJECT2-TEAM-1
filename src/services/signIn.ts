@@ -11,8 +11,13 @@ const checkEmailExists = async (email: string) => {
   return !!data;
 };
 
-const checkHandleExists = async (handle: string) => {
-  const { data, error } = await supabase.from("profiles").select("*").eq("handle", handle).single();
+const checkHandleExists = async (handle: string, uid: string) => {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("handle", handle)
+    .neq("uid", uid)
+    .single();
 
   if (error && error.code !== "PGRST116") {
     console.error("Supabase error:", error);
@@ -22,4 +27,17 @@ const checkHandleExists = async (handle: string) => {
   return !!data;
 };
 
-export { checkEmailExists, checkHandleExists };
+const googleLoginHandler = async () => {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent",
+      },
+    },
+  });
+  if (error) throw error;
+};
+
+export { checkEmailExists, checkHandleExists, googleLoginHandler };

@@ -21,7 +21,7 @@ function App() {
           {/* <Route path="posts/:topic" element={<Posts />} /> */}
           <Route path="posts" element={<Posts />} />
           <Route path="search" element={<Search />} />
-          <Route path="search/posts/:keyword" element={<SearchPosts />} />
+          {/* <Route path="search/posts/:keyword" element={<SearchPosts />} /> */}
           <Route path="profile/:userId" element={<Profile />} />
 
           <Route element={<ProtectedRoute />}>
