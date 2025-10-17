@@ -1,4 +1,4 @@
-type category = "우정" | "연애" | "음식" | "생활" | "취미" | "일";
+type Category = "friendship" | "love" | "food" | "life" | "hobby" | "work";
 
 interface Post {
   uid: string;
@@ -12,7 +12,7 @@ interface Post {
   is_visible: boolean;
   vote_count: number;
   comment_count: number;
-  category: category | string;
+  category: Category | string;
 }
 
 interface Option {
@@ -28,6 +28,7 @@ interface Vote {
   user_id: string;
   option_id: string;
   created_at: string;
+  post_id: string;
 }
 
 interface Like {

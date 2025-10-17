@@ -34,6 +34,34 @@ export async function getVotesByOptionId(optionId: string) {
   return count ?? 0;
 }
 
+export async function getHasVotedByOptionId(optionId: string) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("로그인이 필요합니다.");
+
+  const { data: optionRow } = await supabase
+    .from("options")
+    .select("post_id")
+    .eq("uid", optionId)
+    .single(); // 해당 옵션이 정의된 게시글 id
+  if (!optionRow?.post_id) throw new Error("게시글 ID를 찾을 수 없습니다.");
+
+  const postId = optionRow.post_id;
+
+  const { data: existing } = await supabase
+    .from("votes")
+    .select("*, options:option_id(*)")
+    .eq("post_id", postId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (existing) throw new Error("이미 투표했습니다.");
+  return [user.id, postId];
+}
+
+export async function getVoteStatus(postId: string) {}
+// 현재 유저 확인 (없으면 비로그인 상태로 간주)
 // export async function getLikeByPostId(postId: string) {
 //   const { data: likes } = await supabase.from("likes").select("*").eq("post_id", postId).single();
 //   return likes;

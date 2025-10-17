@@ -106,17 +106,17 @@ export default function Write() {
       }
     } else {
       switch (category) {
-        case "생활":
+        case "life":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/life.png";
-        case "연애":
+        case "love":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/love.png";
-        case "우정":
+        case "friendship":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/friendship.png";
-        case "음식":
+        case "food":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/food.png";
-        case "일":
+        case "work":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/work.png";
-        case "취미":
+        case "hooby":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/hobby.png";
         default:
           return "";
@@ -169,12 +169,12 @@ export default function Write() {
               onChange={(e) => setWriteOption(e.target.value)}
             >
               <option>주제를 선택하세요</option>
-              <option>우정</option>
-              <option>연애</option>
-              <option>음식</option>
-              <option>생활</option>
-              <option>취미</option>
-              <option>일</option> {/*map*/}
+              <option value={"fiendship"}>우정</option>
+              <option value={"love"}>연애</option>
+              <option value={"food"}>음식</option>
+              <option value={"life"}>생활</option>
+              <option value={"hobby"}>취미</option>
+              <option value={"work"}>직장</option> {/*map*/}
             </select>
 
             <p className="mb-2.5">제목</p>

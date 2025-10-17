@@ -1,12 +1,14 @@
 import person_orange from "../assets/posts/person_orange.svg";
 import { useEffect, useState } from "react";
+import supabase from "../utils/supabase";
+import { getHasVotedByOptionId } from "../api/postGet";
 
 type OptionKey = "left" | "right";
 type PollCardProps = {
-  left: { label: string; img: string };
-  right: { label: string; img: string };
+  left: { label: string; img: string; optionId: string };
+  right: { label: string; img: string; optionId: string };
   initialCounts?: { left: number; right: number };
-  onVote?: (choice: OptionKey) => Promise<void> | void;
+  onVote: (choice: OptionKey) => Promise<void> | void;
 };
 export default function PollCard({
   left,
@@ -24,7 +26,38 @@ export default function PollCard({
     if (hasVoted) return;
     setSelected(key);
     setCounts((c) => ({ ...c, [key]: c[key] + 1 }));
+    onVote(key);
   };
+
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const { data, error } = await supabase
+  //         .from("votes")
+  //         .select(
+  //           `
+  //     *,
+  //     options:option_id(*)
+  //   `,
+  //         )
+  //         .in("option_id", [left.optionId, right.optionId]);
+  //       console.log(data);
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   })();
+  // }, []);
+
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const { data, error} = await supabase.from("votes").select("*").eq("user_id", )
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   })();
+  // }, [])
+
   const Card = ({
     side,
     data,

@@ -119,15 +119,29 @@ export default function PostCard({ post }: { post: Post }) {
         </div>
 
         <PollCard
-          left={{ label: leftOption?.option_title ?? "왼쪽", img: leftOption?.option_img ?? "" }}
+          left={{
+            label: leftOption?.option_title ?? "왼쪽",
+            img: leftOption?.option_img ?? "",
+            optionId: leftOption?.uid,
+          }}
           right={{
             label: rightOption?.option_title ?? "오른쪽",
             img: rightOption?.option_img ?? "",
+            optionId: rightOption?.uid,
           }}
           initialCounts={voteCounts}
-          onVote={async (optionId) => {
-            await submitVote(optionId);
-            console.log("투표 저장 완료");
+          onVote={async (choice) => {
+            const optionId = choice === "left" ? leftOption?.uid : rightOption?.uid;
+            if (!optionId) {
+              console.error("투표 실패: optionId가 비어있습니다.");
+              return;
+            }
+            try {
+              await submitVote(optionId);
+              console.log("투표 저장 완료");
+            } catch (err) {
+              console.error("투표 저장 실패:", err);
+            }
           }}
         />
 
