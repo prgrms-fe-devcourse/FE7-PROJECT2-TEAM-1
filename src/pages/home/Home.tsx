@@ -33,14 +33,17 @@ export default function Home() {
             className=" h-[620px] w-[100vw] place-items-center space-y-[36px] whitespace-nowrap overflow-hidden text-clip"
           >
             <br />
-            <p className="text-[#FF8C00] text-[80px] text-sm/23 mt-[108px]">
-              "지금 선택할 순간, <br /> &nbsp; 당신의 선택은?"
+            <p className="text-[#FF8C00] text-[80px] text-sm/23 mt-[108px] mb-[5px] ml-[20px] overflow-hidden text-shadow-[4px_4px_6px_rgba(255,_0,_0,_0.5)]">
+              &nbsp;지금 선택할 순간,
             </p>
-            <p className="text-white text-[28px] ">
-              "뜨거운 감자 같은 어려운 선택. 다른 사람들은 뭐를 골랐을까?"
+            <p className="text-[#FF8C00] text-[80px] text-sm/23 ml-[8px] text-shadow-[4px_4px_6px_rgba(255,_0,_0,_0.5)]">
+              &nbsp;당신의 선택은?
+            </p>
+            <p className="text-white text-[28px] font-normal">
+              "뜨거운 감자 같은 어려운 선택, 다른 사람들은 무엇을 골랐을까?"
             </p>
             <div
-              className="relative border-[#FF8C00] border-[2px] rounded-[8px] w-[285px] h-[56px] flex items-center justify-center 
+              className="relative border-[#FF8C00] border-[2px] rounded-[8px] w-[285px] h-[56px] flex items-center justify-center
               hover:scale-102 cursor-pointer group active:translate-y-1 transition-transform duration-200"
               onClick={scrollHandler}
             >
@@ -53,7 +56,7 @@ export default function Home() {
                 <button
                   key={label}
                   className="relative group transition-transform hover:scale-101 cursor-pointer
-                  active:translate-y-1ㄴㄴ duration-200"
+                  active:translate-y-1 duration-200"
                 >
                   <Icon className="w-[383px] h-[191px] border-[#FF8C00] border-2 rounded-[12px] group-hover:bg-[rgba(218,218,218,0.33)]" />
                   <span className="absolute inset-0 flex items-center justify-center text-white text-[38px] opacity-70 group-hover:opacity-100 duration-300">
