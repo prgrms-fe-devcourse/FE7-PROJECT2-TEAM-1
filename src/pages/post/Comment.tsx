@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { getCommentsByPostId } from "../../api/postGet";
-import type { CommentDB, CommentWithProfile } from "../../types/post";
 
 function formatRelativeTime(dateString: string) {
   const diff = Date.now() - new Date(dateString).getTime();

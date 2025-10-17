@@ -1,5 +1,4 @@
 import { create } from "zustand";
-// import type { Profile } from "../types/profile";
 import type { Claims } from "../types/user";
 import supabase from "../utils/supabase";
 import { immer } from "zustand/middleware/immer";

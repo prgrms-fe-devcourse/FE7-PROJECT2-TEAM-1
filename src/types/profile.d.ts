@@ -1,7 +1,3 @@
-// import type { Database } from "./database";
-
-// type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-
 interface Profile {
   uid: string;
   email: string;
