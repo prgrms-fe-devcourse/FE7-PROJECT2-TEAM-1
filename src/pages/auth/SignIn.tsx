@@ -1,13 +1,20 @@
 import { Activity, useState } from "react";
 import supabase from "../../utils/supabase";
-import { Link } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import hotPotato from "../../assets/sign/hotpotato_logo.png";
+import google from "../../assets/sign/google_logo.png";
 import Toast from "../../components/toast/Toast";
+import { useAuthStore } from "../../stores/authStore";
+import { googleLoginHandler } from "../../services/signIn";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginStatus, setLoginStatus] = useState(true);
+  const hydrateFromAuth = useAuthStore((state) => state.hydrateFromAuth);
+
+  const navigate = useNavigate();
+  const [search] = useSearchParams();
 
   const notify = (message: string, type: ToastType) => Toast({ message, type });
 
@@ -30,13 +37,19 @@ export default function SignIn() {
     const name = data.user?.user_metadata.username;
 
     notify(`${name}, 님 안녕하세요`, "SUCCESS");
+
+    const query = search.get("url");
+    hydrateFromAuth();
+    if (query) {
+      navigate(query ?? "/");
+    }
   };
 
   return (
     <>
       <main className="max-w-dvw min-h-dvh bg-black overflow-hidden">
         <form onSubmit={(e) => submitHandler(e)}>
-          <div className="w-[1200px] min-h-[950px] bg-[#0A0A0A] border-2 border-[#FF8C00] rounded-[12px] m-auto mt-[15px] mb-[15px] flex flex-col items-center justify-center text-white">
+          <div className="w-[1200px] min-h-[950px] bg-[#0A0A0A] border-2 border-[#FF8C00] rounded-[12px] m-auto mt-[38px] mb-[15px] flex flex-col items-center justify-center text-white">
             <div className="flex flex-col items-center gap-[45px]">
               <img src={hotPotato} alt="hotPotato_logo" />
               <div className="flex flex-col items-center gap-[5px]">
@@ -90,9 +103,18 @@ export default function SignIn() {
                 </p>
               </Activity>
 
-              <button className="w-[528px] h-[48px] rounded-[6px] bg-[#FF8C00] text-[18px] text-black font-bold transition-shadow duration-200 cursor-pointer hover:shadow-[0_0_10px_#FF8C00] hover:scale-101 ">
-                Sign in
-              </button>
+              <div className="flex justify-between w-full">
+                <button className="w-[465px] h-[48px] rounded-[6px] bg-[#FF8C00] text-[18px] text-black font-bold transition-shadow duration-200 cursor-pointer hover:shadow-[0_0_10px_#FF8C00] hover:scale-101 ">
+                  Sign in
+                </button>
+                <button
+                  className="flex items-center justify-center w-[50px] h-[48px] rounded-[6px] bg-[#ffffff] text-[18px] text-black  font-bold transition-shadow duration-200 cursor-pointer hover:shadow-[0_0_10px_#FF8C00] hover:scale-101"
+                  type="button"
+                  onClick={googleLoginHandler}
+                >
+                  <img className="w-[35px] h-[35px] p-auto" src={google} alt="google_logo" />
+                </button>
+              </div>
 
               <div className="flex flex-col items-center gap-[5px]">
                 <p className="w-[515px] text-[#999999] font-bold text-[16px] text-center">

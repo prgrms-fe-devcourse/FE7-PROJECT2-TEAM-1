@@ -52,7 +52,7 @@ export default function Profile() {
       notify(". 또는 @ 기호만 사용 가능합니다.", "ERROR");
       return false;
     }
-    const ckeckBool = await checkHandleExists(newHandle);
+    const ckeckBool = await checkHandleExists(newHandle, profile?.uid || "");
     if (ckeckBool) {
       notify("사용할 수 없는 핸들 입니다. 다른 핸들을 입력해주세요.", "ERROR");
       return false;

@@ -1,11 +1,14 @@
 import { useState } from "react";
+import google from "../../assets/sign/google_logo.png";
 import supabase from "../../utils/supabase";
 import { Link, useNavigate } from "react-router";
-import { checkEmailExists } from "../../services/signIn";
+import { checkEmailExists, googleLoginHandler } from "../../services/signIn";
 import { secureRandomString } from "../../services/profile";
+import { useAuthStore } from "../../stores/authStore";
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const hydrateFromAuth = useAuthStore((state) => state.hydrateFromAuth);
   const [inputState, setInputState] = useState({
     email: "",
     username: "",
@@ -99,7 +102,8 @@ export default function SignUp() {
       console.log("status code: ", error.code);
       alert("올바르지 않은 접근 방법입니다.");
     } else {
-      navigate("/");
+      // navigate("/");
+      hydrateFromAuth();
     }
   };
 
@@ -107,7 +111,7 @@ export default function SignUp() {
     <>
       <main className="max-w-dvw min-h-dvh bg-black overflow-hidden">
         <form onSubmit={(e) => submitHandler(e)}>
-          <div className="w-[1200px] min-h-[1100px] bg-[#0A0A0A] border-2 border-[#FF8C00] rounded-[12px] m-auto mt-[15px] mb-[15px] flex flex-col items-center justify-center text-white">
+          <div className="w-[1200px] min-h-[950px] bg-[#0A0A0A] border-2 border-[#FF8C00] rounded-[12px] m-auto mt-[38px] mb-[15px] flex flex-col items-center justify-center text-white">
             <div className="flex flex-col items-center gap-[45px]">
               <div className="flex flex-col items-center gap-[5px]">
                 <p className="w-[515px] text-[#FF8C00] font-bold text-[38px] text-center">
@@ -218,9 +222,19 @@ export default function SignUp() {
                     ),
                 )}
               </div>
-              <button className="w-[528px] h-[48px] rounded-[6px] bg-[#FF8C00] text-[18px] text-black font-bold transition-shadow duration-200 cursor-pointer hover:shadow-[0_0_10px_#FF8C00] hover:scale-101 ">
-                Sign Up
-              </button>
+
+              <div className="flex justify-between w-full">
+                <button className="w-[465px] h-[48px] rounded-[6px] bg-[#FF8C00] text-[18px] text-black font-bold transition-shadow duration-200 cursor-pointer hover:shadow-[0_0_10px_#FF8C00] hover:scale-101 ">
+                  Sign Up
+                </button>
+                <button
+                  className="flex items-center justify-center w-[50px] h-[48px] rounded-[6px] bg-[#ffffff] text-[18px] text-black  font-bold transition-shadow duration-200 cursor-pointer hover:shadow-[0_0_10px_#FF8C00] hover:scale-101"
+                  type="button"
+                  onClick={googleLoginHandler}
+                >
+                  <img className="w-[35px] h-[35px] p-auto" src={google} alt="google_logo" />
+                </button>
+              </div>
 
               <div className="flex flex-col items-center gap-[5px]">
                 <p className="w-[515px] text-[#999999] font-bold text-[16px] text-center">
@@ -228,7 +242,7 @@ export default function SignUp() {
                 </p>
                 <Link
                   to={"/signin"}
-                  className="w-[515px] text-[#FF8C00] font-bold text-[16px] text-center cursor-pointer hover:underline"
+                  className="w-[515px] text-[#FF8C00] font-bold text-[16px] text-center cursor-pointer hover:underline mb-[15px]"
                 >
                   Sign in
                 </Link>
