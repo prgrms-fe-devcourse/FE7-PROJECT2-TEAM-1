@@ -8,6 +8,7 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginStatus, setLoginStatus] = useState(true);
+
   const notify = (message: string, type: ToastType) => Toast({ message, type });
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -27,6 +28,7 @@ export default function SignIn() {
       return;
     }
     const name = data.user?.user_metadata.username;
+
     notify(`${name}, 님 안녕하세요`, "SUCCESS");
   };
 
@@ -87,12 +89,6 @@ export default function SignIn() {
                   아이디 또는 비밀번호가 잘못 되었습니다. 아이디와 비밀번호를 정확히 입력해 주세요.
                 </p>
               </Activity>
-              
-              {/* {!loginStatus && (
-                <p className="w-[515px] text-[#c85c5c] font-bold text-[13px]">
-                  아이디 또는 비밀번호가 잘못 되었습니다. 아이디와 비밀번호를 정확히 입력해 주세요.
-                </p>
-              )} */}
 
               <button className="w-[528px] h-[48px] rounded-[6px] bg-[#FF8C00] text-[18px] text-black font-bold transition-shadow duration-200 cursor-pointer hover:shadow-[0_0_10px_#FF8C00] hover:scale-101 ">
                 Sign in
