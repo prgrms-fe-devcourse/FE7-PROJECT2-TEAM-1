@@ -5,11 +5,13 @@ import newPost from "../../assets/posts/newPost.svg";
 import PostCard from "./PostCard";
 import supabase from "../../utils/supabase";
 import type { Post } from "../../types/post";
+import { useNavigate } from "react-router";
 
 export default function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -47,7 +49,13 @@ export default function Posts() {
             <img src={categoryArrow} className="w-[31px] h-[26px]" />
             <span className="text-[30px] ml-[20px]">우정</span>
           </div>
-          <img src={newPost} className="mr-[51px]" />
+          <img
+            src={newPost}
+            className="mr-[51px] cursor-pointer"
+            onClick={() => {
+              navigate("/write");
+            }}
+          />
         </div>
       </div>
 
