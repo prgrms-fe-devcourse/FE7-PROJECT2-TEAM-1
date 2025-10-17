@@ -4,6 +4,7 @@ import newPost from "../../assets/posts/newPost.svg";
 
 import PostCard from "./PostCard";
 import supabase from "../../utils/supabase";
+import { useNavigate } from "react-router";
 
 export default function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
