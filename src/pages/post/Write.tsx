@@ -33,6 +33,8 @@ export default function Write() {
   const [writeSelectTextA, setWriteSelectTextA] = useState("");
   const [writeSelectTextB, setWriteSelectTextB] = useState("");
 
+  const [showError, setShowError] = useState(false);
+
   const profile = useAuthStore((state) => state.profile);
 
   const imageUploadHandler = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
@@ -54,11 +56,11 @@ export default function Write() {
   };
 
   const writeDataHandler = async () => {
-    if (writeOption === "") return;
-    if (writeTitle === "") return;
-    if (writeExplain === "") return;
-    if (writeSelectTextA === "") return;
-    if (writeSelectTextB === "") return;
+    if (writeOption === "") return setShowError(true);
+    if (writeTitle === "") return setShowError(true);
+    if (writeExplain === "") return setShowError(true);
+    if (writeSelectTextA === "") return setShowError(true);
+    if (writeSelectTextB === "") return setShowError(true);
 
     if (!profile) return;
 
@@ -200,6 +202,7 @@ export default function Write() {
                       onClick={() => {
                         setWriteOption(option);
                         setWriteOptionList(!writeOptionList);
+                        setShowError(false);
                       }}
                     >
                       <p className="text-center text-[#9e9e9e]">{option}</p>
@@ -217,7 +220,10 @@ export default function Write() {
               focus:border-[#FF8C00] focus:shadow-[0_0_10px_4px_rgba(255,140,0,0.5)]"
               value={writeTitle}
               onChange={(e) => {
-                if (e.target.value.length <= 50) setWriteTitle(e.target.value);
+                {
+                  if (e.target.value.length <= 50) setWriteTitle(e.target.value);
+                  setShowError(false);
+                }
               }}
             ></input>
             <p className="mb-[30px] text-right">{writeTitle.length}/50</p>
@@ -232,6 +238,7 @@ export default function Write() {
               onChange={(e) => {
                 if (e.target.value.length <= 200 && e.target.value.split("\n").length <= 5)
                   setWriteExplain(e.target.value);
+                setShowError(false);
               }}
             ></textarea>
             <p className="mb-[46px] text-right">{writeExplain.length}/200</p>
@@ -248,14 +255,20 @@ export default function Write() {
             className="hidden"
             ref={imageUploadInputRefA}
             accept="image/*"
-            onChange={(e) => imageUploadHandler(e, "A")}
+            onChange={(e) => {
+              imageUploadHandler(e, "A");
+              setShowError(false);
+            }}
           />
           <input
             type="file"
             className="hidden"
             ref={imageUploadInputRefB}
             accept="image/*"
-            onChange={(e) => imageUploadHandler(e, "B")}
+            onChange={(e) => {
+              imageUploadHandler(e, "B");
+              setShowError(false);
+            }}
           />
           <div className="w-full h-[480px] grid grid-cols-2 gap-[82px] justify-items-center">
             {choices.map((choice) => (
@@ -330,6 +343,11 @@ export default function Write() {
             >
               게시하기
             </button>
+            {showError && (
+              <p className="text-red-500 text-sm text-center mt-2">
+                모든 필수 입력 항목을 입력해주세요.
+              </p>
+            )}
           </div>
         </div>
       </div>
