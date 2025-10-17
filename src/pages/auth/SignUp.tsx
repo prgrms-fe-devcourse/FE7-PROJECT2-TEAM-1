@@ -112,7 +112,8 @@ export default function SignUp() {
         data: {
           username,
           handle,
-          profile_img: null,
+          profile_img:
+            "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/profile/default/profile_default.png",
           bio: null,
         },
       },

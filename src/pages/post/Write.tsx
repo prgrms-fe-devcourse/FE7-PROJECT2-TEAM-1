@@ -77,22 +77,19 @@ export default function Write() {
       if (data) {
         console.log(data);
 
-        let urlA = await insertOptionImg(imageUploadA, data.uid);
+        let urlA = await insertOptionImg(imageUploadA, data.uid, writeOption);
         await insertOption(writeSelectTextA, urlA, "left", data.uid);
-        let urlB = await insertOptionImg(imageUploadB, data.uid);
+        let urlB = await insertOptionImg(imageUploadB, data.uid, writeOption);
         await insertOption(writeSelectTextB, urlB, "right", data.uid);
 
         navigate("/");
-
-        console.log(urlA);
-        console.log(urlB);
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  async function insertOptionImg(file: File | null, uid: string) {
+  async function insertOptionImg(file: File | null, uid: string, category: string) {
     if (file) {
       const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
       console.log(safeName);
@@ -107,7 +104,24 @@ export default function Write() {
         console.log("File uploaded successfully");
         return supabase.storage.from("hotpotato").getPublicUrl(data.path).data.publicUrl;
       }
-    } else return null;
+    } else {
+      switch (category) {
+        case "생활":
+          return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/life.png";
+        case "연애":
+          return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/love.png";
+        case "우정":
+          return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/friendship.png";
+        case "음식":
+          return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/food.png";
+        case "일":
+          return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/work.png";
+        case "취미":
+          return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/hobby.png";
+        default:
+          return "";
+      }
+    }
   }
 
   async function insertOption(
