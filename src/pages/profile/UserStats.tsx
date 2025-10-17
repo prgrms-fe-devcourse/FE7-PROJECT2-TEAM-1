@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { getUserPostsAPI } from "../../services/profile";
-import type { Post } from "../../types/post";
 
 export default function UserStats({ profile }: { profile: Profile | null }) {
   const [posts, setPosts] = useState<Post[]>([]);
