@@ -199,11 +199,13 @@ export default function Write() {
             <p className="mb-[10px]">설명</p>
             <textarea
               placeholder="밸런스 게임에 대한 설명을 입력하세요"
-              className="w-full h-auto min-h-[105px] mb-[10px] p-[15px] pt-[12px] font-normal border-2 border-[#FF8C00]/60 rounded-md outline-none
+              rows={5}
+              className="w-full mb-[10px] p-[15px] pt-[12px] font-normal border-2 border-[#FF8C00]/60 rounded-md outline-none
               focus:border-[#FF8C00] focus:shadow-[0_0_10px_4px_rgba(255,140,0,0.5)] "
               value={writeExplain}
               onChange={(e) => {
-                if (e.target.value.length <= 200) setWriteExplain(e.target.value);
+                if (e.target.value.length <= 200 && e.target.value.split("\n").length <= 5)
+                  setWriteExplain(e.target.value);
               }}
             ></textarea>
             <p className="mb-[46px] text-right">{writeExplain.length}/200</p>
@@ -213,7 +215,7 @@ export default function Write() {
             <div className="flex-1 h-[1px] bg-[#FF8C00]"></div>
             <p className="text-[#FF8C00]">선택지</p>
             <div className="flex-1 h-[1px] bg-[#FF8C00]"></div>
-          </div>{" "}
+          </div>
           {/* */}
           <input
             type="file"
