@@ -4,14 +4,17 @@ import newPost from "../../assets/posts/newPost.svg";
 
 import PostCard from "./PostCard";
 import supabase from "../../utils/supabase";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import { SLUG_TO_LABEL, type CategorySlug } from "../../constants/categories";
 
 export default function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-
+  const { topic } = useParams<{ topic: string }>();
+  const isCategorySlug = (v: string): v is CategorySlug => Object.hasOwn(SLUG_TO_LABEL, v);
+  const displayLabel = topic && isCategorySlug(topic) ? SLUG_TO_LABEL[topic] : "전체";
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -22,6 +25,7 @@ export default function Posts() {
           .from("posts")
           .select("*")
           .eq("is_visible", true) // 숨김 게시물 제외
+          .eq("category", topic!)
           .order("created_at", { ascending: false }); // 최신순 정렬
 
         if (error) throw error;
@@ -52,7 +56,7 @@ export default function Posts() {
                 navigate(-1);
               }}
             />
-            <span className="text-[30px] ml-[20px]">우정</span>
+            <span className="text-[30px] ml-[20px]">{displayLabel}</span>
           </div>
           <img
             src={newPost}
