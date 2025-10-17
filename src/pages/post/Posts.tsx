@@ -46,7 +46,13 @@ export default function Posts() {
       <div className="border-b border-[#FF8C00]">
         <div className="flex items-center justify-between max-w-[1200px] mx-auto h-[85px] text-[#FF8C00] ">
           <div className="flex items-center">
-            <img src={categoryArrow} className="w-[31px] h-[26px]" />
+            <img
+              src={categoryArrow}
+              className="w-[31px] h-[26px] cursor-pointer"
+              onClick={() => {
+                navigate(-1);
+              }}
+            />
             <span className="text-[30px] ml-[20px]">우정</span>
           </div>
           <img
