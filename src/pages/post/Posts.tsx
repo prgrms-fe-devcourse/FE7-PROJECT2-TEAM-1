@@ -4,7 +4,6 @@ import newPost from "../../assets/posts/newPost.svg";
 
 import PostCard from "./PostCard";
 import supabase from "../../utils/supabase";
-import type { Post } from "../../types/post";
 
 export default function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);

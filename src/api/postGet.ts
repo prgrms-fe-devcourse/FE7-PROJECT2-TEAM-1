@@ -1,5 +1,3 @@
-// import Profile from "../pages/profile/Profile";
-import type { CommentWithProfile, Post } from "../types/post";
 import supabase from "../utils/supabase";
 
 export async function getProfile(userId: string) {}
@@ -27,6 +25,20 @@ export async function getAuthorByPostId(postId: string) {
   return profile as Profile;
 }
 
+export async function getVotesByOptionId(optionId: string) {
+  const { count, error } = await supabase
+    .from("votes")
+    .select("*", { count: "exact", head: true })
+    .eq("option_id", optionId);
+  if (error) throw error;
+  return count ?? 0;
+}
+
+// export async function getLikeByPostId(postId: string) {
+//   const { data: likes } = await supabase.from("likes").select("*").eq("post_id", postId).single();
+//   return likes;
+// }
+
 export async function getCommentsByPostId(postId: string) {
   const { data, error } = await supabase
     .from("comments")
@@ -39,11 +51,11 @@ export async function getCommentsByPostId(postId: string) {
   return (data ?? []) as CommentWithProfile[];
 }
 
-export async function getProfileByUserId(userId: string) {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("profile_img, username, handle")
-    .eq("uid", userId)
-    .single();
-  return profile as Profile;
-}
+// export async function getProfileByUserId(userId: string) {
+//   const { data: profile } = await supabase
+//     .from("profiles")
+//     .select("profile_img, username, handle")
+//     .eq("uid", userId)
+//     .single();
+//   return profile as Profile;
+// }
