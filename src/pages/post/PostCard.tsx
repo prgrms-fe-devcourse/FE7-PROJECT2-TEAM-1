@@ -95,7 +95,7 @@ export default function PostCard({ post }: { post: Post }) {
       <div className="flex items-center justify-between h-[100px] border-b-[2px] border-[#FF8C00]/30 transition-colors duration-300 group-hover:border-[#FF8C00]/60">
         <div className="flex justify-center ml-[51px]">
           <div className="w-[45px] h-[45px] rounded-full overflow-hidden border-[2px] border-[#FF8C00] mr-[11px]">
-            <img src={author?.profile_img ?? ""} className="w-full h-full object-cover" />
+            <img src={author?.profile_img || ""} className="w-full h-full object-cover" />
           </div>
           <div>
             <p className="text-white text-[16px]">{author?.username ?? "익명"}</p>
@@ -108,7 +108,10 @@ export default function PostCard({ post }: { post: Post }) {
       <div className="space-y-[30px]">
         <div className="ml-[51px]">
           <h2 className="mt-[30px] text-[20px] text-white">{post.post_title}</h2>
-          <p style={{ fontWeight: "normal" }} className="text-[16px]  text-[#999999]">
+          <p
+            style={{ fontWeight: "normal" }}
+            className="text-[16px] text-[#999999] whitespace-pre-wrap break-words"
+          >
             {post.post_desc}
           </p>
         </div>
