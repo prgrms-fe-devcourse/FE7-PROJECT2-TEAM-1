@@ -10,11 +10,15 @@ import { addComment, submitVote, toggleLike } from "../../api/postActions";
 import { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
-import { getAuthorByPostId, getLikeByPostId } from "../../api/postGet";
+import { getAuthorByPostId, getVotesByOptionId } from "../../api/postGet";
 import Comment from "./Comment";
 
 export default function PostCard({ post }: { post: Post }) {
   const [author, setAuthor] = useState<Profile | null>(null);
+  const [voteCounts, setVoteCounts] = useState<{ left: number; right: number }>({
+    left: 0,
+    right: 0,
+  });
   const [liked, setLiked] = useState(false);
   const [likeCounts, setLikeCounts] = useState<number>(post.like_count ?? 0);
   const [commentCounts, setCommentCounts] = useState<number>(post.comment_count ?? 0);
@@ -40,7 +44,7 @@ export default function PostCard({ post }: { post: Post }) {
 
   // Options
   useEffect(() => {
-    const fetchOptions = async () => {
+    (async () => {
       try {
         const { data, error } = await supabase.from("options").select("*").eq("post_id", post.uid);
         if (error) throw error;
@@ -53,31 +57,23 @@ export default function PostCard({ post }: { post: Post }) {
       } catch (err) {
         console.error("옵션 불러오기 실패:", err);
       }
-    };
-
-    fetchOptions();
+    })();
   }, [post.uid]);
 
-  const leftOption = options.find((option) => option.position === "left");
-  const rightOption = options.find((option) => option.position === "right");
+  const leftOption = options.find((option) => option.position === "left") as Option;
+  const rightOption = options.find((option) => option.position === "right") as Option;
 
-  // likeCount
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const { data, error } = await supabase
-  //         .from("posts")
-  //         .select("like_count")
-  //         .eq("uid", postId)
-  //         .single();
-  //       if (error) throw error;
-  //       setLikeCounts(data?.like_count ?? 0);
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   })();
-  // }, [post.uid]);
-
+  useEffect(() => {
+    async () => {
+      try {
+        const leftCount = await getVotesByOptionId(leftOption.uid);
+        const rightCount = await getVotesByOptionId(rightOption.uid);
+        setVoteCounts({ left: leftCount, right: rightCount });
+      } catch (err) {
+        console.error("옵션 count 불러오기 실패:", err);
+      }
+    };
+  });
   // Pending comment
   useEffect(() => {
     if (!pendingComment || !profile?.uid) return;
@@ -123,7 +119,7 @@ export default function PostCard({ post }: { post: Post }) {
             label: rightOption?.option_title ?? "오른쪽",
             img: rightOption?.option_img ?? "",
           }}
-          initialCounts={{ left: 210, right: 90 }}
+          initialCounts={voteCounts}
           onVote={async (optionId) => {
             await submitVote(optionId);
             console.log("투표 저장 완료");

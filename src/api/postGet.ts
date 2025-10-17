@@ -25,10 +25,19 @@ export async function getAuthorByPostId(postId: string) {
   return profile as Profile;
 }
 
-export async function getLikeByPostId(postId: string) {
-  const { data: likes } = await supabase.from("likes").select("*").eq("post_id", postId).single();
-  return likes;
+export async function getVotesByOptionId(optionId: string) {
+  const { count, error } = await supabase
+    .from("votes")
+    .select("*", { count: "exact", head: true })
+    .eq("option_id", optionId);
+  if (error) throw error;
+  return count ?? 0;
 }
+
+// export async function getLikeByPostId(postId: string) {
+//   const { data: likes } = await supabase.from("likes").select("*").eq("post_id", postId).single();
+//   return likes;
+// }
 
 export async function getCommentsByPostId(postId: string) {
   const { data, error } = await supabase
