@@ -1,5 +1,6 @@
 import uploadButton from "../../assets/write/upload_button.svg";
-import categoryArrow from "../../assets/posts/categoryArrow.svg";
+import categoryArrow from "../../assets/write/categoryArrow.svg";
+import optionsArrow from "../../assets/write/search_arrow.svg";
 import { useRef, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
@@ -14,6 +15,8 @@ export default function Write() {
   ];
   // useState로 개선할 수 있음 (추후)
 
+  const options: string[] = ["우정", "연애", "음식", "생활", "취미", "일"];
+
   const navigate = useNavigate();
 
   const imageUploadInputRefA = useRef<HTMLInputElement>(null);
@@ -23,6 +26,7 @@ export default function Write() {
   const [imageUploadA, setImageUploadA] = useState<File | null>(null);
   const [imageUploadB, setImageUploadB] = useState<File | null>(null);
 
+  const [writeOptionList, setWriteOptionList] = useState(false);
   const [writeOption, setWriteOption] = useState("");
   const [writeTitle, setWriteTitle] = useState("");
   const [writeExplain, setWriteExplain] = useState("");
@@ -148,6 +152,7 @@ export default function Write() {
     if (data) {
       console.log(data);
     }
+    console.log(writeOption);
   }
 
   return (
@@ -168,20 +173,41 @@ export default function Write() {
         <div className="max-w-[1200px] w-full h-auto min-h-[1200px] px-[59px] py-[35px] border-2 border-[#FF8C00] rounded-xl">
           <div className="flex flex-col space-y-2">
             <p className="mb-2.5">주제 선택</p>
-            <select
-              className="w-full max-w-[220px] my-1.5 pl-[10px] pb-[5px] outline-none
-              h-[40px] mb-[45px] border-2 border-[#FF8C00]/60 rounded-md text-gray-70 cursor-pointer"
-              value={writeOption}
-              onChange={(e) => setWriteOption(e.target.value)}
-            >
-              <option>주제를 선택하세요</option>
-              <option>우정</option>
-              <option>연애</option>
-              <option>음식</option>
-              <option>생활</option>
-              <option>취미</option>
-              <option>일</option>
-            </select>
+            <div className="relative mb-[45px]">
+              <button
+                className="flex justify-between items-center w-full max-w-[220px] my-1.5
+              h-[40px] border-2 border-[#FF8C00]/60 rounded-md text-gray-70 cursor-pointer hover:border-[#FF8C00]"
+                onClick={() => setWriteOptionList(!writeOptionList)}
+              >
+                {!writeOptionList ? (
+                  <>
+                    <p className="ml-[15px]">{writeOption ? writeOption : "주제를 선택하세요"}</p>
+                    <img className="rotate-90 mr-[5px] mb-[3px]" src={optionsArrow} />
+                  </>
+                ) : (
+                  <>
+                    <p className="ml-[15px] text-[#9e9e9e]">주제를 선택하세요</p>
+                    <img className="rotate-270 mr-[5px] mt-[5px]" src={optionsArrow} />
+                  </>
+                )}
+              </button>
+
+              {writeOptionList && (
+                <ul className="absolute w-full max-w-[220px] border-2 border-[#FF8C00]/60 rounded-md bg-black/80 ;">
+                  {options.map((option) => (
+                    <li
+                      className="w-full max-w-[220px] h-[40px] p-[7px] cursor-pointer hover:bg-[rgba(218,218,218,0.33)]"
+                      onClick={() => {
+                        setWriteOption(option);
+                        setWriteOptionList(!writeOptionList);
+                      }}
+                    >
+                      <p className="text-center text-[#9e9e9e]">{option}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
 
             <p className="mb-2.5">제목</p>
             <input
