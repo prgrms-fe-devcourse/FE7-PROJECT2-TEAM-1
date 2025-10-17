@@ -157,7 +157,15 @@ export default function Profile() {
             )}
 
             {!isEdit ? (
-              <Activity mode={!params.userId ? "visible" : "hidden"}>
+              <Activity
+                mode={
+                  !params.userId
+                    ? "visible"
+                    : params.userId === users?.handle
+                      ? "visible"
+                      : "hidden"
+                }
+              >
                 <button
                   className="absolute top-[20px] right-[50px] w-[31px] h-[31px] rounded-[6px] border-0 bg-[#FF8C00] flex items-center justify-center text-black hover:opacity-80 transition cursor-pointer"
                   onClick={() => setIsEdit((prev) => !prev)}
@@ -259,7 +267,13 @@ export default function Profile() {
 
             <UserStats profile={profile} />
           </div>
-          <button onClick={signout}>로그아웃</button>
+          <Activity
+            mode={
+              !params.userId ? "visible" : params.userId === users?.handle ? "visible" : "hidden"
+            }
+          >
+            <button onClick={signout}>로그아웃</button>
+          </Activity>
           <div className="w-[1098px] h-auto text-left text-[24px] mt-[60px] mb-[5px]">
             작성한 게시글
           </div>
