@@ -3,21 +3,22 @@ import likeIcon from "../../assets/posts/likeIcon.svg";
 import likeFilledIcon from "../../assets/posts/likeFilled.svg";
 import commentIcon from "../../assets/posts/commentIcon.svg";
 import sendIcon from "../../assets/posts/paperPlane.svg";
-import profileImage2 from "../../assets/posts/profileImage2.svg";
 
 import PollCard from "../../components/PollCard";
 import { addComment, submitVote, toggleLike } from "../../api/postActions";
 
 import { useEffect, useState } from "react";
-import type { CommentDB, Option, Post } from "../../types/post";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
-import { getAuthorByPostId, getCommentsByPostId } from "../../api/postGet";
-import type { Profile } from "../../types/profile";
+import { getAuthorByPostId, getVotesByOptionId } from "../../api/postGet";
 import Comment from "./Comment";
 
 export default function PostCard({ post }: { post: Post }) {
   const [author, setAuthor] = useState<Profile | null>(null);
+  const [voteCounts, setVoteCounts] = useState<{ left: number; right: number }>({
+    left: 0,
+    right: 0,
+  });
   const [liked, setLiked] = useState(false);
   const [likeCounts, setLikeCounts] = useState<number>(post.like_count ?? 0);
   const [commentCounts, setCommentCounts] = useState<number>(post.comment_count ?? 0);
@@ -41,6 +42,38 @@ export default function PostCard({ post }: { post: Post }) {
     })();
   }, [post.uid]);
 
+  // Options
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data, error } = await supabase.from("options").select("*").eq("post_id", post.uid);
+        if (error) throw error;
+        setOptions(
+          (data ?? []).map((option) => ({
+            ...option,
+            position: option.position === "left" ? "left" : "right",
+          })),
+        );
+      } catch (err) {
+        console.error("옵션 불러오기 실패:", err);
+      }
+    })();
+  }, [post.uid]);
+
+  const leftOption = options.find((option) => option.position === "left") as Option;
+  const rightOption = options.find((option) => option.position === "right") as Option;
+
+  useEffect(() => {
+    async () => {
+      try {
+        const leftCount = await getVotesByOptionId(leftOption.uid);
+        const rightCount = await getVotesByOptionId(rightOption.uid);
+        setVoteCounts({ left: leftCount, right: rightCount });
+      } catch (err) {
+        console.error("옵션 count 불러오기 실패:", err);
+      }
+    };
+  });
   // Pending comment
   useEffect(() => {
     if (!pendingComment || !profile?.uid) return;
@@ -56,36 +89,15 @@ export default function PostCard({ post }: { post: Post }) {
     })();
   }, [pendingComment, profile?.uid, post.uid]);
 
-  // Options
-  useEffect(() => {
-    const fetchOptions = async () => {
-      try {
-        const { data, error } = await supabase.from("options").select("*").eq("post_id", post.uid);
-        if (error) throw error;
-        setOptions(
-          (data ?? []).map((option) => ({
-            ...option,
-            position: option.position === "left" ? "left" : "right",
-          })),
-        );
-      } catch (err) {
-        console.error("옵션 불러오기 실패:", err);
-      }
-    };
-
-    fetchOptions();
-  }, [post.uid]);
-
-  const leftOption = options.find((option) => option.position === "left");
-  const rightOption = options.find((option) => option.position === "right");
-
   return (
     <div className="group w-[1098px] border-[2px] border-[#FF8C00]/30 rounded-[12px] mt-[30px] mx-auto transition-colors duration-300 hover:border-[#FF8C00]/60">
       {/* --- 프로필 --- */}
       <div className="flex items-center justify-between h-[100px] border-b-[2px] border-[#FF8C00]/30 transition-colors duration-300 group-hover:border-[#FF8C00]/60">
         <div className="flex justify-center ml-[51px]">
           <div className="w-[45px] h-[45px] rounded-full overflow-hidden border-[2px] border-[#FF8C00] mr-[11px]">
-            <img src={author?.profile_img ?? ""} className="w-full h-full object-cover" />
+            {author?.profile_img && (
+              <img src={author.profile_img} className="w-full h-full object-cover" alt="profile" />
+            )}
           </div>
           <div>
             <p className="text-white text-[16px]">{author?.username ?? "익명"}</p>
@@ -98,7 +110,10 @@ export default function PostCard({ post }: { post: Post }) {
       <div className="space-y-[30px]">
         <div className="ml-[51px]">
           <h2 className="mt-[30px] text-[20px] text-white">{post.post_title}</h2>
-          <p style={{ fontWeight: "normal" }} className="text-[16px]  text-[#999999]">
+          <p
+            style={{ fontWeight: "normal" }}
+            className="text-[16px] text-[#999999] whitespace-pre-wrap break-words"
+          >
             {post.post_desc}
           </p>
         </div>
@@ -109,7 +124,7 @@ export default function PostCard({ post }: { post: Post }) {
             label: rightOption?.option_title ?? "오른쪽",
             img: rightOption?.option_img ?? "",
           }}
-          initialCounts={{ left: 210, right: 90 }}
+          initialCounts={voteCounts}
           onVote={async (optionId) => {
             await submitVote(optionId);
             console.log("투표 저장 완료");
@@ -123,6 +138,16 @@ export default function PostCard({ post }: { post: Post }) {
               onClick={async () => {
                 const { liked } = await toggleLike(postId);
                 setLiked(liked);
+                try {
+                  const { data } = await supabase
+                    .from("posts")
+                    .select("like_count")
+                    .eq("uid", postId)
+                    .single();
+                  setLikeCounts(data?.like_count ?? 0);
+                } catch (e) {
+                  console.error(e);
+                }
               }}
               className="transition-transform hover:scale-130"
             >
@@ -177,7 +202,6 @@ export default function PostCard({ post }: { post: Post }) {
           </div>
         </div>
       </div>
-      ,
     </div>
   );
 }

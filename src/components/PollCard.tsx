@@ -44,11 +44,13 @@ export default function PollCard({
         !hasVoted && "hover:border-[#FF8C00]",
       ].join(" ")}
     >
-      <img
-        src={data.img}
-        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-        alt={data.label}
-      />
+      {data.img && (
+        <img
+          src={data.img}
+          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+          alt={data.label}
+        />
+      )}
       <div className="overlay-gradient pointer-events-none" />
       <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-white text-[24px]">
         {data.label}
