@@ -18,7 +18,7 @@ export default function Profile() {
   const params = useParams();
   const navigate = useNavigate();
   const users = useAuthStore((state) => state.profile);
-  const [profile, setProfile] = useState<Profile | null>(users);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const hydrateFromAuth = useAuthStore((state) => state.hydrateFromAuth);
   const [newName, setNewName] = useState(profile?.username);
   const [newBio, setNewBio] = useState(profile?.bio);
