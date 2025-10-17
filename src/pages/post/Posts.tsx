@@ -4,7 +4,6 @@ import newPost from "../../assets/posts/newPost.svg";
 
 import PostCard from "./PostCard";
 import supabase from "../../utils/supabase";
-import type { Post } from "../../types/post";
 
 export default function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -24,7 +23,7 @@ export default function Posts() {
           .order("created_at", { ascending: false }); // 최신순 정렬
 
         if (error) throw error;
-        setPosts((data ?? []) as Post[]);
+        setPosts(data);
       } catch (err: any) {
         console.error("게시물 불러오기 실패:", err.message);
         setError("게시물을 불러오는 중 문제가 발생했습니다.");

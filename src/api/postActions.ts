@@ -11,6 +11,7 @@ export async function submitVote(optionId: string) {
     .from("votes")
     .select("uid")
     .eq("option_id", optionId)
+    .eq("user_id", user.id)
     .maybeSingle();
 
   if (existing) throw new Error("이미 투표했습니다.");
