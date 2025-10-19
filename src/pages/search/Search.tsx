@@ -13,6 +13,18 @@ export default function Search() {
   const [searchResult, setSearchResult] = useState<Profile[] | Post[]>([]);
   const [noSearch, setNoSearch] = useState(false);
 
+  const handlePosts = () => {
+    setSelectedCategory("posts");
+    setSearchResult([]);
+    setNoSearch(false);
+  };
+
+  const handleUsers = () => {
+    setSelectedCategory("users");
+    setSearchResult([]);
+    setNoSearch(false);
+  };
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -74,18 +86,14 @@ export default function Search() {
             <div className="flex border border-[#FF8C00] rounded-[30px] text-[#FFFFFF]">
               <button
                 type="button"
-                onClick={() => {
-                  setSelectedCategory("posts");
-                }}
+                onClick={handlePosts}
                 className={`transition-colors rounded-l-[30px] flex justify-center items-center gap-1  cursor-pointer w-[80px] h-[34px] pl-6 pr-6 text-[12px] ${selectedCategory === "posts" ? "bg-[#FF8C00]" : ""}`}
               >
                 POSTS
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setSelectedCategory("users");
-                }}
+                onClick={handleUsers}
                 className={`transition-colors rounded-r-[30px] flex justify-center items-center gap-1  cursor-pointer w-[80px] h-[34px] pl-6 pr-6 text-[12px] ${selectedCategory === "users" ? "bg-[#FF8C00]" : ""}`}
               >
                 USERS
