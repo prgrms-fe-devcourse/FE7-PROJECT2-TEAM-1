@@ -1,24 +1,13 @@
 import supabase from "../utils/supabase";
+import { getHasVotedByOptionId } from "./postGet";
 
 // 투표
 export async function submitVote(optionId: string) {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("로그인이 필요합니다.");
-
-  const { data: existing } = await supabase
-    .from("votes")
-    .select("uid")
-    .eq("option_id", optionId)
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (existing) throw new Error("이미 투표했습니다.");
+  const [userId, postId] = await getHasVotedByOptionId(optionId);
 
   const { error } = await supabase
     .from("votes")
-    .insert([{ user_id: user.id, option_id: optionId }]);
+    .insert([{ user_id: userId, option_id: optionId, post_id: postId }]);
   if (error) throw error;
 }
 

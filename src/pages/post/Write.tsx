@@ -112,17 +112,17 @@ export default function Write() {
       }
     } else {
       switch (category) {
-        case "생활":
+        case "life":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/life.png";
-        case "연애":
+        case "love":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/love.png";
-        case "우정":
+        case "friendship":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/friendship.png";
-        case "음식":
+        case "food":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/food.png";
-        case "일":
+        case "work":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/work.png";
-        case "취미":
+        case "hooby":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/hobby.png";
         default:
           return "";
