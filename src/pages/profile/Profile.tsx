@@ -12,6 +12,7 @@ import Toast from "../../components/toast/Toast";
 import UserPosts from "./UserPosts";
 import UserStats from "./UserStats";
 import { checkHandleExists } from "../../services/signIn";
+import { getUserPostsAPI } from "../../services/profile";
 
 export default function Profile() {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
@@ -31,6 +32,8 @@ export default function Profile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const [posts, setPosts] = useState<Post[]>([]);
 
   const signout = async () => {
     try {
@@ -183,6 +186,15 @@ export default function Profile() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!profile?.uid) return;
+    const getUserPosts = async () => {
+      const data = await getUserPostsAPI(profile?.uid);
+      if (data) setPosts(data);
+    };
+    getUserPosts();
+  }, [profile]);
+
   return (
     <>
       <main className="max-w-dvw min-h-dvh bg-black overflow-hidden pb-[50px]">
@@ -322,7 +334,7 @@ export default function Profile() {
               </div>
             </div>
 
-            <UserStats profile={profile} />
+            <UserStats posts={posts} />
           </div>
           <Activity
             mode={
@@ -335,7 +347,7 @@ export default function Profile() {
             작성한 게시글
           </div>
           <Activity mode={profile ? "visible" : "hidden"}>
-            <UserPosts profile={profile} />
+            <UserPosts posts={posts} />
           </Activity>
         </div>
       </main>
