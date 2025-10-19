@@ -62,7 +62,11 @@ export default function Posts() {
             src={newPost}
             className="mr-[51px] cursor-pointer"
             onClick={() => {
-              navigate("/write");
+              navigate("/write", {
+                state: {
+                  option: displayLabel,
+                },
+              });
             }}
           />
         </div>

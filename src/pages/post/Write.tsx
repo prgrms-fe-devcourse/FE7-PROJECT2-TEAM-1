@@ -1,10 +1,10 @@
 import uploadButton from "../../assets/write/upload_button.svg";
 import categoryArrow from "../../assets/write/categoryArrow.svg";
 import optionsArrow from "../../assets/write/search_arrow.svg";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import Toast from "../../components/toast/Toast";
 
 type Choices = { key: string; label: string; image: string }[];
@@ -26,6 +26,7 @@ export default function Write() {
   };
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const imageUploadInputRefA = useRef<HTMLInputElement>(null);
   const imageUploadInputRefB = useRef<HTMLInputElement>(null);
@@ -164,6 +165,15 @@ export default function Write() {
     }
     console.log(writeOption);
   }
+
+  useEffect(() => {
+    if (location.state.option) {
+      const optionFix: string = location.state.option;
+
+      const findOptionFix = Object.entries(options).find(([_, value]) => value === optionFix)?.[0];
+      setWriteOption(findOptionFix as Category);
+    }
+  }, []);
 
   return (
     <>
