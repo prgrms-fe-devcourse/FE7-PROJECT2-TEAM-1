@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
 import { useNavigate } from "react-router";
+import Toast from "../../components/toast/Toast";
 
 type Choices = { key: string; label: string; image: string }[];
 
@@ -43,6 +44,8 @@ export default function Write() {
   const [showError, setShowError] = useState(false);
 
   const profile = useAuthStore((state) => state.profile);
+
+  const notify = (message: string, type: ToastType) => Toast({ message, type });
 
   const imageUploadHandler = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
     if (!e.target.files) return;
@@ -91,7 +94,9 @@ export default function Write() {
         await insertOption(writeSelectTextA, urlA, "left", data.uid);
         let urlB = await insertOptionImg(imageUploadB, data.uid, writeOption);
         await insertOption(writeSelectTextB, urlB, "right", data.uid);
-        navigate("/");
+
+        notify("글 작성이 완료 되었습니다!", "SUCCESS");
+        navigate(`/posts/${writeOption}`);
       }
     } catch (error) {
       console.error(error);
