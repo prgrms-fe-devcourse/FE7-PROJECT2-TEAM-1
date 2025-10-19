@@ -1,9 +1,11 @@
 import uploadButton from "../../assets/write/upload_button.svg";
-import categoryArrow from "../../assets/posts/categoryArrow.svg";
-import { useRef, useState } from "react";
+import categoryArrow from "../../assets/write/categoryArrow.svg";
+import optionsArrow from "../../assets/write/search_arrow.svg";
+import { useEffect, useRef, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
+import Toast from "../../components/toast/Toast";
 
 type Choices = { key: string; label: string; image: string }[];
 
@@ -14,7 +16,17 @@ export default function Write() {
   ];
   // useState로 개선할 수 있음 (추후)
 
+  const options = {
+    friendship: "우정",
+    love: "연애",
+    food: "음식",
+    life: "생활",
+    hobby: "취미",
+    work: "일",
+  };
+
   const navigate = useNavigate();
+  const location = useLocation();
 
   const imageUploadInputRefA = useRef<HTMLInputElement>(null);
   const imageUploadInputRefB = useRef<HTMLInputElement>(null);
@@ -23,13 +35,18 @@ export default function Write() {
   const [imageUploadA, setImageUploadA] = useState<File | null>(null);
   const [imageUploadB, setImageUploadB] = useState<File | null>(null);
 
-  const [writeOption, setWriteOption] = useState("");
+  const [writeOptionList, setWriteOptionList] = useState(false);
+  const [writeOption, setWriteOption] = useState<Category | "">("");
   const [writeTitle, setWriteTitle] = useState("");
   const [writeExplain, setWriteExplain] = useState("");
   const [writeSelectTextA, setWriteSelectTextA] = useState("");
   const [writeSelectTextB, setWriteSelectTextB] = useState("");
 
+  const [showError, setShowError] = useState(false);
+
   const profile = useAuthStore((state) => state.profile);
+
+  const notify = (message: string, type: ToastType) => Toast({ message, type });
 
   const imageUploadHandler = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
     if (!e.target.files) return;
@@ -50,14 +67,12 @@ export default function Write() {
   };
 
   const writeDataHandler = async () => {
-    if (writeOption === "") return;
-    if (writeTitle === "") return;
-    if (writeExplain === "") return;
-    if (writeSelectTextA === "") return;
-    if (writeSelectTextB === "") return;
-
+    if (writeOption === "") return setShowError(true);
+    if (writeTitle === "") return setShowError(true);
+    if (writeExplain === "") return setShowError(true);
+    if (writeSelectTextA === "") return setShowError(true);
+    if (writeSelectTextB === "") return setShowError(true);
     if (!profile) return;
-
     try {
       const { data, error } = await supabase
         .from("posts")
@@ -76,13 +91,13 @@ export default function Write() {
       }
       if (data) {
         console.log(data);
-
         let urlA = await insertOptionImg(imageUploadA, data.uid, writeOption);
         await insertOption(writeSelectTextA, urlA, "left", data.uid);
         let urlB = await insertOptionImg(imageUploadB, data.uid, writeOption);
         await insertOption(writeSelectTextB, urlB, "right", data.uid);
 
-        navigate("/");
+        notify("글 작성이 완료 되었습니다!", "SUCCESS");
+        navigate(`/posts/${writeOption}`);
       }
     } catch (error) {
       console.error(error);
@@ -106,17 +121,17 @@ export default function Write() {
       }
     } else {
       switch (category) {
-        case "생활":
+        case "life":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/life.png";
-        case "연애":
+        case "love":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/love.png";
-        case "우정":
+        case "friendship":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/friendship.png";
-        case "음식":
+        case "food":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/food.png";
-        case "일":
+        case "work":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/work.png";
-        case "취미":
+        case "hooby":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/hobby.png";
         default:
           return "";
@@ -148,13 +163,29 @@ export default function Write() {
     if (data) {
       console.log(data);
     }
+    console.log(writeOption);
   }
+
+  useEffect(() => {
+    if (location.state.option) {
+      const optionFix: string = location.state.option;
+
+      const findOptionFix = Object.entries(options).find(([_, value]) => value === optionFix)?.[0];
+      setWriteOption(findOptionFix as Category);
+    }
+  }, []);
 
   return (
     <>
       <div className="flex flex-col items-center">
         <div className="w-full max-w-[1200px] my-9 mx-auto flex gap-5 items-center">
-          <img src={categoryArrow} className="w-[31px] h-[26px] mt-[7px]" />
+          <img
+            src={categoryArrow}
+            className="w-[31px] h-[26px] mt-[7px] cursor-pointer"
+            onClick={() => {
+              navigate(-1);
+            }}
+          />
           <p className="w-[1000px] text-[#FF8C00] text-3xl">새 밸런스 게임 만들기</p>
         </div>
 
@@ -162,20 +193,45 @@ export default function Write() {
         <div className="max-w-[1200px] w-full h-auto min-h-[1200px] px-[59px] py-[35px] border-2 border-[#FF8C00] rounded-xl">
           <div className="flex flex-col space-y-2">
             <p className="mb-2.5">주제 선택</p>
-            <select
-              className="w-full max-w-[220px] my-1.5 pl-[10px] pb-[5px] outline-none
-              h-[40px] mb-[45px] border-2 border-[#FF8C00]/60 rounded-md text-gray-70"
-              value={writeOption}
-              onChange={(e) => setWriteOption(e.target.value)}
-            >
-              <option>주제를 선택하세요</option>
-              <option>우정</option>
-              <option>연애</option>
-              <option>음식</option>
-              <option>생활</option>
-              <option>취미</option>
-              <option>일</option> {/*map*/}
-            </select>
+            <div className="relative mb-[45px]">
+              <button
+                className="flex justify-between items-center w-full max-w-[220px] my-1.5
+              h-[40px] border-2 border-[#FF8C00]/60 rounded-md text-gray-70 cursor-pointer hover:border-[#FF8C00]"
+                onClick={() => setWriteOptionList(!writeOptionList)}
+              >
+                {!writeOptionList ? (
+                  <>
+                    <p className="ml-[15px]">
+                      {writeOption ? options[writeOption] : "주제를 선택하세요"}
+                    </p>
+                    <img className="rotate-90 mr-[5px] mb-[3px]" src={optionsArrow} />
+                  </>
+                ) : (
+                  <>
+                    <p className="ml-[15px] text-[#9e9e9e]">주제를 선택하세요</p>
+                    <img className="rotate-270 mr-[5px] mt-[5px]" src={optionsArrow} />
+                  </>
+                )}
+              </button>
+
+              {writeOptionList && (
+                <ul className="absolute w-full max-w-[220px] border-2 border-[#FF8C00]/60 rounded-md bg-black/80 ;">
+                  {Object.entries(options).map(([key, value]) => (
+                    <li
+                      key={key}
+                      className="w-full max-w-[220px] h-[40px] p-[7px] cursor-pointer hover:bg-[rgba(218,218,218,0.33)]"
+                      onClick={() => {
+                        setWriteOption(key as Category);
+                        setWriteOptionList(!writeOptionList);
+                        setShowError(false);
+                      }}
+                    >
+                      <p className="text-center text-[#9e9e9e]">{value}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
 
             <p className="mb-2.5">제목</p>
             <input
@@ -185,19 +241,25 @@ export default function Write() {
               focus:border-[#FF8C00] focus:shadow-[0_0_10px_4px_rgba(255,140,0,0.5)]"
               value={writeTitle}
               onChange={(e) => {
-                if (e.target.value.length <= 20) setWriteTitle(e.target.value);
+                {
+                  if (e.target.value.length <= 50) setWriteTitle(e.target.value);
+                  setShowError(false);
+                }
               }}
             ></input>
-            <p className="mb-[30px] text-right">{writeTitle.length}/20</p>
+            <p className="mb-[30px] text-right">{writeTitle.length}/50</p>
 
             <p className="mb-[10px]">설명</p>
             <textarea
               placeholder="밸런스 게임에 대한 설명을 입력하세요"
-              className="w-full h-auto min-h-[105px] mb-[10px] p-[15px] pt-[12px] font-normal border-2 border-[#FF8C00]/60 rounded-md outline-none
+              rows={5}
+              className="w-full mb-[10px] p-[15px] pt-[12px] font-normal border-2 border-[#FF8C00]/60 rounded-md outline-none
               focus:border-[#FF8C00] focus:shadow-[0_0_10px_4px_rgba(255,140,0,0.5)] "
               value={writeExplain}
               onChange={(e) => {
-                if (e.target.value.length <= 200) setWriteExplain(e.target.value);
+                if (e.target.value.length <= 200 && e.target.value.split("\n").length <= 5)
+                  setWriteExplain(e.target.value);
+                setShowError(false);
               }}
             ></textarea>
             <p className="mb-[46px] text-right">{writeExplain.length}/200</p>
@@ -207,21 +269,27 @@ export default function Write() {
             <div className="flex-1 h-[1px] bg-[#FF8C00]"></div>
             <p className="text-[#FF8C00]">선택지</p>
             <div className="flex-1 h-[1px] bg-[#FF8C00]"></div>
-          </div>{" "}
+          </div>
           {/* */}
           <input
             type="file"
             className="hidden"
             ref={imageUploadInputRefA}
             accept="image/*"
-            onChange={(e) => imageUploadHandler(e, "A")}
+            onChange={(e) => {
+              imageUploadHandler(e, "A");
+              setShowError(false);
+            }}
           />
           <input
             type="file"
             className="hidden"
             ref={imageUploadInputRefB}
             accept="image/*"
-            onChange={(e) => imageUploadHandler(e, "B")}
+            onChange={(e) => {
+              imageUploadHandler(e, "B");
+              setShowError(false);
+            }}
           />
           <div className="w-full h-[480px] grid grid-cols-2 gap-[82px] justify-items-center">
             {choices.map((choice) => (
@@ -243,19 +311,19 @@ export default function Write() {
                 focus-within:shadow-[0_0_10px_4px_rgba(255,140,0,0.5)] "
                   value={choice.key === "A" ? writeSelectTextA : writeSelectTextB}
                   onChange={(e) => {
-                    if (choice.key === "A" && e.target.value.length <= 15)
+                    if (choice.key === "A" && e.target.value.length <= 25)
                       setWriteSelectTextA(e.target.value);
-                    else if (choice.key === "B" && e.target.value.length <= 15)
+                    else if (choice.key === "B" && e.target.value.length <= 25)
                       setWriteSelectTextB(e.target.value);
                   }}
                 ></input>
                 <p className="mb-[16px] text-right">
-                  {choice.key === "A" ? writeSelectTextA.length : writeSelectTextB.length}/15
+                  {choice.key === "A" ? writeSelectTextA.length : writeSelectTextB.length}/25
                 </p>
                 {/* 3 */}
                 <div
                   className="w-full h-[350px] border-2 border-dashed border-[#FF8C00]/60 rounded-lg
-                  hover:border-[#FF8C00]"
+                  cursor-pointer hover:border-[#FF8C00]"
                 >
                   {imageUploadPreviewA && choice.key === "A" ? (
                     <img
@@ -291,11 +359,16 @@ export default function Write() {
           <div className="grid justify-items-center">
             <button
               className="w-[426px] h-[41px] mt-[35px] bg-[#FF8C00] text-black rounded-md
-              hover:scale-105 hover:drop-shadow-[0_0_15px_#ff8c00]"
+              cursor-pointer transition-shadow duration-200 hover:scale-101 hover:drop-shadow-[0_0_5px_#ff8c00]"
               onClick={() => writeDataHandler()}
             >
               게시하기
             </button>
+            {showError && (
+              <p className="text-red-500 text-sm text-center mt-2">
+                모든 필수 입력 항목을 입력해주세요.
+              </p>
+            )}
           </div>
         </div>
       </div>
