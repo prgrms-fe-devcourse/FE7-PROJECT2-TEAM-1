@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
 import { useNavigate } from "react-router";
+import Toast from "../../components/toast/Toast";
 
 type Choices = { key: string; label: string; image: string }[];
 
@@ -15,7 +16,14 @@ export default function Write() {
   ];
   // useState로 개선할 수 있음 (추후)
 
-  const options: string[] = ["우정", "연애", "음식", "생활", "취미", "일"];
+  const options = {
+    friendship: "우정",
+    love: "연애",
+    food: "음식",
+    life: "생활",
+    hobby: "취미",
+    work: "일",
+  };
 
   const navigate = useNavigate();
 
@@ -27,7 +35,7 @@ export default function Write() {
   const [imageUploadB, setImageUploadB] = useState<File | null>(null);
 
   const [writeOptionList, setWriteOptionList] = useState(false);
-  const [writeOption, setWriteOption] = useState("");
+  const [writeOption, setWriteOption] = useState<Category | "">("");
   const [writeTitle, setWriteTitle] = useState("");
   const [writeExplain, setWriteExplain] = useState("");
   const [writeSelectTextA, setWriteSelectTextA] = useState("");
@@ -36,6 +44,8 @@ export default function Write() {
   const [showError, setShowError] = useState(false);
 
   const profile = useAuthStore((state) => state.profile);
+
+  const notify = (message: string, type: ToastType) => Toast({ message, type });
 
   const imageUploadHandler = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
     if (!e.target.files) return;
@@ -61,9 +71,7 @@ export default function Write() {
     if (writeExplain === "") return setShowError(true);
     if (writeSelectTextA === "") return setShowError(true);
     if (writeSelectTextB === "") return setShowError(true);
-
     if (!profile) return;
-
     try {
       const { data, error } = await supabase
         .from("posts")
@@ -82,13 +90,13 @@ export default function Write() {
       }
       if (data) {
         console.log(data);
-
         let urlA = await insertOptionImg(imageUploadA, data.uid, writeOption);
         await insertOption(writeSelectTextA, urlA, "left", data.uid);
         let urlB = await insertOptionImg(imageUploadB, data.uid, writeOption);
         await insertOption(writeSelectTextB, urlB, "right", data.uid);
 
-        navigate("/");
+        notify("글 작성이 완료 되었습니다!", "SUCCESS");
+        navigate(`/posts/${writeOption}`);
       }
     } catch (error) {
       console.error(error);
@@ -183,7 +191,9 @@ export default function Write() {
               >
                 {!writeOptionList ? (
                   <>
-                    <p className="ml-[15px]">{writeOption ? writeOption : "주제를 선택하세요"}</p>
+                    <p className="ml-[15px]">
+                      {writeOption ? options[writeOption] : "주제를 선택하세요"}
+                    </p>
                     <img className="rotate-90 mr-[5px] mb-[3px]" src={optionsArrow} />
                   </>
                 ) : (
@@ -196,16 +206,17 @@ export default function Write() {
 
               {writeOptionList && (
                 <ul className="absolute w-full max-w-[220px] border-2 border-[#FF8C00]/60 rounded-md bg-black/80 ;">
-                  {options.map((option) => (
+                  {Object.entries(options).map(([key, value]) => (
                     <li
+                      key={key}
                       className="w-full max-w-[220px] h-[40px] p-[7px] cursor-pointer hover:bg-[rgba(218,218,218,0.33)]"
                       onClick={() => {
-                        setWriteOption(option);
+                        setWriteOption(key as Category);
                         setWriteOptionList(!writeOptionList);
                         setShowError(false);
                       }}
                     >
-                      <p className="text-center text-[#9e9e9e]">{option}</p>
+                      <p className="text-center text-[#9e9e9e]">{value}</p>
                     </li>
                   ))}
                 </ul>
