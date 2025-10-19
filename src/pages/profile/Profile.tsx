@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import Toast from "../../components/toast/Toast";
 import UserPosts from "./UserPosts";
 import UserStats from "./UserStats";
+import { checkHandleExists } from "../../services/signIn";
 
 export default function Profile() {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
@@ -20,11 +21,13 @@ export default function Profile() {
   const users = useAuthStore((state) => state.profile);
   const [profile, setProfile] = useState<Profile | null>(null);
   const hydrateFromAuth = useAuthStore((state) => state.hydrateFromAuth);
-  const [newName, setNewName] = useState(profile?.username);
-  const [newBio, setNewBio] = useState(profile?.bio);
+  const [newName, setNewName] = useState(users?.username);
+  const [newBio, setNewBio] = useState(users?.bio);
+  const [newHandle, setNewHandle] = useState(users?.handle);
   const [isEdit, setIsEdit] = useState(false);
 
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const handleInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -39,15 +42,44 @@ export default function Profile() {
     }
   };
 
+  const handleSameCheck = async () => {
+    if (!newHandle) return false;
+    if (newHandle?.trim().length < 2) {
+      notify("2글자 이상 입력해주세요!", "ERROR");
+      return false;
+    }
+    if (!/^[a-zA-Z0-9가-힣._]+$/.test(newHandle)) {
+      notify(". 또는 @ 기호만 사용 가능합니다.", "ERROR");
+      return false;
+    }
+    const ckeckBool = await checkHandleExists(newHandle, profile?.uid || "");
+    if (ckeckBool) {
+      notify("사용할 수 없는 핸들 입니다. 다른 핸들을 입력해주세요.", "ERROR");
+      return false;
+    }
+    return true;
+  };
+
   const editHandler = async () => {
-    if (newName!.length < 2) {
+    if (newName!.trim().length < 2) {
       nameInputRef.current?.focus();
-      notify("이름을 2글자 이상 적어주세요", "ERROR");
+      notify("이름을 2글자 이상 입력해주세요!", "ERROR");
+      return;
+    }
+
+    const handleCheck = await handleSameCheck();
+    if (!handleCheck) {
+      handleInputRef.current?.focus();
       return;
     }
 
     try {
-      if (newName === profile?.username && newBio === profile?.bio && imagePreview === "") {
+      if (
+        newName === profile?.username &&
+        newBio === profile?.bio &&
+        newHandle === profile?.handle &&
+        imagePreview === ""
+      ) {
         return;
       }
 
@@ -74,7 +106,7 @@ export default function Profile() {
 
       const { error } = await supabase
         .from("profiles")
-        .update({ username: newName, bio: newBio, profile_img: url })
+        .update({ username: newName, bio: newBio, handle: newHandle, profile_img: url })
         .eq("email", profile?.email || "")
         .select()
         .single();
@@ -82,7 +114,9 @@ export default function Profile() {
       if (error) throw error;
       notify("프로필이 수정되었습니다.", "SUCCESS");
       hydrateFromAuth();
-      setProfile((prev) => ({ ...prev, username: newName, bio: newBio }) as Profile);
+      setProfile(
+        (prev) => ({ ...prev, username: newName, bio: newBio, handle: newHandle }) as Profile,
+      );
       setImagePreview("");
     } catch (error) {
       console.error(error);
@@ -96,6 +130,7 @@ export default function Profile() {
     setIsEdit((prev) => !prev);
     setNewBio(profile?.bio);
     setNewName(profile?.username);
+    setNewHandle(profile?.handle);
     setImagePreview("");
     setImageFile(null);
   };
@@ -157,7 +192,15 @@ export default function Profile() {
             )}
 
             {!isEdit ? (
-              <Activity mode={!params.userId ? "visible" : "hidden"}>
+              <Activity
+                mode={
+                  !params.userId
+                    ? "visible"
+                    : params.userId === users?.handle
+                      ? "visible"
+                      : "hidden"
+                }
+              >
                 <button
                   className="absolute top-[20px] right-[50px] w-[31px] h-[31px] rounded-[6px] border-0 bg-[#FF8C00] flex items-center justify-center text-black hover:opacity-80 transition cursor-pointer"
                   onClick={() => setIsEdit((prev) => !prev)}
@@ -184,7 +227,6 @@ export default function Profile() {
 
             <div className="flex items-center gap-[20px] px-[40px] py-[30px] pb-[20px] mt-[35px]">
               <div className="relative w-[95px] h-[95px] rounded-full  border-2 border-[#EBBA7D] p-1.5 flex-shrink-0">
-                {}
                 <img
                   src={
                     imagePreview
@@ -224,7 +266,23 @@ export default function Profile() {
                     </>
                   )}
 
-                  <p className="text-[14px] text-[#999999]">@{profile?.handle}</p>
+                  {isEdit ? (
+                    <>
+                      <input
+                        type="text"
+                        className="w-full h-[36px] bg-[#0A0A0A] border border-[#FF8C00] rounded-[6px] text-white placeholder-[#999999] placeholder:font-bold shadow-[0_1px_2px_rgba(0,0,0,0.25)] px-3 
+                  focus:outline-none mb-[10px]
+                  "
+                        ref={handleInputRef}
+                        value={newHandle}
+                        onChange={(e) => setNewHandle(e.target.value)}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-[14px] text-[#999999]">@{profile?.handle}</p>
+                    </>
+                  )}
                 </div>
 
                 {isEdit ? (
@@ -233,13 +291,14 @@ export default function Profile() {
                       className="w-full min-h-[112px] bg-[#0A0A0A] border border-[#FF8C00] rounded-[6px] text-white placeholder-[#999999] placeholder:font-bold shadow-[0_1px_2px_rgba(0,0,0,0.25)] p-1 px-3 
                   focus:outline-none font-normal overflow-hidden 
                   "
+                      placeholder="밸런스게임 좋아하시나요?"
                       value={newBio || ""}
                       onChange={(e) => {
                         if (e.target.value.length <= 200) setNewBio(e.target.value);
                       }}
                     />
                     <span className="text-right  text-[14px] font-normal">
-                      {newBio?.length}/200
+                      {newBio?.length || 0}/200
                     </span>
                   </>
                 ) : (
@@ -259,7 +318,13 @@ export default function Profile() {
 
             <UserStats profile={profile} />
           </div>
-          <button onClick={signout}>로그아웃</button>
+          <Activity
+            mode={
+              !params.userId ? "visible" : params.userId === users?.handle ? "visible" : "hidden"
+            }
+          >
+            <button onClick={signout}>로그아웃</button>
+          </Activity>
           <div className="w-[1098px] h-auto text-left text-[24px] mt-[60px] mb-[5px]">
             작성한 게시글
           </div>
