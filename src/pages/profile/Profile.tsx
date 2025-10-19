@@ -115,9 +115,15 @@ export default function Profile() {
       notify("프로필이 수정되었습니다.", "SUCCESS");
       hydrateFromAuth();
       setProfile(
-        (prev) => ({ ...prev, username: newName, bio: newBio, handle: newHandle }) as Profile,
+        (prev) =>
+          ({
+            ...prev,
+            username: newName,
+            bio: newBio,
+            handle: newHandle,
+            profile_img: imagePreview,
+          }) as Profile,
       );
-      setImagePreview("");
     } catch (error) {
       console.error(error);
     } finally {
@@ -131,7 +137,7 @@ export default function Profile() {
     setNewBio(profile?.bio);
     setNewName(profile?.username);
     setNewHandle(profile?.handle);
-    setImagePreview("");
+    setImagePreview(profile?.profile_img || "");
     setImageFile(null);
   };
 
