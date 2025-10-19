@@ -1,7 +1,7 @@
 // import type { Database } from "./database";
 
 // type Alarm = Database["public"]["Tables"]["alarm"]["Row"];
-type AlarmType = "vote" | "comment" | "report" | "like";
+type AlarmType = "votes" | "comments" | "reports" | "likes";
 
 interface Alarm {
   uid: string;

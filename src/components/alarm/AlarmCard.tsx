@@ -1,4 +1,4 @@
-import { Activity, useState } from "react";
+import { useState } from "react";
 import close from "../../assets/alarm/alarm_close.png";
 import { deleteAlarmAPI } from "../../services/alarm";
 import { useAlarmStore } from "../../stores/alarmStore";
@@ -10,17 +10,18 @@ import PostAlarm from "../modal/PostAlarm";
 export default function AlarmCard({ alarm }: { alarm: Alarm }) {
   const alarmStore = useAlarmStore();
   const [openPost, setOpenPost] = useState(false);
+  const [postData, setPostData] = useState<Post | null>(null);
 
   const renderContent = () => {
     switch (alarm.type) {
-      case "vote":
+      case "votes":
         // alarm reference_id는 무조건 vote
-        return <AlarmCardVote alarm={alarm} />;
-      case "comment":
+        return <AlarmCardVote alarm={alarm} setPostData={setPostData} openPost={openPost} />;
+      case "comments":
         return <AlarmCardComment />;
-      case "like":
+      case "likes":
         return;
-      case "report":
+      case "reports":
         return <AlarmCardReport />;
     }
   };
@@ -43,9 +44,7 @@ export default function AlarmCard({ alarm }: { alarm: Alarm }) {
           onClick={deleteHandler}
         />
         {renderContent()}
-        <Activity mode={openPost ? "visible" : "hidden"}>
-          <PostAlarm setOpenPost={setOpenPost} />
-        </Activity>
+        {openPost && postData && <PostAlarm setOpenPost={setOpenPost} post={postData} />}
       </div>
     </>
   );
