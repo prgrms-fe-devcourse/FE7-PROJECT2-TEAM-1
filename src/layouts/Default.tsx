@@ -4,10 +4,10 @@ import Header from "../components/Header";
 export default function Default() {
   return (
     <div className="bg-black text-white">
-      <div className="border-b-2 border-[#FF8C00]">
+      <div>
         <Header />
       </div>
-      <main>
+      <main className="mt-[65px]">
         <Outlet />
       </main>
     </div>
