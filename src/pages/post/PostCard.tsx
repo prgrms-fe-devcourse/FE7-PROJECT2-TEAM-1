@@ -21,6 +21,7 @@ export default function PostCard({ post }: { post: Post }) {
     right: 0,
   });
   const [initialSelected, setInitialSelected] = useState<OptionKey | null>(null);
+  const hasVoted = initialSelected !== null;
   useEffect(() => {
     (async () => {
       if (!leftOption?.uid || !rightOption?.uid) return;
@@ -199,6 +200,7 @@ export default function PostCard({ post }: { post: Post }) {
             }
             try {
               await submitVote(optionId);
+              setInitialSelected(choice);
               console.log("투표 저장 완료");
             } catch (err) {
               console.error("투표 저장 실패:", err);
@@ -236,46 +238,68 @@ export default function PostCard({ post }: { post: Post }) {
 
           {/* 댓글 */}
           <div
-            onClick={() => setIsCommentOpen((v) => !v)}
+            onClick={() => {
+              if (!hasVoted) return;
+              setIsCommentOpen((v) => !v);
+            }}
             role="button"
             tabIndex={0}
             aria-expanded={isCommentOpen}
-            className="flex items-center mx-auto w-[996px] h-[50px] mb-0 transition-colors duration-300 hover:bg-[#FF8C00]/20 focus:outline-none"
+            aria-disabled={!hasVoted}
+            className={[
+              "flex items-center mx-auto w-[996px] h-[50px] mb-0 transition-colors duration-300 hover:bg-[#FF8C00]/20 focus:outline-none",
+              hasVoted ? "hover:bg-[#FF8C00]/20 cursor-pointer" : "opacity-60 cursor-not-allowed",
+            ].join(" ")}
           >
             <img src={commentIcon} className="ml-[13px] mr-[21px] w-[25px]" />
             <span className="text-[14px] text-[#FF8C00] mr-[3px]">comments</span>
             <span className="text-[14px] text-[#FF8C00]">({commentCounts})</span>
           </div>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const text = commentText.trim();
-              if (!text) return;
-              setPendingComment(text);
-              setCommentText(""); // 입력창 비우기
-            }}
-            className={[
-              "mx-auto w-[996px] overflow-hidden transition-[max-height,opacity] duration-300",
-              isCommentOpen ? "max-h-[180px] opacity-100" : "max-h-0 opacity-0",
-            ].join(" ")}
-          >
-            <div className="flex items-center gap-3 py-3">
-              <input
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Share your opinion..."
-                className="flex-1 bg-transparent border border-[#FF8C00]/40 focus:border-[#FF8C00] rounded-md px-3 py-2 text-white outline-none"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 rounded-md bg-[#FF8C00] text-black font-bold hover:bg-[#FF8C00]/90 transition-colors"
+          <div className="relative mx-auto w-[996px]">
+            <div
+              className={["transition-all", !hasVoted ? "pointer-events-none blur-sm" : ""].join(
+                " ",
+              )}
+            >
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const text = commentText.trim();
+                  if (!text) return;
+                  setPendingComment(text);
+                  setCommentText(""); // 입력창 비우기
+                }}
+                className={[
+                  "mx-auto w-[996px] overflow-hidden transition-[max-height,opacity] duration-300",
+                  isCommentOpen ? "max-h-[180px] opacity-100" : "max-h-0 opacity-0",
+                ].join(" ")}
               >
-                <img src={sendIcon} />
-              </button>
+                <div className="flex items-center gap-3 py-3">
+                  <input
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder="Share your opinion..."
+                    className="flex-1 bg-transparent border border-[#FF8C00]/40 focus:border-[#FF8C00] rounded-md px-3 py-2 text-white outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-md bg-[#FF8C00] text-black font-bold hover:bg-[#FF8C00]/90 transition-colors"
+                  >
+                    <img src={sendIcon} />
+                  </button>
+                </div>
+              </form>
+              <div className="mx-auto flex justify-between w-[996px] border border-[#FF8C00]/40 rounded-[12px] mb-6">
+                <Comment postUid={post.uid} refresh={commentsRefresh} />
+              </div>
             </div>
-          </form>
-          <div className="mx-auto flex justify-between w-[996px] border border-[#FF8C00]/40 rounded-[12px] mb-6">
-            <Comment postUid={post.uid} refresh={commentsRefresh} />
+            {!hasVoted && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="px-4 py-2   text-[#FF8C00] text-[20px]">
+                  지금 투표하여 뜨거운 논쟁에 참여하세요!
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

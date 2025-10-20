@@ -50,13 +50,16 @@ export default function PollCard({
       className={[
         "relative w-[488px] h-[406px] overflow-hidden rounded-[12px] border-[2px] transition-all duration-300",
         selected === side ? "border-[#FF8C00]" : "border-[#FF8C00]/60",
-        !hasVoted && "hover:border-[#FF8C00]",
+        !hasVoted ? "hover:border-[#FF8C00] cursor-pointer" : "cursor-default",
       ].join(" ")}
     >
       {data.img && (
         <img
           src={data.img}
-          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+          className={[
+            "w-full h-full object-cover transition-transform duration-300",
+            !hasVoted ? "hover:scale-105" : "",
+          ].join(" ")}
           alt={data.label}
         />
       )}
