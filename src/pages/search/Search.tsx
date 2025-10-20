@@ -41,7 +41,9 @@ export default function Search() {
         const { data: profiles, error } = await supabase
           .from("profiles")
           .select("*")
-          .or(`username.ilike.%${searchTerm}%,handle.ilike.%${searchTerm}%`);
+          .or(`username.ilike.%${searchTerm}%,handle.ilike.%${searchTerm}%`)
+          .order("created_at", { ascending: false });
+
         if (error) throw error;
         setNoSearch(true);
         if (profiles) {
@@ -55,7 +57,9 @@ export default function Search() {
         const { data: posts, error } = await supabase
           .from("posts")
           .select("*")
-          .or(`post_title.ilike.%${searchTerm}%,post_desc.ilike.%${searchTerm}%`);
+          .or(`post_title.ilike.%${searchTerm}%,post_desc.ilike.%${searchTerm}%`)
+          .order("created_at", { ascending: false });
+
         if (error) throw error;
         setNoSearch(true);
         if (posts) {
