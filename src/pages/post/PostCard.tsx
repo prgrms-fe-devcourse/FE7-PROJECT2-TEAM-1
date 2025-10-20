@@ -14,7 +14,7 @@ import { addComment, submitVote, toggleLike } from "../../api/postActions";
 import { Activity, useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
-import { getAuthorByPostId, getVotesByOptionId } from "../../api/postGet";
+import { getAuthorByPostId, getLikeStatusByPostId, getVotesByOptionId } from "../../api/postGet";
 import Comment from "./Comment";
 import { Link } from "react-router";
 
@@ -25,20 +25,57 @@ export default function PostCard({
   post: Post;
   deletePostHandler: (uid: string) => Promise<void>;
 }) {
+  const { profile } = useAuthStore();
+  
   const [author, setAuthor] = useState<Profile | null>(null);
   const [voteCounts, setVoteCounts] = useState<{ left: number; right: number }>({
     left: 0,
     right: 0,
   });
-  const [liked, setLiked] = useState(false);
+  const [initialSelected, setInitialSelected] = useState<OptionKey | null>(null);
+  const hasVoted = initialSelected !== null;
+  useEffect(() => {
+    (async () => {
+      if (!leftOption?.uid || !rightOption?.uid) return;
+
+      const [leftCount, rightCount] = await Promise.all([
+        getVotesByOptionId(leftOption.uid),
+        getVotesByOptionId(rightOption.uid),
+      ]);
+      setVoteCounts({ left: leftCount, right: rightCount });
+
+      if (!profile) {
+        setInitialSelected(null);
+        return;
+      }
+
+      const { data: existing } = await supabase
+        .from("votes")
+        .select("option_id")
+        .eq("post_id", post.uid)
+        .eq("user_id", profile.uid)
+        .maybeSingle();
+
+      if (existing?.option_id === leftOption.uid) setInitialSelected("left");
+      else if (existing?.option_id === rightOption.uid) setInitialSelected("right");
+      else setInitialSelected(null);
+    })();
+  }, [post.uid]);
+
+  const [likeStatus, setLikeStatus] = useState(false);
+  useEffect(() => {
+    (async () => {
+      setLikeStatus(await getLikeStatusByPostId(postId));
+    })();
+  }, [post.uid, profile?.uid]);
+
   const [likeCounts, setLikeCounts] = useState<number>(post.like_count ?? 0);
-  const [commentCounts, setCommentCounts] = useState<number>(post.comment_count ?? 0);
+  const [commentCounts, setCommentsCounts] = useState<number>(post.comment_count ?? 0);
+  const [commentsRefresh, setCommentsRefresh] = useState(0);
   const [isCommentOpen, setIsCommentOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [pendingComment, setPendingComment] = useState<string | null>(null);
   const [options, setOptions] = useState<Option[]>([]);
-
-  const { profile } = useAuthStore();
 
   const postId = post.uid;
 
@@ -78,23 +115,48 @@ export default function PostCard({
   const rightOption = options.find((option) => option.position === "right") as Option;
 
   useEffect(() => {
-    async () => {
-      try {
-        const leftCount = await getVotesByOptionId(leftOption.uid);
-        const rightCount = await getVotesByOptionId(rightOption.uid);
-        setVoteCounts({ left: leftCount, right: rightCount });
-      } catch (err) {
-        console.error("옵션 count 불러오기 실패:", err);
+    (async () => {
+      // try {
+      //   const leftCount = await getVotesByOptionId(leftOption.uid);
+      //   const rightCount = await getVotesByOptionId(rightOption.uid);
+      //   setVoteCounts({ left: leftCount, right: rightCount });
+      // } catch (err) {
+      //   console.error("옵션 count 불러오기 실패:", err);
+      // }
+      if (!leftOption?.uid || !rightOption?.uid) return;
+
+      const [leftCount, rightCount] = await Promise.all([
+        getVotesByOptionId(leftOption.uid),
+        getVotesByOptionId(rightOption.uid),
+      ]);
+      setVoteCounts({ left: leftCount, right: rightCount });
+
+      if (!profile) {
+        setInitialSelected(null);
+        return;
       }
-    };
-  });
+
+      const { data: existing } = await supabase
+        .from("votes")
+        .select("option_id")
+        .eq("post_id", post.uid)
+        .eq("user_id", profile.uid)
+        .maybeSingle();
+
+      if (existing?.option_id === leftOption.uid) setInitialSelected("left");
+      else if (existing?.option_id === rightOption.uid) setInitialSelected("right");
+      else setInitialSelected(null);
+    })();
+  }, [post.uid, profile?.uid, leftOption?.uid, rightOption?.uid]);
+
   // Pending comment
   useEffect(() => {
     if (!pendingComment || !profile?.uid) return;
     (async () => {
       try {
         await addComment(post.uid, pendingComment);
-        setCommentCounts((c) => c + 1);
+        setCommentsCounts((c) => c + 1);
+        setCommentsRefresh((n) => n + 1);
       } catch (err) {
         console.error(err);
       } finally {
@@ -192,6 +254,7 @@ export default function PostCard({
             optionId: rightOption?.uid,
           }}
           initialCounts={voteCounts}
+          initialSelected={initialSelected}
           onVote={async (choice) => {
             const optionId = choice === "left" ? leftOption?.uid : rightOption?.uid;
             if (!optionId) {
@@ -201,6 +264,7 @@ export default function PostCard({
             }
             try {
               await submitVote(optionId);
+              setInitialSelected(choice);
               console.log("투표 저장 완료");
             } catch (err) {
               console.error("투표 저장 실패:", err);
@@ -208,13 +272,13 @@ export default function PostCard({
           }}
         />
 
-        {/* --- 좋아요, 댓글 --- */}
+        {/* 좋아요 */}
         <div>
           <div className="flex items-center mx-auto w-[996px] h-[50px] border-y-[2px] border-[#FF8C00]/20">
             <button
               onClick={async () => {
                 const { liked } = await toggleLike(postId);
-                setLiked(liked);
+                setLikeStatus(liked);
                 try {
                   const { data } = await supabase
                     .from("posts")
@@ -229,53 +293,77 @@ export default function PostCard({
               className="transition-transform hover:scale-130"
             >
               <img
-                src={liked ? likeFilledIcon : likeIcon}
+                src={likeStatus ? likeFilledIcon : likeIcon}
                 className="ml-[13px] mr-[21px] w-[25px]"
               />
             </button>
             <span className="text-[14px]">{likeCounts}</span>
           </div>
+
+          {/* 댓글 */}
           <div
-            onClick={() => setIsCommentOpen((v) => !v)}
+            onClick={() => {
+              if (!hasVoted) return;
+              setIsCommentOpen((v) => !v);
+            }}
             role="button"
             tabIndex={0}
             aria-expanded={isCommentOpen}
-            className="flex items-center mx-auto w-[996px] h-[50px] mb-0 transition-colors duration-300 hover:bg-[#FF8C00]/20 focus:outline-none"
+            aria-disabled={!hasVoted}
+            className={[
+              "flex items-center mx-auto w-[996px] h-[50px] mb-0 transition-colors duration-300 hover:bg-[#FF8C00]/20 focus:outline-none",
+              hasVoted ? "hover:bg-[#FF8C00]/20 cursor-pointer" : "opacity-60 cursor-not-allowed",
+            ].join(" ")}
           >
             <img src={commentIcon} className="ml-[13px] mr-[21px] w-[25px]" />
             <span className="text-[14px] text-[#FF8C00] mr-[3px]">comments</span>
             <span className="text-[14px] text-[#FF8C00]">({commentCounts})</span>
           </div>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const text = commentText.trim();
-              if (!text) return;
-              setPendingComment(text);
-              setCommentText(""); // 입력창 비우기
-            }}
-            className={[
-              "mx-auto w-[996px] overflow-hidden transition-[max-height,opacity] duration-300",
-              isCommentOpen ? "max-h-[180px] opacity-100" : "max-h-0 opacity-0",
-            ].join(" ")}
-          >
-            <div className="flex items-center gap-3 py-3">
-              <input
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Share your opinion..."
-                className="flex-1 bg-transparent border border-[#FF8C00]/40 focus:border-[#FF8C00] rounded-md px-3 py-2 text-white outline-none"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 rounded-md bg-[#FF8C00] text-black font-bold hover:bg-[#FF8C00]/90 transition-colors"
+          <div className="relative mx-auto w-[996px]">
+            <div
+              className={["transition-all", !hasVoted ? "pointer-events-none blur-sm" : ""].join(
+                " ",
+              )}
+            >
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const text = commentText.trim();
+                  if (!text) return;
+                  setPendingComment(text);
+                  setCommentText(""); // 입력창 비우기
+                }}
+                className={[
+                  "mx-auto w-[996px] overflow-hidden transition-[max-height,opacity] duration-300",
+                  isCommentOpen ? "max-h-[180px] opacity-100" : "max-h-0 opacity-0",
+                ].join(" ")}
               >
-                <img src={sendIcon} />
-              </button>
+                <div className="flex items-center gap-3 py-3">
+                  <input
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder="Share your opinion..."
+                    className="flex-1 bg-transparent border border-[#FF8C00]/40 focus:border-[#FF8C00] rounded-md px-3 py-2 text-white outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-md bg-[#FF8C00] text-black font-bold hover:bg-[#FF8C00]/90 transition-colors"
+                  >
+                    <img src={sendIcon} />
+                  </button>
+                </div>
+              </form>
+              <div className="mx-auto flex justify-between w-[996px] border border-[#FF8C00]/40 rounded-[12px] mb-6">
+                <Comment postUid={post.uid} refresh={commentsRefresh} />
+              </div>
             </div>
-          </form>
-          <div className="mx-auto flex justify-between w-[996px] border border-[#FF8C00]/40 rounded-[12px] mb-6">
-            <Comment postUid={post.uid} />
+            {!hasVoted && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="px-4 py-2   text-[#FF8C00] text-[20px]">
+                  지금 투표하여 뜨거운 논쟁에 참여하세요!
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

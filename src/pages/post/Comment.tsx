@@ -14,7 +14,7 @@ function formatRelativeTime(dateString: string) {
   return new Date(dateString).toLocaleDateString();
 }
 
-export default function Comment({ postUid }: { postUid: string }) {
+export default function Comment({ postUid, refresh }: { postUid: string; refresh: number }) {
   const [comments, setComments] = useState<CommentWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export default function Comment({ postUid }: { postUid: string }) {
         setLoading(false);
       }
     })();
-  }, [postUid]);
+  }, [postUid, refresh]);
 
   if (loading) return <div className="text-[#FF8C00] px-4 py-2">불러오는 중…</div>;
   if (error) return <div className="text-red-500 px-4 py-2">{error}</div>;
