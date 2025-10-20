@@ -13,6 +13,7 @@ import UserPosts from "./UserPosts";
 import UserStats from "./UserStats";
 import { checkHandleExists } from "../../services/signIn";
 import ProfileSkeleton from "../../components/loading/ProfileSkeleton";
+import { getUserPostsAPI } from "../../services/profile";
 
 export default function Profile() {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
@@ -33,6 +34,8 @@ export default function Profile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const [posts, setPosts] = useState<Post[]>([]);
 
   const signout = async () => {
     try {
@@ -190,6 +193,15 @@ export default function Profile() {
       setIsLoading(true);
     };
   }, []);
+
+  useEffect(() => {
+    if (!profile?.uid) return;
+    const getUserPosts = async () => {
+      const data = await getUserPostsAPI(profile?.uid);
+      if (data) setPosts(data);
+    };
+    getUserPosts();
+  }, [profile]);
 
   if (isLoading) return <ProfileSkeleton />;
 
@@ -350,14 +362,14 @@ export default function Profile() {
               </div>
             </div>
 
-            <UserStats profile={profile} />
+            <UserStats posts={posts} />
           </div>
 
           <div className="w-[1098px] h-auto text-left text-[24px] mt-[60px] mb-[5px]">
             작성한 게시글
           </div>
           <Activity mode={profile ? "visible" : "hidden"}>
-            <UserPosts profile={profile} />
+            <UserPosts posts={posts} setPosts={setPosts} />
           </Activity>
         </div>
       </main>
