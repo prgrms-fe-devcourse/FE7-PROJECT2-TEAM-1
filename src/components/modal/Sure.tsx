@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import background from "../../assets/sure/background.svg";
 
-export default function Sure({ onClose }: { onClose: () => void }) {
+type SureProps = {
+  onYes: () => void;
+  onClose: () => void;
+};
+
+export default function Sure({ onYes, onClose }: SureProps) {
   const [closing, setClosing] = useState(false);
   const [opening, setOpening] = useState(true);
 
@@ -12,13 +17,16 @@ export default function Sure({ onClose }: { onClose: () => void }) {
     return () => clearTimeout(t);
   }, []);
 
-  const handleAnimation = useCallback(() => {
-    if (closing) return;
-    setClosing(true);
-    setTimeout(() => {
-      onClose();
-    }, 350);
-  }, [closing, onClose]);
+  const handleAnimation = useCallback(
+    (callback: () => void) => {
+      if (closing) return;
+      setClosing(true);
+      setTimeout(() => {
+        callback();
+      }, 350);
+    },
+    [closing],
+  );
   return (
     <>
       <div className="fixed bg-[rgb(132_124_124_/_0.3)] flex justify-center items-center inset-0 z-[9999]">
@@ -29,13 +37,13 @@ export default function Sure({ onClose }: { onClose: () => void }) {
           <div className="relative text-[30px] text-white flex mt-27">
             <button
               className="mr-40 cursor-pointer hover:underline hover:decoration-[#FF8C00] hover:scale-110 hover:text-[#FF8C00] transition-transform duration-200"
-              onClick={handleAnimation}
+              onClick={() => handleAnimation(onYes)}
             >
               YES
             </button>
             <button
               className="ml-20 mr-7 cursor-pointer hover:underline hover:decoration-[#FF8C00] hover:scale-110 hover:text-[#FF8C00] transition-transform duration-200"
-              onClick={handleAnimation}
+              onClick={() => handleAnimation(onClose)}
             >
               NO
             </button>

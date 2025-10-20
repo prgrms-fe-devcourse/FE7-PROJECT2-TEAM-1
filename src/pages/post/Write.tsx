@@ -189,16 +189,17 @@ export default function Write() {
     }
   }, []);
 
+  const handleYes = () => {
+    setShowSureModal(false);
+    navigate(-1);
+  };
+  const handleClose = () => {
+    setShowSureModal(false);
+  };
+
   return (
     <>
-      {showSureModal && (
-        <Sure
-          onClose={() => {
-            setShowSureModal(false);
-          }}
-          // TODO: yes 처리 안 함
-        />
-      )}
+      {showSureModal && <Sure onYes={handleYes} onClose={handleClose} />}
 
       <div className="flex flex-col items-center">
         <div className="w-full max-w-[1200px] my-9 mx-auto flex gap-5 items-center">
@@ -207,12 +208,7 @@ export default function Write() {
             className="w-[31px] h-[26px] mt-[7px] cursor-pointer"
             onClick={() => {
               const isError = writeEmptyHandler();
-
-              isError ? setShowSureModal(true) : navigate(-1);
-              // TODO
-              // 다 비어 있음 = isError 트루 / 뒤로 가기 가능
-              // 하나라도 비어 있음 = isError 트루 / 모달 뜨게 하기
-              // 전부 채워져 있음 = isError 펄스 / 모달 뜨게 하기
+              isError && setShowSureModal(true);
             }}
           />
           <p className="w-[1000px] text-[#FF8C00] text-3xl">새 밸런스 게임 만들기</p>
