@@ -14,11 +14,41 @@ import { getAuthorByPostId, getVotesByOptionId } from "../../api/postGet";
 import Comment from "./Comment";
 
 export default function PostCard({ post }: { post: Post }) {
+  const { profile } = useAuthStore();
   const [author, setAuthor] = useState<Profile | null>(null);
   const [voteCounts, setVoteCounts] = useState<{ left: number; right: number }>({
     left: 0,
     right: 0,
   });
+  const [initialSelected, setInitialSelected] = useState<OptionKey | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      if (!leftOption?.uid || !rightOption?.uid) return;
+
+      const [leftCount, rightCount] = await Promise.all([
+        getVotesByOptionId(leftOption.uid),
+        getVotesByOptionId(rightOption.uid),
+      ]);
+      setVoteCounts({ left: leftCount, right: rightCount });
+
+      if (!profile) {
+        setInitialSelected(null);
+        return;
+      }
+
+      const { data: existing } = await supabase
+        .from("votes")
+        .select("option_id")
+        .eq("post_id", post.uid)
+        .eq("user_id", profile.uid)
+        .maybeSingle();
+
+      if (existing?.option_id === leftOption.uid) setInitialSelected("left");
+      else if (existing?.option_id === rightOption.uid) setInitialSelected("right");
+      else setInitialSelected(null);
+    })();
+  }, [post.uid]);
   const [liked, setLiked] = useState(false);
   const [likeCounts, setLikeCounts] = useState<number>(post.like_count ?? 0);
   const [commentCounts, setCommentCounts] = useState<number>(post.comment_count ?? 0);
@@ -26,8 +56,6 @@ export default function PostCard({ post }: { post: Post }) {
   const [commentText, setCommentText] = useState("");
   const [pendingComment, setPendingComment] = useState<string | null>(null);
   const [options, setOptions] = useState<Option[]>([]);
-
-  const { profile } = useAuthStore();
 
   const postId = post.uid;
 
@@ -64,16 +92,39 @@ export default function PostCard({ post }: { post: Post }) {
   const rightOption = options.find((option) => option.position === "right") as Option;
 
   useEffect(() => {
-    async () => {
-      try {
-        const leftCount = await getVotesByOptionId(leftOption.uid);
-        const rightCount = await getVotesByOptionId(rightOption.uid);
-        setVoteCounts({ left: leftCount, right: rightCount });
-      } catch (err) {
-        console.error("옵션 count 불러오기 실패:", err);
+    (async () => {
+      // try {
+      //   const leftCount = await getVotesByOptionId(leftOption.uid);
+      //   const rightCount = await getVotesByOptionId(rightOption.uid);
+      //   setVoteCounts({ left: leftCount, right: rightCount });
+      // } catch (err) {
+      //   console.error("옵션 count 불러오기 실패:", err);
+      // }
+      if (!leftOption?.uid || !rightOption?.uid) return;
+
+      const [leftCount, rightCount] = await Promise.all([
+        getVotesByOptionId(leftOption.uid),
+        getVotesByOptionId(rightOption.uid),
+      ]);
+      setVoteCounts({ left: leftCount, right: rightCount });
+
+      if (!profile) {
+        setInitialSelected(null);
+        return;
       }
-    };
-  });
+
+      const { data: existing } = await supabase
+        .from("votes")
+        .select("option_id")
+        .eq("post_id", post.uid)
+        .eq("user_id", profile.uid)
+        .maybeSingle();
+
+      if (existing?.option_id === leftOption.uid) setInitialSelected("left");
+      else if (existing?.option_id === rightOption.uid) setInitialSelected("right");
+      else setInitialSelected(null);
+    })();
+  }, [post.uid, profile?.uid, leftOption?.uid, rightOption?.uid]);
   // Pending comment
   useEffect(() => {
     if (!pendingComment || !profile?.uid) return;
@@ -130,6 +181,7 @@ export default function PostCard({ post }: { post: Post }) {
             optionId: rightOption?.uid,
           }}
           initialCounts={voteCounts}
+          initialSelected={initialSelected}
           onVote={async (choice) => {
             const optionId = choice === "left" ? leftOption?.uid : rightOption?.uid;
             if (!optionId) {

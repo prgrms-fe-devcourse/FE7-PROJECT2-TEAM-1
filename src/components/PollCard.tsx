@@ -1,27 +1,28 @@
 import person_orange from "../assets/posts/person_orange.svg";
 import { useEffect, useState } from "react";
-import supabase from "../utils/supabase";
-import { getHasVotedByOptionId } from "../api/postGet";
 
-type OptionKey = "left" | "right";
 type PollCardProps = {
   left: { label: string; img: string; optionId: string };
   right: { label: string; img: string; optionId: string };
   initialCounts?: { left: number; right: number };
+  initialSelected?: OptionKey | null;
   onVote: (choice: OptionKey) => Promise<void> | void;
 };
 export default function PollCard({
   left,
   right,
   initialCounts = { left: 0, right: 0 },
+  initialSelected = null,
   onVote,
 }: PollCardProps) {
   const [counts, setCounts] = useState(initialCounts);
-  const [selected, setSelected] = useState<OptionKey | null>(null);
-  const total = counts.left + counts.right || 1;
-  const pctLeft = Math.round((counts.left / total) * 100);
-  const pctRight = 100 - pctLeft;
+  const [selected, setSelected] = useState<OptionKey | null>(initialSelected);
+
+  useEffect(() => setCounts(initialCounts), [initialCounts]);
+  useEffect(() => setSelected(initialSelected), [initialSelected]);
+
   const hasVoted = selected !== null;
+
   const vote = (key: OptionKey) => {
     if (hasVoted) return;
     setSelected(key);
@@ -29,34 +30,9 @@ export default function PollCard({
     onVote(key);
   };
 
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const { data, error } = await supabase
-  //         .from("votes")
-  //         .select(
-  //           `
-  //     *,
-  //     options:option_id(*)
-  //   `,
-  //         )
-  //         .in("option_id", [left.optionId, right.optionId]);
-  //       console.log(data);
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   })();
-  // }, []);
-
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const { data, error} = await supabase.from("votes").select("*").eq("user_id", )
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   })();
-  // }, [])
+  const total = counts.left + counts.right || 1;
+  const pctLeft = Math.round((counts.left / total) * 100);
+  const pctRight = 100 - pctLeft;
 
   const Card = ({
     side,
