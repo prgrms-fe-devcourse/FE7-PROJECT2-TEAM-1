@@ -12,9 +12,11 @@ import Toast from "../../components/toast/Toast";
 import UserPosts from "./UserPosts";
 import UserStats from "./UserStats";
 import { checkHandleExists } from "../../services/signIn";
+import ProfileSkeleton from "../../components/loading/ProfileSkeleton";
 
 export default function Profile() {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
+  const [isLoading, setIsLoading] = useState(true);
 
   const params = useParams();
   const navigate = useNavigate();
@@ -158,30 +160,37 @@ export default function Profile() {
   };
   useEffect(() => {
     async function handleParam() {
-      if (params.userId) {
-        try {
+      try {
+        if (params.userId) {
           const { data: profiles, error } = await supabase
             .from("profiles")
             .select("*")
             .eq("handle", params.userId)
             .single();
+
           if (error) throw error;
           if (profiles) {
             setProfile(profiles);
           }
-        } catch (error) {
-          console.error(error);
+        } else if (users) {
+          setProfile(users);
         }
-      } else if (users) {
-        setProfile(users);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        const timer = setTimeout(() => setIsLoading(false), 700);
+        return () => clearTimeout(timer);
       }
     }
     handleParam();
 
     return () => {
       setProfile(null);
+      setIsLoading(true);
     };
   }, []);
+
+  if (isLoading) return <ProfileSkeleton />;
 
   return (
     <>
