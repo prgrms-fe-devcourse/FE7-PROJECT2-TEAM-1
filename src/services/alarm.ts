@@ -1,5 +1,7 @@
+import type { Database } from "../types/database";
 import supabase from "../utils/supabase";
 
+type TableName = keyof Database["public"]["Tables"];
 const fetchAlarmsAPI = async (uid: string) => {
   try {
     const { data: alarms, error } = await supabase
@@ -37,4 +39,27 @@ const deleteAlarmAPI = async (uid: string) => {
   }
 };
 
-export { fetchAlarmsAPI, allReadAPI, deleteAlarmAPI };
+const handleOpenPost = async (reference_id: string, type: string) => {
+  try {
+    const { data, error } = await supabase
+      .from(type as TableName)
+      .select("posts(*)")
+      .eq("uid", reference_id)
+      .single();
+
+    if (error) throw error;
+    if (!data) {
+      console.warn("해당 알림에 연결된 게시글이 없습니다:");
+      return null;
+    }
+
+    const { posts } = data;
+    if (!posts) null;
+    return posts as Post;
+  } catch (error) {
+    console.error("포스트 불러오기 실패:", error);
+    return null;
+  }
+};
+
+export { fetchAlarmsAPI, allReadAPI, deleteAlarmAPI, handleOpenPost };
