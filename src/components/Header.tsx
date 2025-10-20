@@ -49,10 +49,7 @@ export default function Header() {
   };
 
   return (
-    <header
-      className="fixed top-0 w-full h-[65px] z-50 bg-black shadow
-    border-b-2 border-[#FF8C00]"
-    >
+    <header className="fixed top-0 w-full h-[65px] z-50 bg-black shadow border-b-2 border-[#FF8C00]">
       <div
         className="
       max-w-[1200px] mx-auto
@@ -61,28 +58,32 @@ export default function Header() {
     "
       >
         <Link to="/">
-          <div className="flex items-center gap-4">
-            <img src={header_logo} alt="header-logo" className="h-[41px] w-[31px]" />
+          <div className="flex items-center">
+            <img src={header_logo} alt="header-logo" className="h-[40px] w-full pr-3" />
             <img
               src={header_name1}
               alt="header-name1"
-              className="h-[25px] min-w-[65px] object-contain"
+              className="h-[65px] min-w-[67px] pr-3 object-contain"
             />
             <img
               src={header_name2}
               alt="header-name2"
-              className="h-[50px] min-w-[130px] object-contain"
+              className="h-[65px] min-w-[130px] pr-3 object-contain"
             />
           </div>
         </Link>
         <Link to="/search" className="col-start-22 col-span-1 justify-self-start">
-          <img src={header_search} alt="header-search" className="w-[30px] h-[31px]" />
+          <div>
+            <img src={header_search} alt="header-search" className="w-[30px] h-[31px]" />
+          </div>
         </Link>
         <Link
           to={profile ? "/profile" : `/signin?url=${location.pathname}`}
           className="col-start-23 col-span-1 justify-self-start"
         >
-          <img src={header_user} alt="header-user" className="w-[31px] h-[31px]" />
+          <div>
+            <img src={header_user} alt="header-user" className="w-[31px] h-[31px]" />
+          </div>
         </Link>
         <div className="relative" ref={alarmDivRef}>
           <button className="cursor-pointer" onClick={alarmClickHandler}>
