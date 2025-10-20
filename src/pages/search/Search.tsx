@@ -5,6 +5,7 @@ import supabase from "../../utils/supabase";
 import type { Database } from "../../types/database";
 import SearchPosts from "./SearchPosts";
 import SearchUsers from "./SearchUsers";
+import PostCard from "../post/PostCard";
 
 type Post = Database["public"]["Tables"]["posts"]["Row"];
 export default function Search() {
@@ -113,9 +114,11 @@ export default function Search() {
           <img src={ghosts} alt="ghosts" />
         </div>
       ) : selectedCategory === "posts" ? (
-        (searchResult as Post[]).map((post) => <SearchPosts key={post.uid} result={post} />)
+        (searchResult as Post[]).map((post) => <PostCard key={post.uid} post={post} />)
       ) : (
-        (searchResult as Profile[]).map((user) => <SearchUsers key={user.handle} result={user} />)
+        (searchResult as Profile[]).map((user) => (
+          <SearchUsers key={user.handle} result={user} searchTerm={searchTerm} />
+        ))
       )}
     </div>
   );
