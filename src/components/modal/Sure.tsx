@@ -21,7 +21,7 @@ export default function Sure({ onClose }: { onClose: () => void }) {
   }, [closing, onClose]);
   return (
     <>
-      <div className="fixed bg-[rgb(132_124_124_/_0.3)] flex justify-center items-center inset-0 ">
+      <div className="fixed bg-[rgb(132_124_124_/_0.3)] flex justify-center items-center inset-0 z-[9999]">
         <div
           className={`flex justify-center items-center transition-all duration-300 ease-out w-[650px] h-[300px] ${closing ? "opacity-0 translate-y-10" : opening ? "opacity-0 translate-y-10" : "opacity-100 translate-y-0"}`}
         >

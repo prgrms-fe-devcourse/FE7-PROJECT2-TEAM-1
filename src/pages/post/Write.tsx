@@ -76,7 +76,8 @@ export default function Write() {
       writeSelectTextA === "" ||
       writeSelectTextB === "";
 
-    if (isError) return setShowError(true);
+    setShowError(isError);
+    return isError;
   };
 
   const writeDataHandler = async () => {
@@ -204,22 +205,14 @@ export default function Write() {
           <img
             src={categoryArrow}
             className="w-[31px] h-[26px] mt-[7px] cursor-pointer"
-            onClick={(isError) => {
-              console.log("writeOption:", writeOption);
-              console.log("writeTitle:", writeTitle);
-              console.log("writeExplain:", writeExplain);
-              console.log("writeSelectTextA:", writeSelectTextA);
-              console.log("writeSelectTextB:", writeSelectTextB);
+            onClick={() => {
+              const isError = writeEmptyHandler();
 
-              writeEmptyHandler();
-              console.log("isError 상태:", !!isError);
               isError ? setShowSureModal(true) : navigate(-1);
               // TODO
-              // 다 비어 있을 때 모달로 넘어가는건 따로 조건 처리 필요
-              // TODO
-              // 디버깅 : 전부 차 있을 때는 false여야 하는데 true가 됨
-              // TODO
-              // 모달이 드롭다운 한테 묻힘 (위치 조정 필요)
+              // 다 비어 있음 = isError 트루 / 뒤로 가기 가능
+              // 하나라도 비어 있음 = isError 트루 / 모달 뜨게 하기
+              // 전부 채워져 있음 = isError 펄스 / 모달 뜨게 하기
             }}
           />
           <p className="w-[1000px] text-[#FF8C00] text-3xl">새 밸런스 게임 만들기</p>
@@ -251,7 +244,7 @@ export default function Write() {
               </button>
 
               {writeOptionList && (
-                <ul className="absolute w-full max-w-[220px] border-2 border-[#FF8C00]/60 rounded-md bg-black/80 ;">
+                <ul className="absolute w-full max-w-[220px] z-[50] border-2 border-[#FF8C00]/60 rounded-md bg-black/80 ;">
                   {Object.entries(options).map(([key, value]) => (
                     <li
                       key={key}
