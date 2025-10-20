@@ -74,6 +74,20 @@ export async function getHasVotedByOptionId(optionId: string) {
 //   return likes;
 // }
 
+export async function getLikeStatusByPostId(postId: string) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return false;
+  const { count, error } = await supabase
+    .from("likes")
+    .select("uid", { count: "exact", head: true })
+    .eq("post_id", postId)
+    .eq("user_id", user.id);
+  if (error) throw error;
+  return (count ?? 0) > 0;
+}
+
 export async function getCommentsByPostId(postId: string) {
   const { data, error } = await supabase
     .from("comments")

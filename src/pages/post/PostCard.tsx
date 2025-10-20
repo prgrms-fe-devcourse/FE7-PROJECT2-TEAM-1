@@ -10,7 +10,7 @@ import { addComment, submitVote, toggleLike } from "../../api/postActions";
 import { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
-import { getAuthorByPostId, getVotesByOptionId } from "../../api/postGet";
+import { getAuthorByPostId, getLikeStatusByPostId, getVotesByOptionId } from "../../api/postGet";
 import Comment from "./Comment";
 
 export default function PostCard({ post }: { post: Post }) {
@@ -21,7 +21,6 @@ export default function PostCard({ post }: { post: Post }) {
     right: 0,
   });
   const [initialSelected, setInitialSelected] = useState<OptionKey | null>(null);
-
   useEffect(() => {
     (async () => {
       if (!leftOption?.uid || !rightOption?.uid) return;
@@ -49,7 +48,14 @@ export default function PostCard({ post }: { post: Post }) {
       else setInitialSelected(null);
     })();
   }, [post.uid]);
-  const [liked, setLiked] = useState(false);
+
+  const [likeStatus, setLikeStatus] = useState(false);
+  useEffect(() => {
+    (async () => {
+      setLikeStatus(await getLikeStatusByPostId(postId));
+    })();
+  }, [post.uid, profile?.uid]);
+
   const [likeCounts, setLikeCounts] = useState<number>(post.like_count ?? 0);
   const [commentCounts, setCommentCounts] = useState<number>(post.comment_count ?? 0);
   const [isCommentOpen, setIsCommentOpen] = useState(false);
@@ -125,6 +131,7 @@ export default function PostCard({ post }: { post: Post }) {
       else setInitialSelected(null);
     })();
   }, [post.uid, profile?.uid, leftOption?.uid, rightOption?.uid]);
+
   // Pending comment
   useEffect(() => {
     if (!pendingComment || !profile?.uid) return;
@@ -203,7 +210,7 @@ export default function PostCard({ post }: { post: Post }) {
             <button
               onClick={async () => {
                 const { liked } = await toggleLike(postId);
-                setLiked(liked);
+                setLikeStatus(liked);
                 try {
                   const { data } = await supabase
                     .from("posts")
@@ -218,7 +225,7 @@ export default function PostCard({ post }: { post: Post }) {
               className="transition-transform hover:scale-130"
             >
               <img
-                src={liked ? likeFilledIcon : likeIcon}
+                src={likeStatus ? likeFilledIcon : likeIcon}
                 className="ml-[13px] mr-[21px] w-[25px]"
               />
             </button>
