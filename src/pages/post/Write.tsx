@@ -22,8 +22,8 @@ export default function Write() {
     love: "연애",
     food: "음식",
     life: "생활",
+    work: "직장",
     hobby: "취미",
-    work: "일",
   };
 
   const navigate = useNavigate();
