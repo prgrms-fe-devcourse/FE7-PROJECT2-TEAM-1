@@ -120,7 +120,9 @@ export default function Search() {
           <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
         </div>
       ) : selectedCategory === "posts" ? (
-        (searchResult as Post[]).map((post) => <PostCard key={post.uid} post={post} />)
+        (searchResult as Post[]).map((post) => (
+          <PostCard key={post.uid} post={post} searchTerm={searchTerm} />
+        ))
       ) : (
         (searchResult as Profile[]).map((user) => (
           <SearchUsers key={user.handle} result={user} searchTerm={searchTerm} />
