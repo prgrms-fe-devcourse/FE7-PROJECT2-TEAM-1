@@ -4,32 +4,83 @@ import likeFilledIcon from "../../assets/posts/likeFilled.svg";
 import commentIcon from "../../assets/posts/commentIcon.svg";
 import sendIcon from "../../assets/posts/paperPlane.svg";
 
+import trash from "../../assets/posts/trash.png";
+import author_img from "../../assets/posts/author.png";
+import report from "../../assets/posts/report.png";
+
 import PollCard from "../../components/PollCard";
 import { addComment, submitVote, toggleLike } from "../../api/postActions";
 
-import { useEffect, useState } from "react";
+import { Activity, useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
-import { getAuthorByPostId, getVotesByOptionId } from "../../api/postGet";
+import { getAuthorByPostId, getLikeStatusByPostId, getVotesByOptionId } from "../../api/postGet";
 import Comment from "./Comment";
+import { Link } from "react-router";
 
-export default function PostCard({ post }: { post: Post }) {
+export default function PostCard({
+  post,
+  deletePostHandler,
+}: {
+  post: Post;
+  deletePostHandler: (uid: string) => Promise<void>;
+}) {
+  const { profile } = useAuthStore();
+  
   const [author, setAuthor] = useState<Profile | null>(null);
   const [voteCounts, setVoteCounts] = useState<{ left: number; right: number }>({
     left: 0,
     right: 0,
   });
-  const [liked, setLiked] = useState(false);
+  const [initialSelected, setInitialSelected] = useState<OptionKey | null>(null);
+  const hasVoted = initialSelected !== null;
+  useEffect(() => {
+    (async () => {
+      if (!leftOption?.uid || !rightOption?.uid) return;
+
+      const [leftCount, rightCount] = await Promise.all([
+        getVotesByOptionId(leftOption.uid),
+        getVotesByOptionId(rightOption.uid),
+      ]);
+      setVoteCounts({ left: leftCount, right: rightCount });
+
+      if (!profile) {
+        setInitialSelected(null);
+        return;
+      }
+
+      const { data: existing } = await supabase
+        .from("votes")
+        .select("option_id")
+        .eq("post_id", post.uid)
+        .eq("user_id", profile.uid)
+        .maybeSingle();
+
+      if (existing?.option_id === leftOption.uid) setInitialSelected("left");
+      else if (existing?.option_id === rightOption.uid) setInitialSelected("right");
+      else setInitialSelected(null);
+    })();
+  }, [post.uid]);
+
+  const [likeStatus, setLikeStatus] = useState(false);
+  useEffect(() => {
+    (async () => {
+      setLikeStatus(await getLikeStatusByPostId(postId));
+    })();
+  }, [post.uid, profile?.uid]);
+
   const [likeCounts, setLikeCounts] = useState<number>(post.like_count ?? 0);
-  const [commentCounts, setCommentCounts] = useState<number>(post.comment_count ?? 0);
+  const [commentCounts, setCommentsCounts] = useState<number>(post.comment_count ?? 0);
+  const [commentsRefresh, setCommentsRefresh] = useState(0);
   const [isCommentOpen, setIsCommentOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [pendingComment, setPendingComment] = useState<string | null>(null);
   const [options, setOptions] = useState<Option[]>([]);
 
-  const { profile } = useAuthStore();
-
   const postId = post.uid;
+
+  // 삭제 드롭다운
+  const [isOpen, setIsOpen] = useState(false);
 
   // author
   useEffect(() => {
@@ -64,23 +115,48 @@ export default function PostCard({ post }: { post: Post }) {
   const rightOption = options.find((option) => option.position === "right") as Option;
 
   useEffect(() => {
-    async () => {
-      try {
-        const leftCount = await getVotesByOptionId(leftOption.uid);
-        const rightCount = await getVotesByOptionId(rightOption.uid);
-        setVoteCounts({ left: leftCount, right: rightCount });
-      } catch (err) {
-        console.error("옵션 count 불러오기 실패:", err);
+    (async () => {
+      // try {
+      //   const leftCount = await getVotesByOptionId(leftOption.uid);
+      //   const rightCount = await getVotesByOptionId(rightOption.uid);
+      //   setVoteCounts({ left: leftCount, right: rightCount });
+      // } catch (err) {
+      //   console.error("옵션 count 불러오기 실패:", err);
+      // }
+      if (!leftOption?.uid || !rightOption?.uid) return;
+
+      const [leftCount, rightCount] = await Promise.all([
+        getVotesByOptionId(leftOption.uid),
+        getVotesByOptionId(rightOption.uid),
+      ]);
+      setVoteCounts({ left: leftCount, right: rightCount });
+
+      if (!profile) {
+        setInitialSelected(null);
+        return;
       }
-    };
-  });
+
+      const { data: existing } = await supabase
+        .from("votes")
+        .select("option_id")
+        .eq("post_id", post.uid)
+        .eq("user_id", profile.uid)
+        .maybeSingle();
+
+      if (existing?.option_id === leftOption.uid) setInitialSelected("left");
+      else if (existing?.option_id === rightOption.uid) setInitialSelected("right");
+      else setInitialSelected(null);
+    })();
+  }, [post.uid, profile?.uid, leftOption?.uid, rightOption?.uid]);
+
   // Pending comment
   useEffect(() => {
     if (!pendingComment || !profile?.uid) return;
     (async () => {
       try {
         await addComment(post.uid, pendingComment);
-        setCommentCounts((c) => c + 1);
+        setCommentsCounts((c) => c + 1);
+        setCommentsRefresh((n) => n + 1);
       } catch (err) {
         console.error(err);
       } finally {
@@ -89,22 +165,70 @@ export default function PostCard({ post }: { post: Post }) {
     })();
   }, [pendingComment, profile?.uid, post.uid]);
 
+  if (!author) return null;
+
   return (
     <div className="group w-[1098px] border-[2px] border-[#FF8C00]/30 rounded-[12px] mt-[30px] mx-auto transition-colors duration-300 hover:border-[#FF8C00]/60">
       {/* --- 프로필 --- */}
       <div className="flex items-center justify-between h-[100px] border-b-[2px] border-[#FF8C00]/30 transition-colors duration-300 group-hover:border-[#FF8C00]/60">
-        <div className="flex justify-center ml-[51px]">
-          <div className="w-[45px] h-[45px] rounded-full overflow-hidden border-[2px] border-[#FF8C00] mr-[11px]">
-            {author?.profile_img && (
-              <img src={author.profile_img} className="w-full h-full object-cover" alt="profile" />
-            )}
+        <div className="flex w-[1000px] justify-between ml-[51px]">
+          <div className="flex">
+            <div className="w-[45px] h-[45px] rounded-full overflow-hidden border-[2px] border-[#FF8C00] mr-[11px]">
+              {author?.profile_img && (
+                <img
+                  src={author.profile_img}
+                  className="w-full h-full object-cover"
+                  alt="profile"
+                />
+              )}
+            </div>
+            <div>
+              <p className="text-white text-[16px]">{author?.username ?? "익명"}</p>
+              <p className="text-[#999999] text-[14px]">@{author?.handle ?? "guest"}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-white text-[16px]">{author?.username ?? "익명"}</p>
-            <p className="text-[#999999] text-[14px]">@{author?.handle ?? "guest"}</p>
+          <div className="relative">
+            <img
+              src={kebabMenuIcon}
+              className="pr-[10px] pt-[8px] cursor-pointer"
+              onClick={() => setIsOpen(!isOpen)}
+            />
+            <Activity mode={isOpen ? "visible" : "hidden"}>
+              <div className="absolute top-7 left-5 w-[160px]  border-1 border-[#ffffff30] rounded-[10px] mt-3 shadow-lg shadow-[#0A0A0A] overflow-x-hidden overflow-y-auto transition-all duration-200 z-50 backdrop-blur-lg">
+                {author?.uid === profile?.uid ? (
+                  <div
+                    className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#0A0A0A] "
+                    onClick={() => deletePostHandler(post.uid)}
+                  >
+                    <img
+                      className="w-[20px] h-[20px] translate-x-[-4px]"
+                      src={trash}
+                      alt="trash_logo"
+                    />
+                    <span className="h-[20px] ml-[5px] translate-x-[-4px]">삭제하기</span>
+                  </div>
+                ) : (
+                  <>
+                    <Link to={`/profile/${author.handle}`}>
+                      <div className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#0A0A0A]">
+                        <img className="w-[20px] h-[20px]" src={author_img} alt="author_logo" />
+                        <span className="h-[20px] ml-[6px]">프로필가기</span>
+                      </div>
+                    </Link>
+                    <div className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#0A0A0A]">
+                      <img
+                        className="w-[20px] h-[20px] translate-x-[-6px]"
+                        src={report}
+                        alt="author_logo"
+                      />
+                      <span className="h-[20px] ml-[6px] translate-x-[-6px]">신고하기</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </Activity>
           </div>
         </div>
-        <img src={kebabMenuIcon} className="pr-[10px]" />
       </div>
       {/* --- 본문 --- */}
       <div className="space-y-[30px]">
@@ -130,14 +254,17 @@ export default function PostCard({ post }: { post: Post }) {
             optionId: rightOption?.uid,
           }}
           initialCounts={voteCounts}
+          initialSelected={initialSelected}
           onVote={async (choice) => {
             const optionId = choice === "left" ? leftOption?.uid : rightOption?.uid;
             if (!optionId) {
+              ``;
               console.error("투표 실패: optionId가 비어있습니다.");
               return;
             }
             try {
               await submitVote(optionId);
+              setInitialSelected(choice);
               console.log("투표 저장 완료");
             } catch (err) {
               console.error("투표 저장 실패:", err);
@@ -145,13 +272,13 @@ export default function PostCard({ post }: { post: Post }) {
           }}
         />
 
-        {/* --- 좋아요, 댓글 --- */}
+        {/* 좋아요 */}
         <div>
           <div className="flex items-center mx-auto w-[996px] h-[50px] border-y-[2px] border-[#FF8C00]/20">
             <button
               onClick={async () => {
                 const { liked } = await toggleLike(postId);
-                setLiked(liked);
+                setLikeStatus(liked);
                 try {
                   const { data } = await supabase
                     .from("posts")
@@ -166,53 +293,77 @@ export default function PostCard({ post }: { post: Post }) {
               className="transition-transform hover:scale-130"
             >
               <img
-                src={liked ? likeFilledIcon : likeIcon}
+                src={likeStatus ? likeFilledIcon : likeIcon}
                 className="ml-[13px] mr-[21px] w-[25px]"
               />
             </button>
             <span className="text-[14px]">{likeCounts}</span>
           </div>
+
+          {/* 댓글 */}
           <div
-            onClick={() => setIsCommentOpen((v) => !v)}
+            onClick={() => {
+              if (!hasVoted) return;
+              setIsCommentOpen((v) => !v);
+            }}
             role="button"
             tabIndex={0}
             aria-expanded={isCommentOpen}
-            className="flex items-center mx-auto w-[996px] h-[50px] mb-0 transition-colors duration-300 hover:bg-[#FF8C00]/20 focus:outline-none"
+            aria-disabled={!hasVoted}
+            className={[
+              "flex items-center mx-auto w-[996px] h-[50px] mb-0 transition-colors duration-300 hover:bg-[#FF8C00]/20 focus:outline-none",
+              hasVoted ? "hover:bg-[#FF8C00]/20 cursor-pointer" : "opacity-60 cursor-not-allowed",
+            ].join(" ")}
           >
             <img src={commentIcon} className="ml-[13px] mr-[21px] w-[25px]" />
             <span className="text-[14px] text-[#FF8C00] mr-[3px]">comments</span>
             <span className="text-[14px] text-[#FF8C00]">({commentCounts})</span>
           </div>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const text = commentText.trim();
-              if (!text) return;
-              setPendingComment(text);
-              setCommentText(""); // 입력창 비우기
-            }}
-            className={[
-              "mx-auto w-[996px] overflow-hidden transition-[max-height,opacity] duration-300",
-              isCommentOpen ? "max-h-[180px] opacity-100" : "max-h-0 opacity-0",
-            ].join(" ")}
-          >
-            <div className="flex items-center gap-3 py-3">
-              <input
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Share your opinion..."
-                className="flex-1 bg-transparent border border-[#FF8C00]/40 focus:border-[#FF8C00] rounded-md px-3 py-2 text-white outline-none"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 rounded-md bg-[#FF8C00] text-black font-bold hover:bg-[#FF8C00]/90 transition-colors"
+          <div className="relative mx-auto w-[996px]">
+            <div
+              className={["transition-all", !hasVoted ? "pointer-events-none blur-sm" : ""].join(
+                " ",
+              )}
+            >
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const text = commentText.trim();
+                  if (!text) return;
+                  setPendingComment(text);
+                  setCommentText(""); // 입력창 비우기
+                }}
+                className={[
+                  "mx-auto w-[996px] overflow-hidden transition-[max-height,opacity] duration-300",
+                  isCommentOpen ? "max-h-[180px] opacity-100" : "max-h-0 opacity-0",
+                ].join(" ")}
               >
-                <img src={sendIcon} />
-              </button>
+                <div className="flex items-center gap-3 py-3">
+                  <input
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder="Share your opinion..."
+                    className="flex-1 bg-transparent border border-[#FF8C00]/40 focus:border-[#FF8C00] rounded-md px-3 py-2 text-white outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-md bg-[#FF8C00] text-black font-bold hover:bg-[#FF8C00]/90 transition-colors"
+                  >
+                    <img src={sendIcon} />
+                  </button>
+                </div>
+              </form>
+              <div className="mx-auto flex justify-between w-[996px] border border-[#FF8C00]/40 rounded-[12px] mb-6">
+                <Comment postUid={post.uid} refresh={commentsRefresh} />
+              </div>
             </div>
-          </form>
-          <div className="mx-auto flex justify-between w-[996px] border border-[#FF8C00]/40 rounded-[12px] mb-6">
-            <Comment postUid={post.uid} />
+            {!hasVoted && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="px-4 py-2   text-[#FF8C00] text-[20px]">
+                  지금 투표하여 뜨거운 논쟁에 참여하세요!
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

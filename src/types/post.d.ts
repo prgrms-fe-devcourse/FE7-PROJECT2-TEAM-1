@@ -1,4 +1,5 @@
 type Category = "friendship" | "love" | "food" | "life" | "hobby" | "work";
+type OptionKey = "left" | "right";
 
 interface Post {
   uid: string;
@@ -21,7 +22,7 @@ interface Option {
   option_title: string;
   option_img: string | null;
   created_at: string;
-  position: "left" | "right";
+  position: OptionKey;
 }
 interface Vote {
   uid: string;
