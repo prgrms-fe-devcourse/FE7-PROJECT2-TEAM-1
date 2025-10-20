@@ -10,8 +10,6 @@ export default function AlarmCardVote({
   setPostData: Dispatch<SetStateAction<Post | null>>;
   openPost: boolean;
 }) {
-  // reference_id로 vote db 갖고와서 가공
-
   useEffect(() => {
     if (!openPost) return;
 

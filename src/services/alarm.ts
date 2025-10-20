@@ -62,4 +62,25 @@ const handleOpenPost = async (reference_id: string, type: string) => {
   }
 };
 
-export { fetchAlarmsAPI, allReadAPI, deleteAlarmAPI, handleOpenPost };
+const getCommentUserAPI = async (uid: string) => {
+  try {
+    const { data, error } = await supabase
+      .from("comments")
+      .select(
+        `
+        comment_content,
+    profiles(*)
+  `,
+      )
+      .eq("uid", uid)
+      .single();
+    if (error) throw error;
+    // const { profiles } = data;
+    // if (!profiles) return;
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export { fetchAlarmsAPI, allReadAPI, deleteAlarmAPI, handleOpenPost, getCommentUserAPI };

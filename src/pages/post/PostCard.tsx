@@ -26,7 +26,7 @@ export default function PostCard({
   deletePostHandler: (uid: string) => Promise<void>;
 }) {
   const { profile } = useAuthStore();
-  
+
   const [author, setAuthor] = useState<Profile | null>(null);
   const [voteCounts, setVoteCounts] = useState<{ left: number; right: number }>({
     left: 0,
@@ -154,7 +154,7 @@ export default function PostCard({
     if (!pendingComment || !profile?.uid) return;
     (async () => {
       try {
-        await addComment(post.uid, pendingComment);
+        await addComment(post.uid, pendingComment, author?.uid || "");
         setCommentsCounts((c) => c + 1);
         setCommentsRefresh((n) => n + 1);
       } catch (err) {

@@ -37,7 +37,7 @@ export async function toggleLike(postId: string) {
 }
 
 // 댓글
-export async function addComment(postId: string, content: string) {
+export async function addComment(postId: string, content: string, author_id: string) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -50,5 +50,16 @@ export async function addComment(postId: string, content: string) {
     .single();
 
   if (error) throw error;
+
+  // 알람 처리
+  const { data: alarmData, error: alarmError } = await supabase
+    .from("alarm")
+    .insert([
+      { type: "comments", reference_id: data.uid, sender_id: user.id, receiver_id: author_id },
+    ]);
+
+  if (alarmError) throw alarmError;
+  console.log(alarmData);
+
   return data;
 }
