@@ -57,7 +57,8 @@ export default function PostCard({ post }: { post: Post }) {
   }, [post.uid, profile?.uid]);
 
   const [likeCounts, setLikeCounts] = useState<number>(post.like_count ?? 0);
-  const [commentCounts, setCommentCounts] = useState<number>(post.comment_count ?? 0);
+  const [commentCounts, setCommentsCounts] = useState<number>(post.comment_count ?? 0);
+  const [commentsRefresh, setCommentsRefresh] = useState(0);
   const [isCommentOpen, setIsCommentOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [pendingComment, setPendingComment] = useState<string | null>(null);
@@ -138,7 +139,8 @@ export default function PostCard({ post }: { post: Post }) {
     (async () => {
       try {
         await addComment(post.uid, pendingComment);
-        setCommentCounts((c) => c + 1);
+        setCommentsCounts((c) => c + 1);
+        setCommentsRefresh((n) => n + 1);
       } catch (err) {
         console.error(err);
       } finally {
@@ -204,7 +206,7 @@ export default function PostCard({ post }: { post: Post }) {
           }}
         />
 
-        {/* --- 좋아요, 댓글 --- */}
+        {/* 좋아요 */}
         <div>
           <div className="flex items-center mx-auto w-[996px] h-[50px] border-y-[2px] border-[#FF8C00]/20">
             <button
@@ -231,6 +233,8 @@ export default function PostCard({ post }: { post: Post }) {
             </button>
             <span className="text-[14px]">{likeCounts}</span>
           </div>
+
+          {/* 댓글 */}
           <div
             onClick={() => setIsCommentOpen((v) => !v)}
             role="button"
@@ -271,7 +275,7 @@ export default function PostCard({ post }: { post: Post }) {
             </div>
           </form>
           <div className="mx-auto flex justify-between w-[996px] border border-[#FF8C00]/40 rounded-[12px] mb-6">
-            <Comment postUid={post.uid} />
+            <Comment postUid={post.uid} refresh={commentsRefresh} />
           </div>
         </div>
       </div>
