@@ -19,7 +19,7 @@ export async function getAuthorByPostId(postId: string) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("profile_img, username, handle")
+    .select("uid, profile_img, username, handle")
     .eq("uid", userId)
     .single();
   return profile as Profile;
