@@ -6,6 +6,7 @@ import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
 import { useLocation, useNavigate } from "react-router";
 import Toast from "../../components/toast/Toast";
+import Sure from "../../components/modal/Sure";
 
 type Choices = { key: string; label: string; image: string }[];
 
@@ -43,6 +44,7 @@ export default function Write() {
   const [writeSelectTextB, setWriteSelectTextB] = useState("");
 
   const [showError, setShowError] = useState(false);
+  const [showSureModal, setShowSureModal] = useState(false);
 
   const profile = useAuthStore((state) => state.profile);
 
@@ -66,12 +68,24 @@ export default function Write() {
     }
   };
 
+  const writeEmptyHandler = () => {
+    const isError =
+      writeOption === "" ||
+      writeTitle === "" ||
+      writeExplain === "" ||
+      writeSelectTextA === "" ||
+      writeSelectTextB === "";
+
+    setShowError(isError);
+    return isError;
+  };
+
   const writeDataHandler = async () => {
-    if (writeOption === "") return setShowError(true);
-    if (writeTitle === "") return setShowError(true);
-    if (writeExplain === "") return setShowError(true);
-    if (writeSelectTextA === "") return setShowError(true);
-    if (writeSelectTextB === "") return setShowError(true);
+    if (writeOption === "") return;
+    if (writeTitle === "") return;
+    if (writeExplain === "") return;
+    if (writeSelectTextA === "") return;
+    if (writeSelectTextB === "") return;
     if (!profile) return;
     try {
       const { data, error } = await supabase
@@ -131,7 +145,7 @@ export default function Write() {
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/food.png";
         case "work":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/work.png";
-        case "hooby":
+        case "hobby":
           return "https://nrmhxllcbannezonftgf.supabase.co/storage/v1/object/public/hotpotato/options/default/hobby.png";
         default:
           return "";
@@ -175,15 +189,26 @@ export default function Write() {
     }
   }, []);
 
+  const handleYes = () => {
+    setShowSureModal(false);
+    navigate(-1);
+  };
+  const handleClose = () => {
+    setShowSureModal(false);
+  };
+
   return (
     <>
+      {showSureModal && <Sure onYes={handleYes} onClose={handleClose} />}
+
       <div className="flex flex-col items-center">
         <div className="w-full max-w-[1200px] my-9 mx-auto flex gap-5 items-center">
           <img
             src={categoryArrow}
             className="w-[31px] h-[26px] mt-[7px] cursor-pointer"
             onClick={() => {
-              navigate(-1);
+              const isError = writeEmptyHandler();
+              isError && setShowSureModal(true);
             }}
           />
           <p className="w-[1000px] text-[#FF8C00] text-3xl">새 밸런스 게임 만들기</p>
@@ -215,7 +240,7 @@ export default function Write() {
               </button>
 
               {writeOptionList && (
-                <ul className="absolute w-full max-w-[220px] border-2 border-[#FF8C00]/60 rounded-md bg-black/80 ;">
+                <ul className="absolute w-full max-w-[220px] z-[50] border-2 border-[#FF8C00]/60 rounded-md bg-black/80 ;">
                   {Object.entries(options).map(([key, value]) => (
                     <li
                       key={key}
@@ -360,7 +385,10 @@ export default function Write() {
             <button
               className="w-[426px] h-[41px] mt-[35px] bg-[#FF8C00] text-black rounded-md
               cursor-pointer transition-shadow duration-200 hover:scale-101 hover:drop-shadow-[0_0_5px_#ff8c00]"
-              onClick={() => writeDataHandler()}
+              onClick={() => {
+                writeDataHandler();
+                writeEmptyHandler();
+              }}
             >
               게시하기
             </button>

@@ -6,6 +6,8 @@ import PostCard from "./PostCard";
 import supabase from "../../utils/supabase";
 import { useNavigate, useParams } from "react-router";
 import { SLUG_TO_LABEL, type CategorySlug } from "../../constants/categories";
+import { deletePostAPI } from "../../services/post";
+import Toast from "../../components/toast/Toast";
 
 export default function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -15,6 +17,7 @@ export default function Posts() {
   const { topic } = useParams<{ topic: string }>();
   const isCategorySlug = (v: string): v is CategorySlug => Object.hasOwn(SLUG_TO_LABEL, v);
   const displayLabel = topic && isCategorySlug(topic) ? SLUG_TO_LABEL[topic] : "전체";
+  const notify = (message: string, type: ToastType) => Toast({ message, type });
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -40,6 +43,17 @@ export default function Posts() {
 
     fetchPosts();
   }, []);
+
+  const deletePostHandler = async (uid: string) => {
+    try {
+      const deleteData = await deletePostAPI(uid);
+      console.log(deleteData);
+      setPosts((prev) => prev.filter((item) => item.uid !== uid));
+      notify("포스트가 삭제되었습니다.", "SUCCESS");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   if (loading)
     return <div className="text-center text-[#FF8C00] mt-10">게시물을 불러오는 중...</div>;
@@ -74,7 +88,7 @@ export default function Posts() {
 
       <div className="max-w-[1200px] mx-auto">
         {posts.map((post) => (
-          <PostCard key={post.uid} post={post} />
+          <PostCard key={post.uid} post={post} deletePostHandler={deletePostHandler} />
         ))}
       </div>
     </div>

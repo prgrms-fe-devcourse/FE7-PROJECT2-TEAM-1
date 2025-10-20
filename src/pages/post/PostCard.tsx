@@ -4,17 +4,29 @@ import likeFilledIcon from "../../assets/posts/likeFilled.svg";
 import commentIcon from "../../assets/posts/commentIcon.svg";
 import sendIcon from "../../assets/posts/paperPlane.svg";
 
+import trash from "../../assets/posts/trash.png";
+import author_img from "../../assets/posts/author.png";
+import report from "../../assets/posts/report.png";
+
 import PollCard from "../../components/PollCard";
 import { addComment, submitVote, toggleLike } from "../../api/postActions";
 
-import { useEffect, useState } from "react";
+import { Activity, useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
 import { getAuthorByPostId, getLikeStatusByPostId, getVotesByOptionId } from "../../api/postGet";
 import Comment from "./Comment";
+import { Link } from "react-router";
 
-export default function PostCard({ post }: { post: Post }) {
+export default function PostCard({
+  post,
+  deletePostHandler,
+}: {
+  post: Post;
+  deletePostHandler: (uid: string) => Promise<void>;
+}) {
   const { profile } = useAuthStore();
+  
   const [author, setAuthor] = useState<Profile | null>(null);
   const [voteCounts, setVoteCounts] = useState<{ left: number; right: number }>({
     left: 0,
@@ -66,6 +78,9 @@ export default function PostCard({ post }: { post: Post }) {
   const [options, setOptions] = useState<Option[]>([]);
 
   const postId = post.uid;
+
+  // 삭제 드롭다운
+  const [isOpen, setIsOpen] = useState(false);
 
   // author
   useEffect(() => {
@@ -150,22 +165,70 @@ export default function PostCard({ post }: { post: Post }) {
     })();
   }, [pendingComment, profile?.uid, post.uid]);
 
+  if (!author) return null;
+
   return (
     <div className="group w-[1098px] border-[2px] border-[#FF8C00]/30 rounded-[12px] mt-[30px] mx-auto transition-colors duration-300 hover:border-[#FF8C00]/60">
       {/* --- 프로필 --- */}
       <div className="flex items-center justify-between h-[100px] border-b-[2px] border-[#FF8C00]/30 transition-colors duration-300 group-hover:border-[#FF8C00]/60">
-        <div className="flex justify-center ml-[51px]">
-          <div className="w-[45px] h-[45px] rounded-full overflow-hidden border-[2px] border-[#FF8C00] mr-[11px]">
-            {author?.profile_img && (
-              <img src={author.profile_img} className="w-full h-full object-cover" alt="profile" />
-            )}
+        <div className="flex w-[1000px] justify-between ml-[51px]">
+          <div className="flex">
+            <div className="w-[45px] h-[45px] rounded-full overflow-hidden border-[2px] border-[#FF8C00] mr-[11px]">
+              {author?.profile_img && (
+                <img
+                  src={author.profile_img}
+                  className="w-full h-full object-cover"
+                  alt="profile"
+                />
+              )}
+            </div>
+            <div>
+              <p className="text-white text-[16px]">{author?.username ?? "익명"}</p>
+              <p className="text-[#999999] text-[14px]">@{author?.handle ?? "guest"}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-white text-[16px]">{author?.username ?? "익명"}</p>
-            <p className="text-[#999999] text-[14px]">@{author?.handle ?? "guest"}</p>
+          <div className="relative">
+            <img
+              src={kebabMenuIcon}
+              className="pr-[10px] pt-[8px] cursor-pointer"
+              onClick={() => setIsOpen(!isOpen)}
+            />
+            <Activity mode={isOpen ? "visible" : "hidden"}>
+              <div className="absolute top-7 left-5 w-[160px]  border-1 border-[#ffffff30] rounded-[10px] mt-3 shadow-lg shadow-[#0A0A0A] overflow-x-hidden overflow-y-auto transition-all duration-200 z-50 backdrop-blur-lg">
+                {author?.uid === profile?.uid ? (
+                  <div
+                    className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#0A0A0A] "
+                    onClick={() => deletePostHandler(post.uid)}
+                  >
+                    <img
+                      className="w-[20px] h-[20px] translate-x-[-4px]"
+                      src={trash}
+                      alt="trash_logo"
+                    />
+                    <span className="h-[20px] ml-[5px] translate-x-[-4px]">삭제하기</span>
+                  </div>
+                ) : (
+                  <>
+                    <Link to={`/profile/${author.handle}`}>
+                      <div className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#0A0A0A]">
+                        <img className="w-[20px] h-[20px]" src={author_img} alt="author_logo" />
+                        <span className="h-[20px] ml-[6px]">프로필가기</span>
+                      </div>
+                    </Link>
+                    <div className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#0A0A0A]">
+                      <img
+                        className="w-[20px] h-[20px] translate-x-[-6px]"
+                        src={report}
+                        alt="author_logo"
+                      />
+                      <span className="h-[20px] ml-[6px] translate-x-[-6px]">신고하기</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </Activity>
           </div>
         </div>
-        <img src={kebabMenuIcon} className="pr-[10px]" />
       </div>
       {/* --- 본문 --- */}
       <div className="space-y-[30px]">
@@ -195,6 +258,7 @@ export default function PostCard({ post }: { post: Post }) {
           onVote={async (choice) => {
             const optionId = choice === "left" ? leftOption?.uid : rightOption?.uid;
             if (!optionId) {
+              ``;
               console.error("투표 실패: optionId가 비어있습니다.");
               return;
             }

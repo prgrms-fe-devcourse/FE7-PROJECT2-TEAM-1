@@ -12,9 +12,11 @@ import Toast from "../../components/toast/Toast";
 import UserPosts from "./UserPosts";
 import UserStats from "./UserStats";
 import { checkHandleExists } from "../../services/signIn";
+import ProfileSkeleton from "../../components/loading/ProfileSkeleton";
 
 export default function Profile() {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
+  const [isLoading, setIsLoading] = useState(true);
 
   const params = useParams();
   const navigate = useNavigate();
@@ -37,6 +39,7 @@ export default function Profile() {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       navigate("/");
+      notify("로그아웃 되었습니다!", "INFO");
     } catch (error) {
       console.error(error);
     }
@@ -121,7 +124,7 @@ export default function Profile() {
             username: newName,
             bio: newBio,
             handle: newHandle,
-            profile_img: imagePreview,
+            profile_img: imagePreview || profile?.profile_img,
           }) as Profile,
       );
     } catch (error) {
@@ -158,30 +161,37 @@ export default function Profile() {
   };
   useEffect(() => {
     async function handleParam() {
-      if (params.userId) {
-        try {
+      try {
+        if (params.userId) {
           const { data: profiles, error } = await supabase
             .from("profiles")
             .select("*")
             .eq("handle", params.userId)
             .single();
+
           if (error) throw error;
           if (profiles) {
             setProfile(profiles);
           }
-        } catch (error) {
-          console.error(error);
+        } else if (users) {
+          setProfile(users);
         }
-      } else if (users) {
-        setProfile(users);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        const timer = setTimeout(() => setIsLoading(false), 700);
+        return () => clearTimeout(timer);
       }
     }
     handleParam();
 
     return () => {
       setProfile(null);
+      setIsLoading(true);
     };
   }, []);
+
+  if (isLoading) return <ProfileSkeleton />;
 
   return (
     <>
@@ -232,24 +242,42 @@ export default function Profile() {
             />
 
             <div className="flex items-center gap-[20px] px-[40px] py-[30px] pb-[20px] mt-[35px]">
-              <div className="relative w-[95px] h-[95px] rounded-full  border-2 border-[#EBBA7D] p-1.5 flex-shrink-0">
-                <img
-                  src={
-                    imagePreview
-                      ? imagePreview
-                      : `${profile?.profile_img}?t=${Date.now()}` || profile_default
+              <div className="flex flex-col items-center">
+                <div className="relative w-[95px] h-[95px] rounded-full  border-2 border-[#EBBA7D] p-1.5 flex-shrink-0">
+                  <img
+                    src={
+                      imagePreview
+                        ? imagePreview
+                        : `${profile?.profile_img}?t=${Date.now()}` || profile_default
+                    }
+                    alt="profile_img"
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                  {isEdit && (
+                    <button
+                      className="absolute w-[31px] h-[31px] bottom-[5px] right-[-5px] rounded-full border-0 bg-[#EBBA7D] flex items-center justify-center text-black hover:opacity-80 transition cursor-pointer"
+                      onClick={() => fileInputRef?.current?.click()}
+                    >
+                      <img src={img_upload} alt="img_upload" />
+                    </button>
+                  )}
+                </div>
+                <Activity
+                  mode={
+                    !params.userId
+                      ? "visible"
+                      : params.userId === users?.handle
+                        ? "visible"
+                        : "hidden"
                   }
-                  alt="profile_img"
-                  className="w-full h-full object-cover rounded-full"
-                />
-                {isEdit && (
+                >
                   <button
-                    className="absolute w-[31px] h-[31px] bottom-[5px] right-[-5px] rounded-full border-0 bg-[#EBBA7D] flex items-center justify-center text-black hover:opacity-80 transition cursor-pointer"
-                    onClick={() => fileInputRef?.current?.click()}
+                    className="w-[90px] h-[23px] bg-red-500 rounded-[8px] mt-[10px] text-[14px] hover:opacity-80 cursor-pointer"
+                    onClick={signout}
                   >
-                    <img src={img_upload} alt="img_upload" />
+                    로그아웃
                   </button>
-                )}
+                </Activity>
               </div>
 
               <div className="flex flex-col gap-[10px] w-[890px]">
@@ -324,13 +352,7 @@ export default function Profile() {
 
             <UserStats profile={profile} />
           </div>
-          <Activity
-            mode={
-              !params.userId ? "visible" : params.userId === users?.handle ? "visible" : "hidden"
-            }
-          >
-            <button onClick={signout}>로그아웃</button>
-          </Activity>
+
           <div className="w-[1098px] h-auto text-left text-[24px] mt-[60px] mb-[5px]">
             작성한 게시글
           </div>

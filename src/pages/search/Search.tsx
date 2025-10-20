@@ -5,6 +5,8 @@ import supabase from "../../utils/supabase";
 import type { Database } from "../../types/database";
 import SearchPosts from "./SearchPosts";
 import SearchUsers from "./SearchUsers";
+import noGhost from "../../assets/search/search_no_ghost.svg";
+import PostCard from "../post/PostCard";
 
 type Post = Database["public"]["Tables"]["posts"]["Row"];
 export default function Search() {
@@ -108,14 +110,17 @@ export default function Search() {
           <img src={ghosts} alt="ghosts" />
         </div>
       ) : noSearch && searchResult.length === 0 ? (
-        <div className="flex flex-col justify-center items-center min-h-[calc(100vh-111px)]">
-          <p className="text-[28px]">검색한 기록이 없습니다 . . .</p>
-          <img src={ghosts} alt="ghosts" />
+        <div className="gap-x-1.5 flex flex-row justify-center items-center min-h-[calc(100vh-111px)]">
+          <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
+          <p className="text-[28px]">검색 결과가 없습니다 . . .</p>
+          <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
         </div>
       ) : selectedCategory === "posts" ? (
-        (searchResult as Post[]).map((post) => <SearchPosts key={post.uid} result={post} />)
+        (searchResult as Post[]).map((post) => <PostCard key={post.uid} post={post} />)
       ) : (
-        (searchResult as Profile[]).map((user) => <SearchUsers key={user.handle} result={user} />)
+        (searchResult as Profile[]).map((user) => (
+          <SearchUsers key={user.handle} result={user} searchTerm={searchTerm} />
+        ))
       )}
     </div>
   );
