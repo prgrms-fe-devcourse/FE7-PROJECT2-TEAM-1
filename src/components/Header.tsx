@@ -73,19 +73,19 @@ export default function Header() {
           </div>
         </Link>
         <Link to="/search" className="col-start-22 col-span-1 justify-self-start">
-          <div>
-            <img src={header_search} alt="header-search" className="w-[30px] h-[31px]" />
+          <div className="w-[31px] h-[31px]">
+            <img src={header_search} alt="header-search" />
           </div>
         </Link>
         <Link
           to={profile ? "/profile" : `/signin?url=${location.pathname}`}
           className="col-start-23 col-span-1 justify-self-start"
         >
-          <div>
-            <img src={header_user} alt="header-user" className="w-[31px] h-[31px]" />
+          <div className="w-[31px] h-[31px]">
+            <img src={header_user} alt="header-user" />
           </div>
         </Link>
-        <div className="relative" ref={alarmDivRef}>
+        <div className="relative w-[31px] h-[35px]" ref={alarmDivRef}>
           <button className="cursor-pointer" onClick={alarmClickHandler}>
             <Activity mode={unReadCount ? "visible" : "hidden"}>
               <span className="absolute top-4 right-5 bg-red-600 text-white text-[10px] font-normal rounded-full w-4 h-4 flex items-center justify-center shadow-md">
@@ -95,7 +95,7 @@ export default function Header() {
             <img
               src={header_alarm}
               alt="header-alarm"
-              className="col-start-24 col-span-1 justify-self-start w-[28px] h-[34px]"
+              className="col-start-24 col-span-1 justify-self-start"
             />
           </button>
           <Activity mode={isOpen ? "visible" : "hidden"}>
