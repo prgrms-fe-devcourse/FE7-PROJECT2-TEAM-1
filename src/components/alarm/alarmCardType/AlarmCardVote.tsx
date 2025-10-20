@@ -1,5 +1,27 @@
-export default function AlarmCardVote({ alarm }: { alarm: Alarm }) {
+import { useEffect, type Dispatch, type SetStateAction } from "react";
+import { handleOpenPost } from "../../../services/alarm";
+
+export default function AlarmCardVote({
+  alarm,
+  setPostData,
+  openPost,
+}: {
+  alarm: Alarm;
+  setPostData: Dispatch<SetStateAction<Post | null>>;
+  openPost: boolean;
+}) {
   // reference_id로 vote db 갖고와서 가공
+
+  useEffect(() => {
+    if (!openPost) return;
+
+    const getPost = async () => {
+      const post = await handleOpenPost(alarm.reference_id, alarm.type);
+      setPostData(post);
+    };
+
+    getPost();
+  }, [openPost, alarm.uid]);
 
   return (
     <>

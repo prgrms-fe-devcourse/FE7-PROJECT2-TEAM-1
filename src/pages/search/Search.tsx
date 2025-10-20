@@ -6,6 +6,7 @@ import type { Database } from "../../types/database";
 import SearchPosts from "./SearchPosts";
 import SearchUsers from "./SearchUsers";
 import noGhost from "../../assets/search/search_no_ghost.svg";
+import PostCard from "../post/PostCard";
 
 type Post = Database["public"]["Tables"]["posts"]["Row"];
 export default function Search() {
@@ -115,9 +116,11 @@ export default function Search() {
           <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
         </div>
       ) : selectedCategory === "posts" ? (
-        (searchResult as Post[]).map((post) => <SearchPosts key={post.uid} result={post} />)
+        (searchResult as Post[]).map((post) => <PostCard key={post.uid} post={post} />)
       ) : (
-        (searchResult as Profile[]).map((user) => <SearchUsers key={user.handle} result={user} />)
+        (searchResult as Profile[]).map((user) => (
+          <SearchUsers key={user.handle} result={user} searchTerm={searchTerm} />
+        ))
       )}
     </div>
   );
