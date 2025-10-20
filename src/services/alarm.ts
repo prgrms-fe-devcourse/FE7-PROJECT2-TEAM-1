@@ -40,6 +40,7 @@ const deleteAlarmAPI = async (uid: string) => {
 };
 
 const handleOpenPost = async (reference_id: string, type: string) => {
+  console.log(reference_id);
   try {
     const { data, error } = await supabase
       .from(type as TableName)
@@ -75,12 +76,59 @@ const getCommentUserAPI = async (uid: string) => {
       .eq("uid", uid)
       .single();
     if (error) throw error;
-    // const { profiles } = data;
-    // if (!profiles) return;
     return data;
   } catch (error) {
     console.error(error);
   }
 };
 
-export { fetchAlarmsAPI, allReadAPI, deleteAlarmAPI, handleOpenPost, getCommentUserAPI };
+const winnerOptionAPI = async (vote_id: string) => {
+  const { data, error } = await supabase
+    .from("votes")
+    .select(
+      `
+    *,
+    posts (
+      *,
+      options (*)
+    )
+  `,
+    )
+    .eq("uid", vote_id)
+    .single();
+  if (error) throw error;
+  if (!data) return;
+  if (!data.posts) return;
+
+  const postTitle = data.posts.post_title;
+  const options = data.posts.options;
+
+  const optionVoteCounts = await Promise.all(
+    options.map(async (item) => {
+      const { count, error } = await supabase
+        .from("votes")
+        .select("*", { count: "exact", head: true })
+        .eq("option_id", item.uid);
+      if (error) throw error;
+      return { ...item, vote_count: count };
+    }),
+  );
+
+  const [a, b] = optionVoteCounts;
+  const winner = (a?.vote_count ?? 0) > (b?.vote_count ?? 0) ? a : b;
+
+  return {
+    post_title: postTitle,
+    winner_title: winner.option_title,
+    vote_count: winner.vote_count,
+  };
+};
+
+export {
+  fetchAlarmsAPI,
+  allReadAPI,
+  deleteAlarmAPI,
+  handleOpenPost,
+  getCommentUserAPI,
+  winnerOptionAPI,
+};

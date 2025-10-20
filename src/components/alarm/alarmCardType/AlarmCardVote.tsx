@@ -1,5 +1,5 @@
-import { useEffect, type Dispatch, type SetStateAction } from "react";
-import { handleOpenPost } from "../../../services/alarm";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { handleOpenPost, winnerOptionAPI } from "../../../services/alarm";
 
 export default function AlarmCardVote({
   alarm,
@@ -10,6 +10,11 @@ export default function AlarmCardVote({
   setPostData: Dispatch<SetStateAction<Post | null>>;
   openPost: boolean;
 }) {
+  const [winnerData, setWinnerData] = useState<{
+    post_title: string;
+    winner_title: string;
+    vote_count: number | null;
+  }>({ post_title: "", winner_title: "", vote_count: 0 });
   useEffect(() => {
     if (!openPost) return;
 
@@ -21,14 +26,23 @@ export default function AlarmCardVote({
     getPost();
   }, [openPost, alarm.uid]);
 
+  useEffect(() => {
+    const getWinnerOption = async () => {
+      const data = await winnerOptionAPI(alarm.reference_id);
+      if (data) setWinnerData(data);
+    };
+    getWinnerOption();
+  }, []);
+
   return (
     <>
       <p className="p-4.5 pb-0 text-[13px] underline text-[#d3cfcf] hover:text-[#bfbcbc]">
-        치킨 VS 피자 당신의 선택은?
+        {winnerData.post_title}
       </p>
       <p className="p-4.5 font-normal text-[11px]">
-        해당 게시물에서 "<span className="font-bold text-[#ff8c00cc]">치킨</span>" 선택지의 투표
-        수가 우세하고 있습니다.
+        해당 게시물에서 "
+        <span className="font-bold text-[#ff8c00cc]">{winnerData.winner_title}</span>" 선택지의 투표
+        수가 {winnerData.vote_count}표차로 우세하고 있습니다.
       </p>
     </>
   );
