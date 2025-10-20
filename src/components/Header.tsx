@@ -56,16 +56,20 @@ export default function Header() {
       [grid-template-columns:repeat(24,minmax(0,1fr))]
       "
     >
-      <Link to="/" className="col-start-1 col-span-1 justify-self-start">
-        <img src={header_logo} alt="header-logo" className="h-[41px] w-[31px]" />
-      </Link>
-
-      <Link to="/" className="col-start-2 col-span-2 justify-self-start">
-        <img src={header_name1} alt="header-name1" className="h-[25px] w-[75px]" />
-      </Link>
-
-      <Link to="/" className="col-start-4 col-span-4 justify-self-start">
-        <img src={header_name2} alt="header-name2" className="h-[25px] w-[155px]" />
+      <Link to="/">
+        <div className="flex items-center gap-4">
+          <img src={header_logo} alt="header-logo" className="h-[41px] w-[31px]" />
+          <img
+            src={header_name1}
+            alt="header-name1"
+            className="h-[25px] min-w-[65px] object-contain"
+          />
+          <img
+            src={header_name2}
+            alt="header-name2"
+            className="h-[50px] min-w-[130px] object-contain"
+          />
+        </div>
       </Link>
       <Link to="/search" className="col-start-22 col-span-1 justify-self-start">
         <img src={header_search} alt="header-search" className="w-[30px] h-[31px]" />
