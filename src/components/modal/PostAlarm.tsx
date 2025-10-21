@@ -8,9 +8,11 @@ import { useAlarmStore } from "../../stores/alarmStore";
 export default function PostAlarm({
   setOpenPost,
   post,
+  deleteHandler,
 }: {
   setOpenPost: React.Dispatch<React.SetStateAction<boolean>>;
   post: Post | null;
+  deleteHandler: () => Promise<void>;
 }) {
   const [opening, setOpening] = useState(true);
   const [closing, setClosing] = useState(false);
@@ -25,6 +27,7 @@ export default function PostAlarm({
       setTimeout(() => {
         setOpenPost(false);
       }, 350);
+      await deleteHandler();
       notify("포스트가 삭제되었습니다.", "SUCCESS");
     } catch (error) {
       console.error(error);
