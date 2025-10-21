@@ -1,22 +1,26 @@
 import yellowWaring from "../../assets/report/yellowWarning.svg";
 import redLight from "../../assets/report/redLight.svg";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
+import { createPortal } from "react-dom";
+import Toast from "../toast/Toast";
 
 export default function Report({
   id,
   type,
-  onClose,
+  setOpenReportModal,
 }: {
   id: string;
   type: "post" | "comment";
-  onClose: () => void;
+  setOpenReportModal: Dispatch<SetStateAction<boolean>>;
 }) {
   const [reportText, setReportText] = useState("");
   const [opening, setOpening] = useState(true);
   const [closing, setClosing] = useState(false);
   const profile = useAuthStore((state) => state.profile);
+
+  const notify = (message: string, type: ToastType) => Toast({ message, type });
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -29,19 +33,21 @@ export default function Report({
     if (closing) return;
     setClosing(true);
     setTimeout(() => {
-      onClose();
+      setOpenReportModal(false);
     }, 350);
-  }, [onClose, closing]);
+    setClosing(false);
+    setOpening(true);
+  }, [setOpenReportModal, closing]);
 
   const handleCompleted = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!profile) {
-      alert("로그인 정보가 없습니다. 다시 로그인해주세요.");
+      notify("로그인 정보가 없습니다", "ERROR");
       return;
     }
 
     if (!reportText.trim()) {
-      alert("신고 사유를 입력해주세요.");
+      notify("신고 사유를 입력해주세요", "INFO");
       return;
     }
 
@@ -63,7 +69,7 @@ export default function Report({
     }
   };
 
-  return (
+  const modal = (
     <>
       <div className="fixed inset-0 z-[9999] bg-[rgb(132_124_124_/_0.3)] flex justify-center items-center font-normal">
         <div
@@ -121,4 +127,6 @@ export default function Report({
       </div>
     </>
   );
+
+  return createPortal(modal, document.body);
 }
