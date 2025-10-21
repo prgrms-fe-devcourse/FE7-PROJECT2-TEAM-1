@@ -24,6 +24,8 @@ export default function Header() {
     if (!profile) return;
 
     const handleClickOutside = (e: MouseEvent) => {
+      const { openModal } = useAlarmStore.getState();
+      if (openModal) return;
       if (alarmDivRef.current && !alarmDivRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }

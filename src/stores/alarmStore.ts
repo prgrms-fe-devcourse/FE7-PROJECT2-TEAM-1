@@ -4,8 +4,10 @@ import { allReadAPI, fetchAlarmsAPI } from "../services/alarm";
 
 type AlarmStore = {
   isOpen: boolean;
+  openModal: boolean;
   alarms: Alarm[];
   unReadCount: number;
+  setOpenModal: (value: boolean) => void;
   setUnReadCount: (value: number) => void;
   setIsOpen: (value: boolean) => void;
   setAlarms: (alarms: Alarm[] | []) => void;
@@ -18,7 +20,12 @@ export const useAlarmStore = create<AlarmStore>()(
   immer((set) => ({
     isOpen: false,
     alarms: [],
+    openModal: false,
     unReadCount: 0,
+    setOpenModal: (value) =>
+      set((state) => {
+        state.openModal = value;
+      }),
     setUnReadCount: (value) =>
       set((state) => {
         state.unReadCount = value;
