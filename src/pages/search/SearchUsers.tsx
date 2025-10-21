@@ -28,7 +28,7 @@ export default function SearchUsers({
     <>
       <div className=" flex justify-center items-center mt-7">
         <div
-          className="w-[1094px] h-[104px] flex items-center border-2 border-[rgb(255_140_0_/_0.3)] rounded-[12px] hover:scale-101  transition-all duration-200  cursor-pointer"
+          className="w-[1094px] h-[104px] flex items-center border-2 border-[rgb(255_140_0_/_0.3)] rounded-[12px] hover:scale-101 hover:border-[rgb(255,140,0)]  transition-all duration-200  cursor-pointer"
           onClick={handleClick}
         >
           <button className="cursor-pointer flex gap-7 ml-5">
