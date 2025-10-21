@@ -160,7 +160,7 @@ export default function PostCard({
     if (!pendingComment || !profile?.uid) return;
     (async () => {
       try {
-        await addComment(post.uid, pendingComment);
+        await addComment(post.uid, pendingComment, author?.uid || "");
         setCommentsCounts((c) => c + 1);
         setCommentsRefresh((n) => n + 1);
       } catch (err) {

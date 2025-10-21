@@ -18,7 +18,7 @@ export default function AlarmCard({ alarm }: { alarm: Alarm }) {
         // alarm reference_id는 무조건 vote
         return <AlarmCardVote alarm={alarm} setPostData={setPostData} openPost={openPost} />;
       case "comments":
-        return <AlarmCardComment />;
+        return <AlarmCardComment alarm={alarm} setPostData={setPostData} openPost={openPost} />;
       case "likes":
         return;
       case "reports":
