@@ -88,7 +88,12 @@ export default function Posts() {
 
       <div className="max-w-[1200px] mx-auto">
         {posts.map((post) => (
-          <PostCard key={post.uid} post={post} deletePostHandler={deletePostHandler} />
+          <PostCard
+            key={post.uid}
+            post={post}
+            deletePostHandler={deletePostHandler}
+            searchTerm={" "}
+          />
         ))}
       </div>
     </div>

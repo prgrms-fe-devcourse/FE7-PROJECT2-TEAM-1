@@ -7,23 +7,27 @@ import SearchPosts from "./SearchPosts";
 import SearchUsers from "./SearchUsers";
 import noGhost from "../../assets/search/search_no_ghost.svg";
 import PostCard from "../post/PostCard";
+import { deletePostAPI } from "../../services/post";
+import Toast from "../../components/toast/Toast";
 
 type Post = Database["public"]["Tables"]["posts"]["Row"];
 export default function Search() {
   const [selectedCategory, setSelectedCategory] = useState<"posts" | "users">("posts");
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResult, setSearchResult] = useState<Profile[] | Post[]>([]);
+  const [postSearchResult, setPostSearchResult] = useState<Post[]>([]);
+  const [profileSearchResult, setProfileSearchResult] = useState<Profile[]>([]);
   const [noSearch, setNoSearch] = useState(false);
+  const notify = (message: string, type: ToastType) => Toast({ message, type });
 
   const handlePosts = () => {
     setSelectedCategory("posts");
-    setSearchResult([]);
+    setPostSearchResult([]);
     setNoSearch(false);
   };
 
   const handleUsers = () => {
     setSelectedCategory("users");
-    setSearchResult([]);
+    setProfileSearchResult([]);
     setNoSearch(false);
   };
 
@@ -32,7 +36,8 @@ export default function Search() {
 
     if (searchTerm.trim() === "") {
       alert("검색어를 입력해주세요!");
-      setSearchResult([]);
+      setPostSearchResult([]);
+      setProfileSearchResult([]);
       return;
     }
 
@@ -41,11 +46,13 @@ export default function Search() {
         const { data: profiles, error } = await supabase
           .from("profiles")
           .select("*")
-          .or(`username.ilike.%${searchTerm}%,handle.ilike.%${searchTerm}%`);
+          .or(`username.ilike.%${searchTerm}%,handle.ilike.%${searchTerm}%`)
+          .order("created_at", { ascending: false });
+
         if (error) throw error;
         setNoSearch(true);
         if (profiles) {
-          setSearchResult(profiles);
+          setProfileSearchResult(profiles);
         }
       } catch (error) {
         console.error(error);
@@ -55,15 +62,28 @@ export default function Search() {
         const { data: posts, error } = await supabase
           .from("posts")
           .select("*")
-          .or(`post_title.ilike.%${searchTerm}%,post_desc.ilike.%${searchTerm}%`);
+          .or(`post_title.ilike.%${searchTerm}%,post_desc.ilike.%${searchTerm}%`)
+          .order("created_at", { ascending: false });
+
         if (error) throw error;
         setNoSearch(true);
         if (posts) {
-          setSearchResult(posts);
+          setPostSearchResult(posts);
         }
       } catch (error) {
         console.error(error);
       }
+    }
+  };
+
+  const deletePostHandler = async (uid: string) => {
+    try {
+      const deleteData = await deletePostAPI(uid);
+      console.log(deleteData);
+      setPostSearchResult((prev) => prev.filter((item) => item.uid !== uid));
+      notify("포스트가 삭제되었습니다.", "SUCCESS");
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -104,21 +124,28 @@ export default function Search() {
           </div>
         </form>
       </div>
-      {!noSearch && searchResult.length === 0 ? (
+      {!noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
         <div className="flex flex-col justify-center items-center min-h-[calc(100vh-111px)]">
           <p className="text-[28px]">무엇을 검색해볼까 . . .</p>
           <img src={ghosts} alt="ghosts" />
         </div>
-      ) : noSearch && searchResult.length === 0 ? (
+      ) : noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
         <div className="gap-x-1.5 flex flex-row justify-center items-center min-h-[calc(100vh-111px)]">
           <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
           <p className="text-[28px]">검색 결과가 없습니다 . . .</p>
           <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
         </div>
       ) : selectedCategory === "posts" ? (
-        (searchResult as Post[]).map((post) => <PostCard key={post.uid} post={post} />)
+        postSearchResult.map((post) => (
+          <PostCard
+            key={post.uid}
+            post={post}
+            searchTerm={searchTerm}
+            deletePostHandler={deletePostHandler}
+          />
+        ))
       ) : (
-        (searchResult as Profile[]).map((user) => (
+        profileSearchResult.map((user) => (
           <SearchUsers key={user.handle} result={user} searchTerm={searchTerm} />
         ))
       )}

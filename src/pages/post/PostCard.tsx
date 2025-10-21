@@ -21,12 +21,14 @@ import { Link } from "react-router";
 export default function PostCard({
   post,
   deletePostHandler,
+  searchTerm,
 }: {
   post: Post;
   deletePostHandler: (uid: string) => Promise<void>;
+  searchTerm: string;
 }) {
   const { profile } = useAuthStore();
-  
+
   const [author, setAuthor] = useState<Profile | null>(null);
   const [voteCounts, setVoteCounts] = useState<{ left: number; right: number }>({
     left: 0,
@@ -34,6 +36,10 @@ export default function PostCard({
   });
   const [initialSelected, setInitialSelected] = useState<OptionKey | null>(null);
   const hasVoted = initialSelected !== null;
+
+  const titleParts = post.post_title.split(new RegExp(`(${searchTerm})`, "gi"));
+  const descParts = post.post_desc?.split(new RegExp(`(${searchTerm})`, "gi"));
+
   useEffect(() => {
     (async () => {
       if (!leftOption?.uid || !rightOption?.uid) return;
@@ -154,7 +160,7 @@ export default function PostCard({
     if (!pendingComment || !profile?.uid) return;
     (async () => {
       try {
-        await addComment(post.uid, pendingComment);
+        await addComment(post.uid, pendingComment, author?.uid || "");
         setCommentsCounts((c) => c + 1);
         setCommentsRefresh((n) => n + 1);
       } catch (err) {
@@ -233,12 +239,34 @@ export default function PostCard({
       {/* --- 본문 --- */}
       <div className="space-y-[30px]">
         <div className="ml-[51px]">
-          <h2 className="mt-[30px] text-[20px] text-white">{post.post_title}</h2>
+          <h2 className="mt-[30px] text-[20px] text-white">
+            {titleParts.map((part, index) =>
+              part.toLowerCase() === searchTerm.toLowerCase() ? (
+                <span key={index} className="text-[#FF8C00] font-bold">
+                  {part}
+                </span>
+              ) : (
+                <span key={index} className="text-white">
+                  {part}
+                </span>
+              ),
+            )}
+          </h2>
           <p
             style={{ fontWeight: "normal" }}
             className="text-[16px] text-[#999999] whitespace-pre-wrap break-words"
           >
-            {post.post_desc}
+            {descParts?.map((part, index) =>
+              part.toLowerCase() === searchTerm.toLowerCase() ? (
+                <span key={index} className="text-[#FF8C00] font-bold">
+                  {part}
+                </span>
+              ) : (
+                <span key={index} className="text-white">
+                  {part}
+                </span>
+              ),
+            )}
           </p>
         </div>
 

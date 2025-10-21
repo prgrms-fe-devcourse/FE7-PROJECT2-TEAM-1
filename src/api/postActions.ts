@@ -5,10 +5,30 @@ import { getHasVotedByOptionId } from "./postGet";
 export async function submitVote(optionId: string) {
   const [userId, postId] = await getHasVotedByOptionId(optionId);
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("votes")
-    .insert([{ user_id: userId, option_id: optionId, post_id: postId }]);
+    .insert([{ user_id: userId, option_id: optionId, post_id: postId }])
+    .select("*")
+    .single();
   if (error) throw error;
+
+  // 알람 처리
+  const { data: post, error: postError } = await supabase
+    .from("posts")
+    .select("vote_count,user_id")
+    .eq("uid", postId)
+    .single();
+
+  if (postError) throw postError;
+
+  const { vote_count, user_id } = post;
+  if (vote_count === 3 || vote_count === 10 || vote_count === 30) {
+    const { error: alarmError } = await supabase
+      .from("alarm")
+      .insert([{ type: "votes", reference_id: data.uid, sender_id: userId, receiver_id: user_id }]);
+
+    if (alarmError) throw alarmError;
+  }
 }
 
 // 좋아요
@@ -37,7 +57,7 @@ export async function toggleLike(postId: string) {
 }
 
 // 댓글
-export async function addComment(postId: string, content: string) {
+export async function addComment(postId: string, content: string, author_id: string) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -50,5 +70,15 @@ export async function addComment(postId: string, content: string) {
     .single();
 
   if (error) throw error;
+
+  // 알람 처리
+  const { error: alarmError } = await supabase
+    .from("alarm")
+    .insert([
+      { type: "comments", reference_id: data.uid, sender_id: user.id, receiver_id: author_id },
+    ]);
+
+  if (alarmError) throw alarmError;
+
   return data;
 }
