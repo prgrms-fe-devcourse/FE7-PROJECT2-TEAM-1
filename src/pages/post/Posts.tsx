@@ -92,7 +92,7 @@ export default function Posts() {
             key={post.uid}
             post={post}
             deletePostHandler={deletePostHandler}
-            searchTerm={""}
+            searchTerm={" "}
           />
         ))}
       </div>
