@@ -79,6 +79,4 @@ export async function addComment(postId: string, content: string, author_id: str
     ]);
 
   if (alarmError) throw alarmError;
-
-  return data;
 }
