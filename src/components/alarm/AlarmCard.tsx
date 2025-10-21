@@ -6,21 +6,21 @@ import AlarmCardComment from "./alarmCardType/AlarmCardComment";
 import AlarmCardReport from "./alarmCardType/AlarmCardReport";
 import AlarmCardVote from "./alarmCardType/AlarmCardVote";
 import PostAlarm from "../modal/PostAlarm";
+import AlarmCardLike from "./alarmCardType/AlarmCardLike";
 
 export default function AlarmCard({ alarm }: { alarm: Alarm }) {
-  const alarmStore = useAlarmStore();
+  const { alarms, setAlarms, setUnReadCount, unReadCount } = useAlarmStore((state) => state);
   const [openPost, setOpenPost] = useState(false);
   const [postData, setPostData] = useState<Post | null>(null);
 
   const renderContent = () => {
     switch (alarm.type) {
       case "votes":
-        // alarm reference_id는 무조건 vote
         return <AlarmCardVote alarm={alarm} setPostData={setPostData} openPost={openPost} />;
       case "comments":
         return <AlarmCardComment alarm={alarm} setPostData={setPostData} openPost={openPost} />;
       case "likes":
-        return;
+        return <AlarmCardLike alarm={alarm} setPostData={setPostData} post={postData} />;
       case "reports":
         return <AlarmCardReport />;
     }
@@ -28,7 +28,10 @@ export default function AlarmCard({ alarm }: { alarm: Alarm }) {
 
   const deleteHandler = async () => {
     await deleteAlarmAPI(alarm.uid);
-    alarmStore.setAlarms(alarmStore.alarms.filter((item) => item.uid !== alarm.uid));
+    if (!alarm.is_read) {
+      setUnReadCount(unReadCount - 1);
+    }
+    setAlarms(alarms.filter((item) => item.uid !== alarm.uid));
   };
 
   return (
