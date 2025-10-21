@@ -1,5 +1,6 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { handleOpenPost, winnerOptionAPI } from "../../../services/alarm";
+import AlarmCardSkeleton from "../../loading/AlarmCardSkeleton";
 
 export default function AlarmCardVote({
   alarm,
@@ -15,6 +16,7 @@ export default function AlarmCardVote({
     winner_title: string;
     vote_count: number | null;
   }>({ post_title: "", winner_title: "", vote_count: 0 });
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     if (!openPost) return;
 
@@ -28,11 +30,20 @@ export default function AlarmCardVote({
 
   useEffect(() => {
     const getWinnerOption = async () => {
-      const data = await winnerOptionAPI(alarm.reference_id);
-      if (data) setWinnerData(data);
+      try {
+        const data = await winnerOptionAPI(alarm.reference_id);
+        if (data) setWinnerData(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        const timer = setTimeout(() => setIsLoading(false), 700);
+        return () => clearTimeout(timer);
+      }
     };
     getWinnerOption();
   }, []);
+
+  if (isLoading) return <AlarmCardSkeleton />;
 
   return (
     <>

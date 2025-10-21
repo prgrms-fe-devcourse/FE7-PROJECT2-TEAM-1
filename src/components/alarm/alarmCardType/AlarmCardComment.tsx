@@ -1,6 +1,7 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import profile_default from "../../../assets/profile/profile_default.png";
 import { getCommentUserAPI, handleOpenPost } from "../../../services/alarm";
+import AlarmCardProfileSkeleton from "../../loading/AlarmCardProfileSkeleton";
 
 export default function AlarmCardComment({
   alarm,
@@ -14,6 +15,7 @@ export default function AlarmCardComment({
   const [commentUser, setCommentUser] = useState<
     { comment_content: string; profiles: Profile } | undefined
   >();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!openPost) return;
@@ -28,11 +30,20 @@ export default function AlarmCardComment({
 
   useEffect(() => {
     const getCommentUser = async () => {
-      const user = await getCommentUserAPI(alarm.reference_id);
-      setCommentUser(user);
+      try {
+        const user = await getCommentUserAPI(alarm.reference_id);
+        setCommentUser(user);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        const timer = setTimeout(() => setIsLoading(false), 700);
+        return () => clearTimeout(timer);
+      }
     };
     getCommentUser();
   }, []);
+
+  if (isLoading) return <AlarmCardProfileSkeleton />;
 
   return (
     <>
