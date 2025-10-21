@@ -15,7 +15,10 @@ export default function Toast({ message, type }: { message: string; type: ToastT
         progressClassName: "toast-progress",
       });
     case "INFO":
-      return toast.info(message);
+      return toast.info(message, {
+        className: "toast-info",
+        progressClassName: "toast-progress",
+      });
     default:
       return null;
   }

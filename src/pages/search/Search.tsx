@@ -35,7 +35,7 @@ export default function Search() {
     e.preventDefault();
 
     if (searchTerm.trim() === "") {
-      alert("검색어를 입력해주세요!");
+      notify("검색어를 입력해주세요!", "INFO");
       setPostSearchResult([]);
       setProfileSearchResult([]);
       return;
