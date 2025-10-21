@@ -58,14 +58,19 @@ export default function Report({
 
     try {
       const { data, error } = await supabase.from("reports").insert([insertData]).select().single();
-
       if (error) throw error;
       alert("신고가 정상적으로 접수되었습니다.");
       setReportText("");
       console.log(data);
       handleCloseAnimation();
     } catch (error) {
-      console.error(error);
+      const err = error as { code: string; message: string };
+      if (err.code === "23505") {
+        // as 키워드로 타입 단언 해주기(에러 생기면)
+        notify("중복된 신고입니다", "ERROR");
+      } else {
+        console.error(error);
+      }
     }
   };
 
