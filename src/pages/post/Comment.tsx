@@ -66,7 +66,7 @@ export default function Comment({ postUid, refresh }: { postUid: string; refresh
             </div>
 
             {/* 댓글 내용 */}
-            <p className="text-white text-[14px] mt-1">{c.comment_content}</p>
+            <p className="text-white font-normal text-[14px] mt-1">{c.comment_content}</p>
           </div>
         </div>
       ))}
