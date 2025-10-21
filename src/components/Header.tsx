@@ -58,17 +58,17 @@ export default function Header() {
     "
       >
         <Link to="/">
-          <div className="flex items-center">
-            <img src={header_logo} alt="header-logo" className="h-[40px] w-full pr-3" />
+          <div className="flex items-center gap-2">
+            <img src={header_logo} alt="header-logo" className="h-[40px] w-full pr-2" />
             <img
               src={header_name1}
               alt="header-name1"
-              className="h-[65px] min-w-[67px] pr-3 object-contain"
+              className="h-[65px] min-w-[80px] pr-3 object-contain"
             />
             <img
               src={header_name2}
               alt="header-name2"
-              className="h-[65px] min-w-[130px] pr-3 object-contain"
+              className="h-[65px] min-w-[150px] pr-3 object-contain"
             />
           </div>
         </Link>
