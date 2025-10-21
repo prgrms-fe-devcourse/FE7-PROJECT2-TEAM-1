@@ -325,7 +325,7 @@ export default function Write() {
                     className="w-[32px] h-[32px] border-2 rounded-[50%] border-[#FF8C00] text-[#FF8C00] bg-[#FF8C00]/30
                 flex items-center justify-center"
                   >
-                    <p>{choice.key}</p>
+                    <p className="ml-[2px] mt-[2px]">{choice.key}</p>
                   </div>
                   <p>{choice.label}</p>
                 </div>
