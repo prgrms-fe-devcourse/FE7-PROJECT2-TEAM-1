@@ -50,7 +50,7 @@ export default function Comment({
     <div ref={menuRef} className="flex justify-between w-full min-h-[60px] px-3 py-2">
       <div className="flex ml-2 gap-2">
         {/* 프로필 이미지 */}
-        <div className="w-[40px] h-[40px] rounded-full overflow-hidden border border-[#FF8C00]/40 mr-4 mt-[10px]">
+        <div className="w-[40px] h-[40px] rounded-full overflow-hidden border-2 border-[#FF8C00]/60 mr-4 mt-[10px]">
           <img
             src={comment.profiles?.profile_img ?? ""}
             alt="profile"
