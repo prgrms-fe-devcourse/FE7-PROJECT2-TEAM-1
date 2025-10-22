@@ -15,7 +15,7 @@ import Sure from "../../components/modal/Sure";
 import NoResultHome from "./NoResultHome";
 
 export default function Posts() {
-  // const profile = useAuthStore((state) => state.profile);
+  const profile = useAuthStore((state) => state.profile);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -111,7 +111,7 @@ export default function Posts() {
       </Activity>
       {posts.length !== 0 ? (
         <div className="max-w-[1200px] mx-auto">
-            {confirmingUid && <Sure onYes={handleConfirmYes} onClose={handleConfirmClose} />}
+          {confirmingUid && <Sure onYes={handleConfirmYes} onClose={handleConfirmClose} />}
           {posts.map((post) => (
             <PostCard
               key={post.uid}
