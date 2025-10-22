@@ -431,7 +431,11 @@ export default function PostCard({
                     deleteCommentHandler={deleteSingleCommentHandler}
                   />
                 ) : (
-                  <Comments postUid={post.uid} refresh={commentsRefresh} />
+                  <Comments
+                    postUid={post.uid}
+                    refresh={commentsRefresh}
+                    onCountChange={(prev) => setCommentsCounts((c) => c + prev)}
+                  />
                 )}
               </div>
             </div>
