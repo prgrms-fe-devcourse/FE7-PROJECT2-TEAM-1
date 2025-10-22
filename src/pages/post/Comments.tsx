@@ -4,7 +4,15 @@ import { deleteComment } from "../../api/postActions";
 import Toast from "../../components/toast/Toast";
 import Comment from "./Comment";
 
-export default function Comments({ postUid, refresh }: { postUid: string; refresh: number }) {
+export default function Comments({
+  postUid,
+  refresh,
+  onCountChange,
+}: {
+  postUid: string;
+  refresh: number;
+  onCountChange: (change: number) => void;
+}) {
   const [comments, setComments] = useState<CommentWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,6 +49,7 @@ export default function Comments({ postUid, refresh }: { postUid: string; refres
       setComments((prev) => prev.filter((item) => item.uid !== uid));
       setPage(1);
       notify("댓글이 삭제되었습니다.", "SUCCESS");
+      onCountChange(-1);
     } catch (error) {
       console.error(error);
     }
