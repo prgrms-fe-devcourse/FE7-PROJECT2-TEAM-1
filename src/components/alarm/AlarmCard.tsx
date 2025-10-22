@@ -47,7 +47,9 @@ export default function AlarmCard({ alarm }: { alarm: Alarm }) {
           onClick={deleteHandler}
         />
         {renderContent()}
-        {openPost && postData && <PostAlarm setOpenPost={setOpenPost} post={postData} />}
+        {openPost && postData && (
+          <PostAlarm setOpenPost={setOpenPost} post={postData} deleteHandler={deleteHandler} />
+        )}
       </div>
     </>
   );

@@ -211,7 +211,9 @@ export default function PostCard({
                       src={trash}
                       alt="trash_logo"
                     />
-                    <span className="h-[20px] ml-[5px] translate-x-[-4px]">삭제하기</span>
+                    <span className="h-[20px] ml-[5px] translate-x-[-4px] text-white">
+                      삭제하기
+                    </span>
                   </div>
                 ) : (
                   <>
