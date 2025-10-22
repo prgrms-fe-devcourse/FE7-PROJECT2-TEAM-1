@@ -53,21 +53,29 @@ export default function Comment({
     >
       <div className="flex ml-2 gap-2">
         {/* 프로필 이미지 */}
-        <div className="w-[40px] h-[40px] rounded-full overflow-hidden border-2 border-[#FF8C00]/60 mr-4 mt-[10px]">
+        <Link
+          to={`/profile/${comment.profiles?.handle}`}
+          className="w-[40px] h-[40px] rounded-full overflow-hidden border-2 border-[#FF8C00]/60 mr-4 mt-[10px]"
+          onClick={(e) => e.stopPropagation()}
+        >
           <img
             src={comment.profiles?.profile_img ?? ""}
             alt="profile"
             className="w-full h-full object-cover"
           />
-        </div>
+        </Link>
 
         {/* 오른쪽 텍스트 영역 */}
         <div className="flex flex-col justify-center flex-1 min-w-0">
           {/* username + 시간 */}
           <div className="flex items-center gap-4">
-            <p className="text-white text-[14px] font-semibold">
+            <Link
+              to={`/profile/${comment.profiles?.handle}`}
+              className="text-white text-[14px] font-semibold"
+              onClick={(e) => e.stopPropagation()}
+            >
               {comment.profiles?.username ?? "익명"}
-            </p>
+            </Link>
             <span className="text-[#999999] text-[12px] whitespace-nowrap">
               {formatRelativeTime(comment.created_at)}
             </span>

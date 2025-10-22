@@ -14,6 +14,7 @@ import UserStats from "./UserStats";
 import { checkHandleExists } from "../../services/signIn";
 import ProfileSkeleton from "../../components/loading/ProfileSkeleton";
 import { getUserPostsAPI } from "../../services/profile";
+import ghost from "../../assets/search/search_no_ghost.svg";
 
 export default function Profile() {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
@@ -376,9 +377,16 @@ export default function Profile() {
           <div className="w-[1098px] h-auto text-left text-[24px] mt-[60px] mb-[5px]">
             작성한 게시글
           </div>
-          <Activity mode={profile && !isPostLoading ? "visible" : "hidden"}>
-            <UserPosts posts={posts} setPosts={setPosts} />
-          </Activity>
+          {posts.length !== 0 ? (
+            <Activity mode={profile && !isPostLoading ? "visible" : "hidden"}>
+              <UserPosts posts={posts} setPosts={setPosts} />
+            </Activity>
+          ) : (
+            <div className="flex mt-40">
+              <p className="text-[30px] pt-3 pr-4">작성한 게시글이 없습니다</p>
+              <img src={ghost} alt="ghost" className="w-[70px] h-[70px]" />
+            </div>
+          )}
         </div>
       </main>
     </>
