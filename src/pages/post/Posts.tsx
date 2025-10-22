@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { Activity, useEffect, useState } from "react";
 import categoryArrow from "../../assets/posts/categoryArrow.svg";
 import newPost from "../../assets/posts/newPost.svg";
+import logo from "../../assets/sign/hotpotato_logo.png";
 
 import PostCard from "./PostCard";
 import supabase from "../../utils/supabase";
@@ -10,6 +11,8 @@ import { deletePostAPI } from "../../services/post";
 import Toast from "../../components/toast/Toast";
 import ChatButton from "../../components/chat/ChatButton";
 import { useAuthStore } from "../../stores/authStore";
+import Sure from "../../components/modal/Sure";
+import NoResultHome from "./NoResultHome";
 
 export default function Posts() {
   const profile = useAuthStore((state) => state.profile);
@@ -21,6 +24,7 @@ export default function Posts() {
   const isCategorySlug = (v: string): v is CategorySlug => Object.hasOwn(SLUG_TO_LABEL, v);
   const displayLabel = topic && isCategorySlug(topic) ? SLUG_TO_LABEL[topic] : "전체";
   const notify = (message: string, type: ToastType) => Toast({ message, type });
+  const [confirmingUid, setConfirmingUid] = useState<string | null>(null);
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -46,16 +50,29 @@ export default function Posts() {
 
     fetchPosts();
   }, []);
-
   const deletePostHandler = async (uid: string) => {
     try {
-      const deleteData = await deletePostAPI(uid);
-      console.log(deleteData);
+      await deletePostAPI(uid);
       setPosts((prev) => prev.filter((item) => item.uid !== uid));
       notify("포스트가 삭제되었습니다.", "SUCCESS");
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleDeleteRequest = (uid: string) => {
+    setConfirmingUid(uid);
+  };
+
+  const handleConfirmYes = async () => {
+    if (confirmingUid) {
+      await deletePostHandler(confirmingUid);
+      setConfirmingUid(null);
+    }
+  };
+
+  const handleConfirmClose = () => {
+    setConfirmingUid(null);
   };
 
   if (loading)
@@ -89,18 +106,30 @@ export default function Posts() {
         </div>
       </div>
 
-      <ChatButton category={topic!} />
-
-      <div className="max-w-[1200px] mx-auto">
-        {posts.map((post) => (
-          <PostCard
-            key={post.uid}
-            post={post}
-            deletePostHandler={deletePostHandler}
-            searchTerm={" "}
-          />
-        ))}
-      </div>
+      <Activity mode={profile ? "visible" : "hidden"}>
+        <ChatButton category={topic!} />
+      </Activity>
+      {posts.length !== 0 ? (
+        <div className="max-w-[1200px] mx-auto">
+          {confirmingUid && <Sure onYes={handleConfirmYes} onClose={handleConfirmClose} />}
+          {posts.map((post) => (
+            <PostCard
+              key={post.uid}
+              post={post}
+              onDeleteClick={handleDeleteRequest}
+              searchTerm={" "}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col justify-center items-center h-screen">
+          <img src={logo} alt="logo" className="opacity-[25%] w-[630px] h-[680px] absolute mb-60" />
+          <p className="text-[40px] text-[#FFE99C] mt-60">게시물이 없습니다</p>
+          <p className="text-[30px] text-[#FF8C00] mt-10">첫 번째 게시물을 작성해보세요</p>
+          <p className="text-[15px] text-[#999999] mt-40">Press any key to go back</p>
+          <NoResultHome />
+        </div>
+      )}
     </div>
   );
 }

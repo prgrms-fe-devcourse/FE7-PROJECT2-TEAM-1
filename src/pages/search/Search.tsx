@@ -10,6 +10,7 @@ import { deletePostAPI } from "../../services/post";
 import Toast from "../../components/toast/Toast";
 import PostsSkeleton from "../../components/loading/PostsSkeleton";
 import SearchSkeleton from "../../components/loading/SearchSkeleton";
+import Sure from "../../components/modal/Sure";
 
 type Post = Database["public"]["Tables"]["posts"]["Row"];
 export default function Search() {
@@ -18,6 +19,7 @@ export default function Search() {
   const [postSearchResult, setPostSearchResult] = useState<Post[]>([]);
   const [profileSearchResult, setProfileSearchResult] = useState<Profile[]>([]);
   const [noSearch, setNoSearch] = useState(false);
+  const [confirmingUid, setConfirmingUid] = useState<string | null>(null);
   const notify = (message: string, type: ToastType) => Toast({ message, type });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -87,15 +89,19 @@ export default function Search() {
     }
   };
 
-  const deletePostHandler = async (uid: string) => {
-    try {
-      const deleteData = await deletePostAPI(uid);
-      console.log(deleteData);
-      setPostSearchResult((prev) => prev.filter((item) => item.uid !== uid));
-      notify("포스트가 삭제되었습니다.", "SUCCESS");
-    } catch (error) {
-      console.error(error);
+  const handleDeleteRequest = (uid: string) => {
+    setConfirmingUid(uid);
+  };
+
+  const handleConfirmYes = async () => {
+    if (confirmingUid) {
+      await deletePostHandler(confirmingUid);
+      setConfirmingUid(null);
     }
+  };
+
+  const handleConfirmClose = () => {
+    setConfirmingUid(null);
   };
 
   return (
@@ -164,37 +170,45 @@ export default function Search() {
           <SearchUsers key={user.handle} result={user} searchTerm={searchTerm} />
         ))
       )} */}
-      {isLoading && noSearch ? (
-        selectedCategory === "posts" ? (
-          [...Array(4)].map((_, index) => <PostsSkeleton key={index} />)
+      <div className="pt-25">
+        {isLoading && noSearch ? (
+          selectedCategory === "posts" ? (
+            [...Array(4)].map((_, index) => <PostsSkeleton key={index} />)
+          ) : (
+            [...Array(4)].map((_, index) => <SearchSkeleton key={index} />)
+          )
+        ) : !noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
+          <div className="flex flex-col justify-center items-center min-h-[calc(100vh-111px)]">
+            <p className="text-[28px]">무엇을 검색해볼까 . . .</p>
+            <img src={ghosts} alt="ghosts" />
+          </div>
+        ) : noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
+          <div className="gap-x-1.5 flex flex-row justify-center items-center min-h-[calc(100vh-111px)]">
+            <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
+            <p className="text-[28px]">검색 결과가 없습니다 . . .</p>
+            <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
+          </div>
+        ) : selectedCategory === "posts" ? (
+          <div>
+            {confirmingUid && <Sure onYes={handleConfirmYes} onClose={handleConfirmClose} />}
+            {postSearchResult.map((post) => (
+              <PostCard
+                key={post.uid}
+                post={post}
+                searchTerm={searchTerm}
+                onDeleteClick={handleDeleteRequest}
+              />
+            ))}
+          </div>
         ) : (
-          [...Array(4)].map((_, index) => <SearchSkeleton key={index} />)
-        )
-      ) : !noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
-        <div className="flex flex-col justify-center items-center min-h-[calc(100vh-111px)]">
-          <p className="text-[28px]">무엇을 검색해볼까 . . .</p>
-          <img src={ghosts} alt="ghosts" />
-        </div>
-      ) : noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
-        <div className="gap-x-1.5 flex flex-row justify-center items-center min-h-[calc(100vh-111px)]">
-          <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
-          <p className="text-[28px]">검색 결과가 없습니다 . . .</p>
-          <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
-        </div>
-      ) : selectedCategory === "posts" ? (
-        postSearchResult.map((post) => (
-          <PostCard
-            key={post.uid}
-            post={post}
-            searchTerm={searchTerm}
-            deletePostHandler={deletePostHandler}
-          />
-        ))
-      ) : (
-        profileSearchResult.map((user) => (
-          <SearchUsers key={user.handle} result={user} searchTerm={searchTerm} />
-        ))
-      )}
+          profileSearchResult.map((user) => (
+            <SearchUsers key={user.handle} result={user} searchTerm={searchTerm} />
+          ))
+        )}
+      </div>
     </div>
   );
+}
+function deletePostHandler(confirmingUid: string) {
+  throw new Error("Function not implemented.");
 }
