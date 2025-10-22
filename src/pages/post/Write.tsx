@@ -6,7 +6,6 @@ import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
 import { useLocation, useNavigate } from "react-router";
 import Toast from "../../components/toast/Toast";
-import Sure from "../../components/modal/Sure";
 
 type Choices = { key: string; label: string; image: string }[];
 
@@ -44,7 +43,6 @@ export default function Write() {
   const [writeSelectTextB, setWriteSelectTextB] = useState("");
 
   const [showError, setShowError] = useState(false);
-  const [showSureModal, setShowSureModal] = useState(false);
 
   const profile = useAuthStore((state) => state.profile);
 
@@ -79,13 +77,6 @@ export default function Write() {
     setShowError(isError);
     return isError;
   };
-
-  const isAllEmpty =
-    writeOption === "" &&
-    writeTitle.trim() === "" &&
-    writeExplain.trim() === "" &&
-    writeSelectTextA.trim() === "" &&
-    writeSelectTextB.trim() === "";
 
   const writeDataHandler = async () => {
     if (writeOption === "") return;
@@ -188,7 +179,7 @@ export default function Write() {
   }
 
   useEffect(() => {
-    if (location.state.option) {
+    if (location.state && location.state.option) {
       const optionFix: string = location.state.option;
 
       const findOptionFix = Object.entries(options).find(([_, value]) => value === optionFix)?.[0];
@@ -196,42 +187,15 @@ export default function Write() {
     }
   }, []);
 
-  const handleYes = () => {
-    setShowSureModal(false);
-    navigate(`/posts/${writeOption}`);
-  };
-  const handleClose = () => {
-    setShowSureModal(false);
-  };
-
-  const handleBackButton = () => {
-    window.history.pushState(null, "", window.location.href);
-    // 바로 페이지가 이동되는 것을 한 번 막아줘서 모달이 뜰 수 있게 함
-    setShowSureModal(true);
-  };
-
-  useEffect(() => {
-    window.history.pushState(null, "", window.location.href);
-    window.addEventListener("popstate", handleBackButton);
-    // 페이지 이동을 감지하여 handleBackButton를 발생시킴
-
-    return () => {
-      window.removeEventListener("popstate", handleBackButton);
-      // 클린업 함수, 보통 addEventListener은 실행 후 지워줘서 브라우저를 무겁지 않게 관리함
-    };
-  }, []);
-
   return (
     <>
-      {showSureModal && <Sure onYes={handleYes} onClose={handleClose} />}
-
       <div className="flex flex-col items-center">
         <div className="w-full max-w-[1200px] my-9 mx-auto flex gap-5 items-center">
           <img
             src={categoryArrow}
             className="w-[31px] h-[26px] mt-[7px] cursor-pointer"
             onClick={() => {
-              isAllEmpty ? setShowSureModal(false) : setShowSureModal(true);
+              navigate(-1);
             }}
           />
           <p className="w-[1000px] text-[#FF8C00] text-3xl">새 밸런스 게임 만들기</p>
