@@ -173,7 +173,11 @@ export default function PostCard({
       {/* --- 프로필 --- */}
       <div className="flex items-center justify-between h-[100px] border-b-[2px] border-[#FF8C00]/30 transition-colors duration-300 group-hover:border-[#FF8C00]/60">
         <div className="flex w-[1000px] justify-between ml-[51px]">
-          <div className="flex">
+          <Link
+            to={`/profile/${author.handle}`}
+            className="flex cursor-pointer select-none"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="w-[45px] h-[45px] rounded-full overflow-hidden border-[2px] border-[#FF8C00] mr-[11px]">
               {author?.profile_img && (
                 <img
@@ -187,7 +191,7 @@ export default function PostCard({
               <p className="text-white text-[16px]">{author?.username ?? "익명"}</p>
               <p className="text-[#999999] text-[14px]">@{author?.handle ?? "guest"}</p>
             </div>
-          </div>
+          </Link>
           <div className="relative">
             <img
               src={kebabMenuIcon}
