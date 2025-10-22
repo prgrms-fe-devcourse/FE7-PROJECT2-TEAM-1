@@ -3,7 +3,6 @@ import ghosts from "../../assets/search/search_ghosts.svg";
 import { useState } from "react";
 import supabase from "../../utils/supabase";
 import type { Database } from "../../types/database";
-import SearchPosts from "./SearchPosts";
 import SearchUsers from "./SearchUsers";
 import noGhost from "../../assets/search/search_no_ghost.svg";
 import PostCard from "../post/PostCard";
@@ -39,7 +38,7 @@ export default function Search() {
     e.preventDefault();
 
     if (searchTerm.trim() === "") {
-      alert("검색어를 입력해주세요!");
+      notify("검색어를 입력해주세요!", "INFO");
       setPostSearchResult([]);
       setProfileSearchResult([]);
       return;
@@ -101,8 +100,12 @@ export default function Search() {
 
   return (
     <div>
-      <div className="w-full flex justify-center border-b-2 border-[#FF8C00] h-[85px]">
-        <form id="forSearch" className="w-[1200px] flex items-center gap-4" onSubmit={handleSearch}>
+      <div className="fixed z-20 bg-black w-full flex justify-center border-b-2 border-[#FF8C00] h-[85px]">
+        <form
+          id="forSearch"
+          className="ml-25 w-[1200px] flex items-center gap-4"
+          onSubmit={handleSearch}
+        >
           <button type="submit">
             <img src={search} alt="search-logo" className="w-[31px] h-[31px] cursor-pointer" />
           </button>
@@ -117,18 +120,18 @@ export default function Search() {
                 setSearchTerm(e.target.value);
               }}
             />
-            <div className="flex border border-[#FF8C00] rounded-[30px] text-[#FFFFFF]">
+            <div className=" flex border border-[#FF8C00] rounded-[30px] text-[#FFFFFF]">
               <button
                 type="button"
                 onClick={handlePosts}
-                className={`transition-colors rounded-l-[30px] flex justify-center items-center gap-1  cursor-pointer w-[80px] h-[34px] pl-6 pr-6 text-[12px] ${selectedCategory === "posts" ? "bg-[#FF8C00]" : ""}`}
+                className={`transition-colors rounded-l-[30px] flex justify-center items-center gap-1  cursor-pointer w-[77px] h-[26px] pl-6 pr-6 text-[12px] ${selectedCategory === "posts" ? "bg-[#FF8C00]" : ""}`}
               >
                 POSTS
               </button>
               <button
                 type="button"
                 onClick={handleUsers}
-                className={`transition-colors rounded-r-[30px] flex justify-center items-center gap-1  cursor-pointer w-[80px] h-[34px] pl-6 pr-6 text-[12px] ${selectedCategory === "users" ? "bg-[#FF8C00]" : ""}`}
+                className={`transition-colors rounded-r-[30px] flex justify-center items-center gap-1  cursor-pointer w-[77px] h-[26px] pl-6 pr-6 text-[12px] ${selectedCategory === "users" ? "bg-[#FF8C00]" : ""}`}
               >
                 USERS
               </button>
