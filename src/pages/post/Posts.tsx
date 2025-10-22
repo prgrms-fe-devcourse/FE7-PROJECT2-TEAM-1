@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Activity, useEffect, useState } from "react";
 import categoryArrow from "../../assets/posts/categoryArrow.svg";
 import newPost from "../../assets/posts/newPost.svg";
 import logo from "../../assets/sign/hotpotato_logo.png";
@@ -91,7 +91,9 @@ export default function Posts() {
         </div>
       </div>
 
-      <ChatButton category={topic!} />
+      <Activity mode={profile ? "visible" : "hidden"}>
+        <ChatButton category={topic!} />
+      </Activity>
 
       {posts.length !== 0 ? (
         <div className="max-w-[1200px] mx-auto">

@@ -301,7 +301,7 @@ export default function PostCard({
           </h2>
           <p
             style={{ fontWeight: "normal" }}
-            className="text-[16px] text-[#999999] whitespace-pre-wrap break-words"
+            className="w-[1000px] text-[16px] text-[#999999] whitespace-pre-wrap break-words"
           >
             {descParts?.map((part, index) =>
               part.toLowerCase() === searchTerm.toLowerCase() ? (
