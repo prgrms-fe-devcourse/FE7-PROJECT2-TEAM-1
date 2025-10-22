@@ -67,7 +67,7 @@ export default function Badge({ post_id, user_id }: { post_id: string; user_id: 
     return <span className={`${baseClass} opacity-60`}>...</span>;
   }
   const activeClass = "bg-[#FF8C00] text-black";
-  const inactiveClass = "bg-[#FFF0D2] text-black/60";
+  const inactiveClass = "bg-[#ffdea1] text-black/60";
   const colorClass = isSame ? activeClass : inactiveClass;
 
   return (

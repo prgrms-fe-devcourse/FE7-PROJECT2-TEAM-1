@@ -89,22 +89,28 @@ export type Database = {
           category: string
           content: string | null
           created_at: string
+          profile_img: string | null
           uid: string
           user_id: string
+          username: string | null
         }
         Insert: {
           category: string
           content?: string | null
           created_at?: string
+          profile_img?: string | null
           uid?: string
           user_id?: string
+          username?: string | null
         }
         Update: {
           category?: string
           content?: string | null
           created_at?: string
+          profile_img?: string | null
           uid?: string
           user_id?: string
+          username?: string | null
         }
         Relationships: [
           {

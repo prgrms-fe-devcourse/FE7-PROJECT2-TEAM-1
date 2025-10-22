@@ -4,7 +4,6 @@ interface Chat {
   created_at: string;
   uid: string;
   user_id: string;
-  profiles: {
-    username: string;
-  };
+  username: string | null;
+  profile_img: string | null;
 }

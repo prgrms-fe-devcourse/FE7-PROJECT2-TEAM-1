@@ -9,7 +9,7 @@ import author_img from "../../assets/posts/author.png";
 import report from "../../assets/posts/report.png";
 
 import PollCard from "../../components/PollCard";
-import { addComment, submitVote, toggleLike } from "../../api/postActions";
+import { addComment, deleteComment, submitVote, toggleLike } from "../../api/postActions";
 
 import { Activity, useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
@@ -18,6 +18,7 @@ import { getAuthorByPostId, getLikeStatusByPostId, getVotesByOptionId } from "..
 import { Link } from "react-router";
 import Comments from "./Comments";
 import Report from "../../components/modal/Report";
+import Comment from "./Comment";
 
 export default function PostCard({
   post,
@@ -84,6 +85,41 @@ export default function PostCard({
   const [commentText, setCommentText] = useState("");
   const [pendingComment, setPendingComment] = useState<string | null>(null);
   const [options, setOptions] = useState<Option[]>([]);
+  const [oldestComment, setOldestComment] = useState<CommentWithProfile | null>(null);
+  useEffect(() => {
+    (async () => {
+      if (isCommentsOpen) {
+        setOldestComment(null);
+        return;
+      }
+      try {
+        const { data, error } = await supabase
+          .from("comments")
+          .select(
+            "uid, user_id, post_id, comment_content, created_at, profiles(username, handle, profile_img)",
+          )
+          .eq("post_id", post.uid)
+          .order("created_at", { ascending: true })
+          .limit(1);
+        if (error) throw error;
+        setOldestComment(data && data.length > 0 ? (data[0] as any) : null);
+      } catch (err) {
+        console.error("댓글 프리뷰 불러오기 실패: ", err);
+        setOldestComment(null);
+      }
+    })();
+  }, [post.uid, hasVoted, isCommentsOpen, commentsRefresh]);
+
+  const deleteSingleCommentHandler = async (uid: string) => {
+    try {
+      await deleteComment(uid);
+      setCommentsCounts((c) => Math.max(0, c - 1));
+      setCommentsRefresh((n) => n + 1);
+      setOldestComment(null);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const postId = post.uid;
 
@@ -173,7 +209,11 @@ export default function PostCard({
       {/* --- 프로필 --- */}
       <div className="flex items-center justify-between h-[100px] border-b-[2px] border-[#FF8C00]/30 transition-colors duration-300 group-hover:border-[#FF8C00]/60">
         <div className="flex w-[1000px] justify-between ml-[51px]">
-          <div className="flex">
+          <Link
+            to={`/profile/${author.handle}`}
+            className="flex cursor-pointer select-none"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="w-[45px] h-[45px] rounded-full overflow-hidden border-[2px] border-[#FF8C00] mr-[11px]">
               {author?.profile_img && (
                 <img
@@ -187,7 +227,7 @@ export default function PostCard({
               <p className="text-white text-[16px]">{author?.username ?? "익명"}</p>
               <p className="text-[#999999] text-[14px]">@{author?.handle ?? "guest"}</p>
             </div>
-          </div>
+          </Link>
           <div className="relative">
             <img
               src={kebabMenuIcon}
@@ -261,7 +301,7 @@ export default function PostCard({
           </h2>
           <p
             style={{ fontWeight: "normal" }}
-            className="text-[16px] text-[#999999] whitespace-pre-wrap break-words"
+            className="w-[1000px] text-[16px] text-[#999999] whitespace-pre-wrap break-words"
           >
             {descParts?.map((part, index) =>
               part.toLowerCase() === searchTerm.toLowerCase() ? (
@@ -389,7 +429,14 @@ export default function PostCard({
                 </div>
               </form>
               <div className="mx-auto flex justify-between w-[996px] border border-[#FF8C00]/40 rounded-[12px] mb-6">
-                <Comments postUid={post.uid} refresh={commentsRefresh} />
+                {!isCommentsOpen && oldestComment ? (
+                  <Comment
+                    comment={oldestComment}
+                    deleteCommentHandler={deleteSingleCommentHandler}
+                  />
+                ) : (
+                  <Comments postUid={post.uid} refresh={commentsRefresh} />
+                )}
               </div>
             </div>
             {!hasVoted && (

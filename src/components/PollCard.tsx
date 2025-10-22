@@ -48,9 +48,16 @@ export default function PollCard({
       onClick={() => vote(side)}
       disabled={hasVoted}
       className={[
-        "relative w-[488px] h-[406px] overflow-hidden rounded-[12px] border-[2px] transition-all duration-300",
-        selected === side ? "border-[#FF8C00]" : "border-[#FF8C00]/60",
-        !hasVoted ? "hover:border-[#FF8C00] cursor-pointer" : "cursor-default",
+        "relative w-[488px] h-[406px] overflow-hidden rounded-[12px] transition-all duration-300",
+
+        !hasVoted
+          ? "border-[1px] border-[#eacaa0] hover:border-[#FF8C00] cursor-pointer"
+          : [
+              "cursor-default",
+              selected === side
+                ? "scale-105 border-[#FF8C00] border-4"
+                : "scale-90 border-[#eacaa0] border-[2px]",
+            ].join(" "),
       ].join(" ")}
     >
       {data.img && (
@@ -69,7 +76,14 @@ export default function PollCard({
       </span>
 
       {hasVoted && (
-        <span className="absolute top-3 right-3 bg-[#FF8C00] text-black text-[14px] rounded-full px-2 py-[2px] font-bold">
+        <span
+          className={[
+            "absolute top-3 right-3 rounded-full px-2 py-[2px] font-bold",
+            side === selected
+              ? "bg-[#FF8C00] text-black text-[20px]"
+              : "bg-[#ffffff78] text-black/50 text-[14px] ",
+          ].join(" ")}
+        >
           {percent}%
         </span>
       )}
@@ -109,14 +123,14 @@ export default function PollCard({
             <div
               className={[
                 "absolute left-0 top-0 h-full rounded-full transition-[width] duration-1000 gaugeFill stripeRunRight",
-                selected === "left" ? "bg-[#FF8C00]" : "bg-[#FFCD95]",
+                selected === "left" ? "bg-[#FF8C00]" : "bg-[#ffffff78]",
               ].join(" ")}
               style={{ width: `${wLeft}%` }}
             />
             <div
               className={[
                 "absolute right-0 top-0 h-full rounded-full transition-[width] duration-1000 gaugeFill stripeRunLeft",
-                selected === "right" ? "bg-[#FF8C00]" : "bg-[#ffcd9596]",
+                selected === "right" ? "bg-[#FF8C00]" : "bg-[#ffffff78]",
               ].join(" ")}
               style={{ width: `${wRight}%` }}
             />
