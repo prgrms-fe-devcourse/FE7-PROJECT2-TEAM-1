@@ -72,6 +72,5 @@ export default function PostAlarm({
       </div>
     </div>
   );
-  console.log(post);
   return createPortal(modal, document.body);
 }
