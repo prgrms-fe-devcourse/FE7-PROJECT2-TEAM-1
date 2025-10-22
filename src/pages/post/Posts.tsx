@@ -8,8 +8,11 @@ import { useNavigate, useParams } from "react-router";
 import { SLUG_TO_LABEL, type CategorySlug } from "../../constants/categories";
 import { deletePostAPI } from "../../services/post";
 import Toast from "../../components/toast/Toast";
+import ChatButton from "../../components/chat/ChatButton";
+import { useAuthStore } from "../../stores/authStore";
 
 export default function Posts() {
+  const profile = useAuthStore((state) => state.profile);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,6 +88,8 @@ export default function Posts() {
           />
         </div>
       </div>
+
+      <ChatButton category={topic!} />
 
       <div className="max-w-[1200px] mx-auto">
         {posts.map((post) => (
