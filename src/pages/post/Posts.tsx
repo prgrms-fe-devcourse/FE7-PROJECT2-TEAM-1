@@ -9,10 +9,10 @@ import { SLUG_TO_LABEL, type CategorySlug } from "../../constants/categories";
 import { deletePostAPI } from "../../services/post";
 import Toast from "../../components/toast/Toast";
 import ChatButton from "../../components/chat/ChatButton";
-import { useAuthStore } from "../../stores/authStore";
+// import { useAuthStore } from "../../stores/authStore";
 
 export default function Posts() {
-  const profile = useAuthStore((state) => state.profile);
+  // const profile = useAuthStore((state) => state.profile);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
