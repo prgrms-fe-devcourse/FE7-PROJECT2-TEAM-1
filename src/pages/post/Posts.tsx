@@ -11,6 +11,7 @@ import { deletePostAPI } from "../../services/post";
 import Toast from "../../components/toast/Toast";
 import ChatButton from "../../components/chat/ChatButton";
 import { useAuthStore } from "../../stores/authStore";
+import Sure from "../../components/modal/Sure";
 import NoResultHome from "./NoResultHome";
 
 export default function Posts() {
@@ -23,6 +24,7 @@ export default function Posts() {
   const isCategorySlug = (v: string): v is CategorySlug => Object.hasOwn(SLUG_TO_LABEL, v);
   const displayLabel = topic && isCategorySlug(topic) ? SLUG_TO_LABEL[topic] : "전체";
   const notify = (message: string, type: ToastType) => Toast({ message, type });
+  const [confirmingUid, setConfirmingUid] = useState<string | null>(null);
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -48,16 +50,29 @@ export default function Posts() {
 
     fetchPosts();
   }, []);
-
   const deletePostHandler = async (uid: string) => {
     try {
-      const deleteData = await deletePostAPI(uid);
-      console.log(deleteData);
+      await deletePostAPI(uid);
       setPosts((prev) => prev.filter((item) => item.uid !== uid));
       notify("포스트가 삭제되었습니다.", "SUCCESS");
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleDeleteRequest = (uid: string) => {
+    setConfirmingUid(uid);
+  };
+
+  const handleConfirmYes = async () => {
+    if (confirmingUid) {
+      await deletePostHandler(confirmingUid);
+      setConfirmingUid(null);
+    }
+  };
+
+  const handleConfirmClose = () => {
+    setConfirmingUid(null);
   };
 
   if (loading)
@@ -94,14 +109,14 @@ export default function Posts() {
       <Activity mode={profile ? "visible" : "hidden"}>
         <ChatButton category={topic!} />
       </Activity>
-
       {posts.length !== 0 ? (
         <div className="max-w-[1200px] mx-auto">
+            {confirmingUid && <Sure onYes={handleConfirmYes} onClose={handleConfirmClose} />}
           {posts.map((post) => (
             <PostCard
               key={post.uid}
               post={post}
-              deletePostHandler={deletePostHandler}
+              onDeleteClick={handleDeleteRequest}
               searchTerm={" "}
             />
           ))}

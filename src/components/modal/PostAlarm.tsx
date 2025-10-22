@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { deletePostAPI } from "../../services/post";
 import Toast from "../toast/Toast";
 import { useAlarmStore } from "../../stores/alarmStore";
+import Sure from "./Sure";
 import PostsSkeleton from "../loading/PostsSkeleton";
 
 export default function PostAlarm({
@@ -20,6 +21,7 @@ export default function PostAlarm({
   const [loading, setLoading] = useState(true);
   const notify = (message: string, type: ToastType) => Toast({ message, type });
   const { setOpenModal } = useAlarmStore();
+  const [confirmingUid, setConfirmingUid] = useState<string | null>(null);
 
   const deletePostHandler = async (uid: string) => {
     try {
@@ -34,6 +36,20 @@ export default function PostAlarm({
     } catch (error) {
       console.error(error);
     }
+  };
+  const handleDeleteRequest = (uid: string) => {
+    setConfirmingUid(uid);
+  };
+
+  const handleConfirmYes = async () => {
+    if (confirmingUid) {
+      await deletePostHandler(confirmingUid);
+      setConfirmingUid(null);
+    }
+  };
+
+  const handleConfirmClose = () => {
+    setConfirmingUid(null);
   };
 
   useEffect(() => {
@@ -70,6 +86,7 @@ export default function PostAlarm({
       <div
         className={`w-[1400px] scale-60 bg-black border-2 border-[#FF8C00] flex justify-center items-center rounded-[12px] shadow-[20px_20px_4px_rgba(0,0,0,0.25)] transition-all duration-300 ease-out font-normal p-10 flex-col gap-10 ${closing ? "opacity-0 translate-y-10" : opening ? "opacity-0 translate-y-10" : "opacity-100 translate-y-0"}`}
       >
+        {confirmingUid && <Sure onYes={handleConfirmYes} onClose={handleConfirmClose} />}
         {loading && (
           <div className="w-full overflow-y-auto">
             {" "}
@@ -78,7 +95,7 @@ export default function PostAlarm({
         )}
         {post && !loading && (
           <div className="w-full overflow-y-auto">
-            <PostCard post={post} searchTerm={""} deletePostHandler={deletePostHandler} />
+            <PostCard post={post} searchTerm={""} onDeleteClick={handleDeleteRequest} />
           </div>
         )}
         <div className="border border-[#FF8C00] w-[1150px] opacity-30"></div>

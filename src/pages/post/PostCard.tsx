@@ -22,11 +22,11 @@ import Comment from "./Comment";
 
 export default function PostCard({
   post,
-  deletePostHandler,
+  onDeleteClick,
   searchTerm,
 }: {
   post: Post;
-  deletePostHandler: (uid: string) => Promise<void>;
+  onDeleteClick: (uid: string) => void;
   searchTerm: string;
 }) {
   const { profile } = useAuthStore();
@@ -239,7 +239,7 @@ export default function PostCard({
                 {author?.uid === profile?.uid ? (
                   <div
                     className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#0A0A0A] "
-                    onClick={() => deletePostHandler(post.uid)}
+                    onClick={() => onDeleteClick(post.uid)}
                   >
                     <img
                       className="w-[20px] h-[20px] translate-x-[-4px]"

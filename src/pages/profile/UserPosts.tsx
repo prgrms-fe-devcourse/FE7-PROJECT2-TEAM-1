@@ -1,7 +1,8 @@
-import type { Dispatch, SetStateAction } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import { deletePostAPI } from "../../services/post";
 import PostCard from "../post/PostCard";
 import Toast from "../../components/toast/Toast";
+import Sure from "../../components/modal/Sure";
 
 export default function UserPosts({
   posts,
@@ -11,6 +12,7 @@ export default function UserPosts({
   setPosts: Dispatch<SetStateAction<Post[]>>;
 }) {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
+  const [confirmingUid, setConfirmingUid] = useState<string | null>(null);
 
   const deletePostHandler = async (uid: string) => {
     try {
@@ -23,6 +25,21 @@ export default function UserPosts({
     }
   };
 
+  const handleDeleteRequest = (uid: string) => {
+    setConfirmingUid(uid);
+  };
+
+  const handleConfirmYes = async () => {
+    if (confirmingUid) {
+      await deletePostHandler(confirmingUid);
+      setConfirmingUid(null);
+    }
+  };
+
+  const handleConfirmClose = () => {
+    setConfirmingUid(null);
+  };
+
   return (
     <>
       <div className="max-w-[1200px] mx-auto">
@@ -31,10 +48,11 @@ export default function UserPosts({
             <PostCard
               key={post.uid}
               post={post}
-              deletePostHandler={deletePostHandler}
+              onDeleteClick={handleDeleteRequest}
               searchTerm={""}
             />
           ))}
+        {confirmingUid && <Sure onYes={handleConfirmYes} onClose={handleConfirmClose} />}
       </div>
     </>
   );
