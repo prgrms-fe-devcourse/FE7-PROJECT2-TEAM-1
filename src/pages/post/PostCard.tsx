@@ -17,6 +17,7 @@ import { useAuthStore } from "../../stores/authStore";
 import { getAuthorByPostId, getLikeStatusByPostId, getVotesByOptionId } from "../../api/postGet";
 import { Link } from "react-router";
 import Comments from "./Comments";
+import Report from "../../components/modal/Report";
 
 export default function PostCard({
   post,
@@ -35,6 +36,7 @@ export default function PostCard({
     right: 0,
   });
   const [initialSelected, setInitialSelected] = useState<OptionKey | null>(null);
+  const [openReportModal, setOpenReportModal] = useState(false);
   const hasVoted = initialSelected !== null;
 
   const titleParts = post.post_title.split(new RegExp(`(${searchTerm})`, "gi"));
@@ -204,7 +206,9 @@ export default function PostCard({
                       src={trash}
                       alt="trash_logo"
                     />
-                    <span className="h-[20px] ml-[5px] translate-x-[-4px]">삭제하기</span>
+                    <span className="h-[20px] ml-[5px] translate-x-[-4px] text-white">
+                      삭제하기
+                    </span>
                   </div>
                 ) : (
                   <>
@@ -214,13 +218,23 @@ export default function PostCard({
                         <span className="h-[20px] ml-[6px]">프로필가기</span>
                       </div>
                     </Link>
-                    <div className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#0A0A0A]">
+                    <div
+                      onClick={() => setOpenReportModal(true)}
+                      className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#0A0A0A]"
+                    >
                       <img
                         className="w-[20px] h-[20px] translate-x-[-6px]"
                         src={report}
                         alt="author_logo"
                       />
                       <span className="h-[20px] ml-[6px] translate-x-[-6px]">신고하기</span>
+                      <Activity mode={openReportModal ? "visible" : "hidden"}>
+                        <Report
+                          id={post.uid}
+                          type={"post"}
+                          setOpenReportModal={setOpenReportModal}
+                        />
+                      </Activity>
                     </div>
                   </>
                 )}

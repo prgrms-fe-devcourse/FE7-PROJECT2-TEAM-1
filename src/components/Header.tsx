@@ -11,8 +11,10 @@ import { Activity, useEffect, useRef } from "react";
 import Alarm from "./alarm/Alarm";
 import { useAlarmStore } from "../stores/alarmStore";
 import { allReadAPI } from "../services/alarm";
+import Toast from "./toast/Toast";
 
 export default function Header() {
+  const notify = (message: string, type: ToastType) => Toast({ message, type });
   const profile = useAuthStore((state) => state.profile);
   const { isOpen, setIsOpen, unReadCount, setUnReadCount, alarms } = useAlarmStore(
     (state) => state,
@@ -24,6 +26,8 @@ export default function Header() {
     if (!profile) return;
 
     const handleClickOutside = (e: MouseEvent) => {
+      const { openModal } = useAlarmStore.getState();
+      if (openModal) return;
       if (alarmDivRef.current && !alarmDivRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
@@ -33,7 +37,10 @@ export default function Header() {
   }, []);
 
   const alarmClickHandler = async () => {
-    if (!profile) return;
+    if (!profile) {
+      notify("로그인을 해주세요!", "INFO");
+      return;
+    }
 
     if (isOpen && !!alarms.length && !!unReadCount) {
       try {
@@ -59,16 +66,16 @@ export default function Header() {
       >
         <Link to="/">
           <div className="flex items-center">
-            <img src={header_logo} alt="header-logo" className="h-[40px] w-full pr-3" />
+            <img src={header_logo} alt="header-logo" className="h-[40px] w-full pr-5" />
             <img
               src={header_name1}
               alt="header-name1"
-              className="h-[65px] min-w-[67px] pr-3 object-contain"
+              className="h-[65px] min-w-[90px] pr-5 object-contain"
             />
             <img
               src={header_name2}
               alt="header-name2"
-              className="h-[65px] min-w-[130px] pr-3 object-contain"
+              className="h-[65px] min-w-[160px] pr-5 object-contain"
             />
           </div>
         </Link>

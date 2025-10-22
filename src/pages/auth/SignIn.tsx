@@ -37,7 +37,7 @@ export default function SignIn() {
     }
     const name = data.user?.user_metadata.username;
 
-    notify(`${name}, 님 안녕하세요`, "SUCCESS");
+    notify(`${name}, 님 안녕하세요!`, "INFO");
 
     const query = search.get("url");
     hydrateFromAuth();

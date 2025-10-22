@@ -14,10 +14,12 @@ import UserStats from "./UserStats";
 import { checkHandleExists } from "../../services/signIn";
 import ProfileSkeleton from "../../components/loading/ProfileSkeleton";
 import { getUserPostsAPI } from "../../services/profile";
+import SearchSkeleton from "../../components/loading/SearchSkeleton";
 
 export default function Profile() {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
   const [isLoading, setIsLoading] = useState(true);
+  const [isPostLoading, setIsPostLoading] = useState(true);
 
   const params = useParams();
   const navigate = useNavigate();
@@ -182,7 +184,7 @@ export default function Profile() {
       } catch (error) {
         console.error(error);
       } finally {
-        const timer = setTimeout(() => setIsLoading(false), 700);
+        const timer = setTimeout(() => setIsLoading(false), 1000);
         return () => clearTimeout(timer);
       }
     }
@@ -197,13 +199,25 @@ export default function Profile() {
   useEffect(() => {
     if (!profile?.uid) return;
     const getUserPosts = async () => {
-      const data = await getUserPostsAPI(profile?.uid);
-      if (data) setPosts(data);
+      try {
+        const data = await getUserPostsAPI(profile?.uid);
+        if (data) setPosts(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        const timer2 = setTimeout(() => setIsPostLoading(false), 1000);
+        return () => clearTimeout(timer2);
+      }
     };
     getUserPosts();
+
+    // return () => {
+    //   setPosts([]);
+    //   setIsPostLoading(true);
+    // };
   }, [profile]);
 
-  if (isLoading) return <ProfileSkeleton />;
+  if (isLoading || isPostLoading) return <ProfileSkeleton />;
 
   return (
     <>
@@ -368,9 +382,10 @@ export default function Profile() {
           <div className="w-[1098px] h-auto text-left text-[24px] mt-[60px] mb-[5px]">
             작성한 게시글
           </div>
-          <Activity mode={profile ? "visible" : "hidden"}>
+          <Activity mode={profile && !isPostLoading ? "visible" : "hidden"}>
             <UserPosts posts={posts} setPosts={setPosts} />
-          </Activity>
+          </Activity> */}
+          <SearchSkeleton />
         </div>
       </main>
     </>

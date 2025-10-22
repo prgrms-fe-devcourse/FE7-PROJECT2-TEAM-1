@@ -1,12 +1,53 @@
-.toast-custom {
-  background-color: #ff8c00 !important;
+.toast-success {
+  width: max-content;
+  min-width: 300px;
+  font-family: "MyEnglishFont", "MyKoreanFont" !important;
+  background-color: #dd742d !important;
   border-radius: 8px !important;
-  border: 1px solid #ff8c00 !important;
-  color: white !important;
-  font-size: 16px !important;
-  font-weight: bold;
+  border: 4px solid #b4282e !important;
+  color: #ffffff !important;
+  font-size: 14px !important;
+  font-weight: bold !important;
+  padding: 12px 20px !important;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2) !important;
 }
+.toast-error {
+  width: max-content;
+  min-width: 300px;
+  font-family: "MyEnglishFont", "MyKoreanFont" !important;
+  background-color: #0200a3 !important;
+  border-radius: 8px !important;
+  border: 4px solid #ffffff !important;
+  color: #ffffff !important;
+  font-size: 14px !important;
+  font-weight: bold !important;
+  padding: 12px 20px !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2) !important;
+}
+.toast-info {
+  width: max-content;
+  min-width: 300px;
+  font-family: "MyEnglishFont", "MyKoreanFont" !important;
+  background-color: #45b4c8 !important;
+  border-radius: 8px !important;
+  border: 4px solid #59a46b !important;
+  color: #ffffff !important;
+  font-size: 14px !important;
+  font-weight: bold !important;
+  padding: 12px 20px !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2) !important;
+}
+
 .toast-progress {
-  background-color: #ff8c00 !important;
+  background-color: whitesmoke !important;
+  height: 3px !important;
+  border-radius: 2px !important;
+}
+
+.Toastify__toast:hover {
+  transform: scale(1.05);
+  transition: transform 0.1s ease-in-out;
 }

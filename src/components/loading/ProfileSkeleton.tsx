@@ -1,3 +1,5 @@
+import PostsSkeleton from "./PostsSkeleton";
+
 export default function ProfileSkeleton() {
   return (
     <>
@@ -27,6 +29,10 @@ export default function ProfileSkeleton() {
               </div>
             </div>
           </div>
+          <div className="w-[1098px] h-auto text-left text-[24px] mt-[60px] mb-[5px]">
+            작성한 게시글
+          </div>
+          <PostsSkeleton />
         </div>
       </main>
     </>
