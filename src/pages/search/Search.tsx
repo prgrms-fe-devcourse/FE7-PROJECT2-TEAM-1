@@ -164,37 +164,39 @@ export default function Search() {
           <SearchUsers key={user.handle} result={user} searchTerm={searchTerm} />
         ))
       )} */}
-      {isLoading && noSearch ? (
-        selectedCategory === "posts" ? (
-          [...Array(4)].map((_, index) => <PostsSkeleton key={index} />)
+      <div className="pt-25">
+        {isLoading && noSearch ? (
+          selectedCategory === "posts" ? (
+            [...Array(4)].map((_, index) => <PostsSkeleton key={index} />)
+          ) : (
+            [...Array(4)].map((_, index) => <SearchSkeleton key={index} />)
+          )
+        ) : !noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
+          <div className="flex flex-col justify-center items-center min-h-[calc(100vh-111px)]">
+            <p className="text-[28px]">무엇을 검색해볼까 . . .</p>
+            <img src={ghosts} alt="ghosts" />
+          </div>
+        ) : noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
+          <div className="gap-x-1.5 flex flex-row justify-center items-center min-h-[calc(100vh-111px)]">
+            <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
+            <p className="text-[28px]">검색 결과가 없습니다 . . .</p>
+            <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
+          </div>
+        ) : selectedCategory === "posts" ? (
+          postSearchResult.map((post) => (
+            <PostCard
+              key={post.uid}
+              post={post}
+              searchTerm={searchTerm}
+              deletePostHandler={deletePostHandler}
+            />
+          ))
         ) : (
-          [...Array(4)].map((_, index) => <SearchSkeleton key={index} />)
-        )
-      ) : !noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
-        <div className="flex flex-col justify-center items-center min-h-[calc(100vh-111px)]">
-          <p className="text-[28px]">무엇을 검색해볼까 . . .</p>
-          <img src={ghosts} alt="ghosts" />
-        </div>
-      ) : noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
-        <div className="gap-x-1.5 flex flex-row justify-center items-center min-h-[calc(100vh-111px)]">
-          <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
-          <p className="text-[28px]">검색 결과가 없습니다 . . .</p>
-          <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
-        </div>
-      ) : selectedCategory === "posts" ? (
-        postSearchResult.map((post) => (
-          <PostCard
-            key={post.uid}
-            post={post}
-            searchTerm={searchTerm}
-            deletePostHandler={deletePostHandler}
-          />
-        ))
-      ) : (
-        profileSearchResult.map((user) => (
-          <SearchUsers key={user.handle} result={user} searchTerm={searchTerm} />
-        ))
-      )}
+          profileSearchResult.map((user) => (
+            <SearchUsers key={user.handle} result={user} searchTerm={searchTerm} />
+          ))
+        )}
+      </div>
     </div>
   );
 }
