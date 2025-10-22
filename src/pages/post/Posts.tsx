@@ -15,7 +15,7 @@ import Sure from "../../components/modal/Sure";
 import NoResultHome from "./NoResultHome";
 
 export default function Posts() {
-  const profile = useAuthStore((state) => state.profile);
+  // const profile = useAuthStore((state) => state.profile);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

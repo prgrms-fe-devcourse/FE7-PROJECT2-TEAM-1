@@ -8,19 +8,7 @@ import Badge from "./Badge";
 import { Link } from "react-router";
 import { Activity, useEffect, useRef, useState } from "react";
 import { useAuthStore } from "../../stores/authStore";
-
-function formatRelativeTime(dateString: string) {
-  const diff = Date.now() - new Date(dateString).getTime();
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-  if (seconds < 60) return "Just now";
-  if (minutes < 60) return `${minutes}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (days < 7) return `${days}d ago`;
-  return new Date(dateString).toLocaleDateString();
-}
+import formatRelativeTime from "../../services/formatRelativeTime";
 
 export default function Comment({
   comment,
@@ -95,10 +83,10 @@ export default function Comment({
           onClick={() => setMenuOpen(!menuOpen)}
         />
         <Activity mode={menuOpen ? "visible" : "hidden"}>
-          <div className="absolute top-7 right-5 w-[160px]  border-1 border-[#ffffff30] rounded-[10px] mt-3 shadow-lg shadow-[#0A0A0A] overflow-x-hidden overflow-y-auto transition-all duration-200 z-50 backdrop-blur-lg">
+          <div className="absolute top-5 -right-30 w-[160px]  border-1 border-[#ffffff30] rounded-[10px] mt-3 shadow-lg shadow-[#0A0A0A] overflow-x-hidden overflow-y-auto transition-all duration-200 z-50 backdrop-blur-lg">
             {comment.user_id === profile?.uid ? (
               <div
-                className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#0A0A0A] "
+                className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#5d5757] "
                 onClick={() => deleteCommentHandler(comment.uid)}
               >
                 <img
@@ -111,12 +99,12 @@ export default function Comment({
             ) : (
               <>
                 <Link to={`/profile/${comment.profiles?.handle}`}>
-                  <div className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#0A0A0A]">
+                  <div className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#5d5757]">
                     <img className="w-[20px] h-[20px]" src={author_img} alt="author_logo" />
                     <span className="h-[20px] ml-[6px]">프로필가기</span>
                   </div>
                 </Link>
-                <div className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#0A0A0A]">
+                <div className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#5d5757]">
                   <img
                     className="w-[20px] h-[20px] translate-x-[-6px]"
                     src={report}

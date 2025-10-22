@@ -3,6 +3,7 @@ import likeIcon from "../../assets/posts/likeIcon.svg";
 import likeFilledIcon from "../../assets/posts/likeFilled.svg";
 import commentIcon from "../../assets/posts/commentIcon.svg";
 import sendIcon from "../../assets/posts/paperPlane.svg";
+import hourglass from "../../assets/posts/hourglass.svg";
 
 import trash from "../../assets/posts/trash.png";
 import author_img from "../../assets/posts/author.png";
@@ -11,13 +12,14 @@ import report from "../../assets/posts/report.png";
 import PollCard from "../../components/PollCard";
 import { addComment, deleteComment, submitVote, toggleLike } from "../../api/postActions";
 
-import { Activity, useEffect, useState } from "react";
+import { Activity, useEffect, useRef, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
 import { getAuthorByPostId, getLikeStatusByPostId, getVotesByOptionId } from "../../api/postGet";
 import { Link } from "react-router";
 import Comments from "./Comments";
 import Report from "../../components/modal/Report";
+import formatRelativeTime from "../../services/formatRelativeTime";
 import Comment from "./Comment";
 
 export default function PostCard({
@@ -30,6 +32,21 @@ export default function PostCard({
   searchTerm: string;
 }) {
   const { profile } = useAuthStore();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleClickOutSide = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutSide);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutSide);
+    };
+  }, [menuOpen]);
 
   const [author, setAuthor] = useState<Profile | null>(null);
   const [voteCounts, setVoteCounts] = useState<{ left: number; right: number }>({
@@ -123,9 +140,6 @@ export default function PostCard({
 
   const postId = post.uid;
 
-  // 삭제 드롭다운
-  const [menuOpen, setMenuOpen] = useState(false);
-
   // author
   useEffect(() => {
     (async () => {
@@ -205,7 +219,10 @@ export default function PostCard({
   if (!author) return null;
 
   return (
-    <div className="group w-[1098px] border-[2px] border-[#FF8C00]/30 rounded-[12px] mt-[30px] mx-auto transition-colors duration-300 hover:border-[#FF8C00]/60">
+    <div
+      ref={menuRef}
+      className="group w-[1098px] border-[2px] border-[#FF8C00]/30 rounded-[12px] mt-[30px] mx-auto transition-colors duration-300 hover:border-[#FF8C00]/60"
+    >
       {/* --- 프로필 --- */}
       <div className="flex items-center justify-between h-[100px] border-b-[2px] border-[#FF8C00]/30 transition-colors duration-300 group-hover:border-[#FF8C00]/60">
         <div className="flex w-[1000px] justify-between ml-[51px]">
@@ -228,17 +245,17 @@ export default function PostCard({
               <p className="text-[#999999] text-[14px]">@{author?.handle ?? "guest"}</p>
             </div>
           </Link>
-          <div className="relative">
+          <div className="relative flex items-center">
             <img
               src={kebabMenuIcon}
-              className="pr-[10px] pt-[8px] cursor-pointer"
+              className="cursor-pointer"
               onClick={() => setMenuOpen(!menuOpen)}
             />
             <Activity mode={menuOpen ? "visible" : "hidden"}>
-              <div className="absolute top-7 left-5 w-[160px]  border-1 border-[#ffffff30] rounded-[10px] mt-3 shadow-lg shadow-[#0A0A0A] overflow-x-hidden overflow-y-auto transition-all duration-200 z-50 backdrop-blur-lg">
+              <div className="absolute top-7 left-1 w-[160px]  border-1 border-[#ffffff30] rounded-[10px] mt-3 shadow-lg shadow-[#0A0A0A] overflow-x-hidden overflow-y-auto transition-all duration-200 z-50 backdrop-blur-lg">
                 {author?.uid === profile?.uid ? (
                   <div
-                    className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#0A0A0A] "
+                    className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#5d5757]"
                     onClick={() => onDeleteClick(post.uid)}
                   >
                     <img
@@ -253,14 +270,14 @@ export default function PostCard({
                 ) : (
                   <>
                     <Link to={`/profile/${author.handle}`}>
-                      <div className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#0A0A0A]">
+                      <div className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#5d5757]">
                         <img className="w-[20px] h-[20px]" src={author_img} alt="author_logo" />
                         <span className="h-[20px] ml-[6px]">프로필가기</span>
                       </div>
                     </Link>
                     <div
                       onClick={() => setOpenReportModal(true)}
-                      className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#0A0A0A]"
+                      className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#5d5757]"
                     >
                       <img
                         className="w-[20px] h-[20px] translate-x-[-6px]"
@@ -349,30 +366,38 @@ export default function PostCard({
 
         {/* 좋아요 */}
         <div>
-          <div className="flex items-center mx-auto w-[996px] h-[50px] border-y-[2px] border-[#FF8C00]/20">
-            <button
-              onClick={async () => {
-                const { liked } = await toggleLike(postId);
-                setLikeStatus(liked);
-                try {
-                  const { data } = await supabase
-                    .from("posts")
-                    .select("like_count")
-                    .eq("uid", postId)
-                    .single();
-                  setLikeCounts(data?.like_count ?? 0);
-                } catch (e) {
-                  console.error(e);
-                }
-              }}
-              className="transition-transform hover:scale-130"
-            >
-              <img
-                src={likeStatus ? likeFilledIcon : likeIcon}
-                className="ml-[13px] mr-[21px] w-[25px]"
-              />
-            </button>
-            <span className="text-[14px]">{likeCounts}</span>
+          <div className="flex items-center justify-between mx-auto w-[996px] h-[50px] border-b-[2px] border-[#FF8C00]/20">
+            <div>
+              <button
+                onClick={async () => {
+                  const { liked } = await toggleLike(postId);
+                  setLikeStatus(liked);
+                  try {
+                    const { data } = await supabase
+                      .from("posts")
+                      .select("like_count")
+                      .eq("uid", postId)
+                      .single();
+                    setLikeCounts(data?.like_count ?? 0);
+                  } catch (e) {
+                    console.error(e);
+                  }
+                }}
+                className="transition-transform hover:scale-130"
+              >
+                <img
+                  src={likeStatus ? likeFilledIcon : likeIcon}
+                  className="ml-[13px] mr-[21px] w-[25px]"
+                />
+              </button>
+              <span className="text-[14px]">{likeCounts}</span>
+            </div>
+            <div className="flex">
+              <img src={hourglass} className="w-3.5" />
+              <span className="text-[#999999] text-[12px] whitespace-nowrap p-2">
+                {formatRelativeTime(post.created_at)}
+              </span>
+            </div>
           </div>
 
           {/* 댓글 */}
