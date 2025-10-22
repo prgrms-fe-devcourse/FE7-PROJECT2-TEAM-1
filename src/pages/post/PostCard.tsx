@@ -15,8 +15,8 @@ import { Activity, useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
 import { getAuthorByPostId, getLikeStatusByPostId, getVotesByOptionId } from "../../api/postGet";
-import Comment from "./Comment";
 import { Link } from "react-router";
+import Comments from "./Comments";
 import Report from "../../components/modal/Report";
 
 export default function PostCard({
@@ -80,7 +80,7 @@ export default function PostCard({
   const [likeCounts, setLikeCounts] = useState<number>(post.like_count ?? 0);
   const [commentCounts, setCommentsCounts] = useState<number>(post.comment_count ?? 0);
   const [commentsRefresh, setCommentsRefresh] = useState(0);
-  const [isCommentOpen, setIsCommentOpen] = useState(false);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [pendingComment, setPendingComment] = useState<string | null>(null);
   const [options, setOptions] = useState<Option[]>([]);
@@ -88,7 +88,7 @@ export default function PostCard({
   const postId = post.uid;
 
   // 삭제 드롭다운
-  const [isOpen, setIsOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // author
   useEffect(() => {
@@ -124,13 +124,6 @@ export default function PostCard({
 
   useEffect(() => {
     (async () => {
-      // try {
-      //   const leftCount = await getVotesByOptionId(leftOption.uid);
-      //   const rightCount = await getVotesByOptionId(rightOption.uid);
-      //   setVoteCounts({ left: leftCount, right: rightCount });
-      // } catch (err) {
-      //   console.error("옵션 count 불러오기 실패:", err);
-      // }
       if (!leftOption?.uid || !rightOption?.uid) return;
 
       const [leftCount, rightCount] = await Promise.all([
@@ -199,9 +192,9 @@ export default function PostCard({
             <img
               src={kebabMenuIcon}
               className="pr-[10px] pt-[8px] cursor-pointer"
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={() => setMenuOpen(!menuOpen)}
             />
-            <Activity mode={isOpen ? "visible" : "hidden"}>
+            <Activity mode={menuOpen ? "visible" : "hidden"}>
               <div className="absolute top-7 left-5 w-[160px]  border-1 border-[#ffffff30] rounded-[10px] mt-3 shadow-lg shadow-[#0A0A0A] overflow-x-hidden overflow-y-auto transition-all duration-200 z-50 backdrop-blur-lg">
                 {author?.uid === profile?.uid ? (
                   <div
@@ -346,11 +339,11 @@ export default function PostCard({
           <div
             onClick={() => {
               if (!hasVoted) return;
-              setIsCommentOpen((v) => !v);
+              setIsCommentsOpen((v) => !v);
             }}
             role="button"
             tabIndex={0}
-            aria-expanded={isCommentOpen}
+            aria-expanded={isCommentsOpen}
             aria-disabled={!hasVoted}
             className={[
               "flex items-center mx-auto w-[996px] h-[50px] mb-0 transition-colors duration-300 hover:bg-[#FF8C00]/20 focus:outline-none",
@@ -377,15 +370,15 @@ export default function PostCard({
                 }}
                 className={[
                   "mx-auto w-[996px] overflow-hidden transition-[max-height,opacity] duration-300",
-                  isCommentOpen ? "max-h-[180px] opacity-100" : "max-h-0 opacity-0",
+                  isCommentsOpen ? "max-h-[180px] opacity-100" : "max-h-0 opacity-0",
                 ].join(" ")}
               >
                 <div className="flex items-center gap-3 py-3">
                   <input
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
-                    placeholder="Share your opinion..."
-                    className="flex-1 bg-transparent border border-[#FF8C00]/40 focus:border-[#FF8C00] rounded-md px-3 py-2 text-white outline-none"
+                    placeholder="댓글을 작성해보세요 ..."
+                    className="flex-1 font-normal bg-transparent border border-[#FF8C00]/40 focus:border-[#FF8C00] rounded-md px-3 py-2 text-white outline-none"
                   />
                   <button
                     type="submit"
@@ -396,7 +389,7 @@ export default function PostCard({
                 </div>
               </form>
               <div className="mx-auto flex justify-between w-[996px] border border-[#FF8C00]/40 rounded-[12px] mb-6">
-                <Comment postUid={post.uid} refresh={commentsRefresh} />
+                <Comments postUid={post.uid} refresh={commentsRefresh} />
               </div>
             </div>
             {!hasVoted && (

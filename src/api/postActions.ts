@@ -79,6 +79,15 @@ export async function addComment(postId: string, content: string, author_id: str
     ]);
 
   if (alarmError) throw alarmError;
+}
 
-  return data;
+export async function deleteComment(commentId: string) {
+  try {
+    const { data, error } = await supabase.from("comments").delete().eq("uid", commentId);
+    if (error) throw error;
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
 }

@@ -103,7 +103,7 @@ export async function getCommentsByPostId(postId: string) {
 // export async function getProfileByUserId(userId: string) {
 //   const { data: profile } = await supabase
 //     .from("profiles")
-//     .select("profile_img, username, handle")
+//     .select("*")
 //     .eq("uid", userId)
 //     .single();
 //   return profile as Profile;
