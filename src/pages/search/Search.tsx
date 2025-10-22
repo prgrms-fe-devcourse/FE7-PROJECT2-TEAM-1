@@ -10,6 +10,7 @@ import { deletePostAPI } from "../../services/post";
 import Toast from "../../components/toast/Toast";
 import PostsSkeleton from "../../components/loading/PostsSkeleton";
 import SearchSkeleton from "../../components/loading/SearchSkeleton";
+import Sure from "../../components/modal/Sure";
 
 type Post = Database["public"]["Tables"]["posts"]["Row"];
 export default function Search() {
@@ -18,6 +19,7 @@ export default function Search() {
   const [postSearchResult, setPostSearchResult] = useState<Post[]>([]);
   const [profileSearchResult, setProfileSearchResult] = useState<Profile[]>([]);
   const [noSearch, setNoSearch] = useState(false);
+  const [confirmingUid, setConfirmingUid] = useState<string | null>(null);
   const notify = (message: string, type: ToastType) => Toast({ message, type });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -87,15 +89,19 @@ export default function Search() {
     }
   };
 
-  const deletePostHandler = async (uid: string) => {
-    try {
-      const deleteData = await deletePostAPI(uid);
-      console.log(deleteData);
-      setPostSearchResult((prev) => prev.filter((item) => item.uid !== uid));
-      notify("포스트가 삭제되었습니다.", "SUCCESS");
-    } catch (error) {
-      console.error(error);
+  const handleDeleteRequest = (uid: string) => {
+    setConfirmingUid(uid);
+  };
+
+  const handleConfirmYes = async () => {
+    if (confirmingUid) {
+      await deletePostHandler(confirmingUid);
+      setConfirmingUid(null);
     }
+  };
+
+  const handleConfirmClose = () => {
+    setConfirmingUid(null);
   };
 
   return (
@@ -183,14 +189,17 @@ export default function Search() {
             <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
           </div>
         ) : selectedCategory === "posts" ? (
-          postSearchResult.map((post) => (
-            <PostCard
-              key={post.uid}
-              post={post}
-              searchTerm={searchTerm}
-              deletePostHandler={deletePostHandler}
-            />
-          ))
+          <div>
+            {confirmingUid && <Sure onYes={handleConfirmYes} onClose={handleConfirmClose} />}
+            {postSearchResult.map((post) => (
+              <PostCard
+                key={post.uid}
+                post={post}
+                searchTerm={searchTerm}
+                onDeleteClick={handleDeleteRequest}
+              />
+            ))}
+          </div>
         ) : (
           profileSearchResult.map((user) => (
             <SearchUsers key={user.handle} result={user} searchTerm={searchTerm} />
@@ -199,4 +208,7 @@ export default function Search() {
       </div>
     </div>
   );
+}
+function deletePostHandler(confirmingUid: string) {
+  throw new Error("Function not implemented.");
 }
