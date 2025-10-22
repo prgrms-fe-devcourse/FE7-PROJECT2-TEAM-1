@@ -8,6 +8,8 @@ import noGhost from "../../assets/search/search_no_ghost.svg";
 import PostCard from "../post/PostCard";
 import { deletePostAPI } from "../../services/post";
 import Toast from "../../components/toast/Toast";
+import PostsSkeleton from "../../components/loading/PostsSkeleton";
+import SearchSkeleton from "../../components/loading/SearchSkeleton";
 
 type Post = Database["public"]["Tables"]["posts"]["Row"];
 export default function Search() {
@@ -17,6 +19,8 @@ export default function Search() {
   const [profileSearchResult, setProfileSearchResult] = useState<Profile[]>([]);
   const [noSearch, setNoSearch] = useState(false);
   const notify = (message: string, type: ToastType) => Toast({ message, type });
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const handlePosts = () => {
     setSelectedCategory("posts");
@@ -42,6 +46,7 @@ export default function Search() {
 
     if (selectedCategory === "users") {
       try {
+        setIsLoading(true);
         const { data: profiles, error } = await supabase
           .from("profiles")
           .select("*")
@@ -55,9 +60,13 @@ export default function Search() {
         }
       } catch (error) {
         console.error(error);
+      } finally {
+        const timer = setTimeout(() => setIsLoading(false), 700);
+        return () => clearTimeout(timer);
       }
     } else {
       try {
+        setIsLoading(true);
         const { data: posts, error } = await supabase
           .from("posts")
           .select("*")
@@ -71,6 +80,9 @@ export default function Search() {
         }
       } catch (error) {
         console.error(error);
+      } finally {
+        const timer = setTimeout(() => setIsLoading(false), 700);
+        return () => clearTimeout(timer);
       }
     }
   };
@@ -127,33 +139,62 @@ export default function Search() {
           </div>
         </form>
       </div>
-      <div className="pt-20">
-        {!noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
-          <div className="flex flex-col justify-center items-center min-h-[calc(100vh-111px)]">
-            <p className="text-[28px]">무엇을 검색해볼까 . . .</p>
-            <img src={ghosts} alt="ghosts" />
-          </div>
-        ) : noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
-          <div className="gap-x-1.5 flex flex-row justify-center items-center min-h-[calc(100vh-111px)]">
-            <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
-            <p className="text-[28px]">검색 결과가 없습니다 . . .</p>
-            <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
-          </div>
-        ) : selectedCategory === "posts" ? (
-          postSearchResult.map((post) => (
-            <PostCard
-              key={post.uid}
-              post={post}
-              searchTerm={searchTerm}
-              deletePostHandler={deletePostHandler}
-            />
-          ))
+      {/* {!noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
+        <div className="flex flex-col justify-center items-center min-h-[calc(100vh-111px)]">
+          <p className="text-[28px]">무엇을 검색해볼까 . . .</p>
+          <img src={ghosts} alt="ghosts" />
+        </div>
+      ) : noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
+        <div className="gap-x-1.5 flex flex-row justify-center items-center min-h-[calc(100vh-111px)]">
+          <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
+          <p className="text-[28px]">검색 결과가 없습니다 . . .</p>
+          <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
+        </div>
+      ) : selectedCategory === "posts" ? (
+        postSearchResult.map((post) => (
+          <PostCard
+            key={post.uid}
+            post={post}
+            searchTerm={searchTerm}
+            deletePostHandler={deletePostHandler}
+          />
+        ))
+      ) : (
+        profileSearchResult.map((user) => (
+          <SearchUsers key={user.handle} result={user} searchTerm={searchTerm} />
+        ))
+      )} */}
+      {isLoading && noSearch ? (
+        selectedCategory === "posts" ? (
+          [...Array(4)].map((_, index) => <PostsSkeleton key={index} />)
         ) : (
-          profileSearchResult.map((user) => (
-            <SearchUsers key={user.handle} result={user} searchTerm={searchTerm} />
-          ))
-        )}
-      </div>
+          [...Array(4)].map((_, index) => <SearchSkeleton key={index} />)
+        )
+      ) : !noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
+        <div className="flex flex-col justify-center items-center min-h-[calc(100vh-111px)]">
+          <p className="text-[28px]">무엇을 검색해볼까 . . .</p>
+          <img src={ghosts} alt="ghosts" />
+        </div>
+      ) : noSearch && postSearchResult.length === 0 && profileSearchResult.length === 0 ? (
+        <div className="gap-x-1.5 flex flex-row justify-center items-center min-h-[calc(100vh-111px)]">
+          <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
+          <p className="text-[28px]">검색 결과가 없습니다 . . .</p>
+          <img src={noGhost} alt="no-ghosts" className="w-[70px] h-[70px]" />
+        </div>
+      ) : selectedCategory === "posts" ? (
+        postSearchResult.map((post) => (
+          <PostCard
+            key={post.uid}
+            post={post}
+            searchTerm={searchTerm}
+            deletePostHandler={deletePostHandler}
+          />
+        ))
+      ) : (
+        profileSearchResult.map((user) => (
+          <SearchUsers key={user.handle} result={user} searchTerm={searchTerm} />
+        ))
+      )}
     </div>
   );
 }
