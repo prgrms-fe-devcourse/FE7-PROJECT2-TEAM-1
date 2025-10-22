@@ -14,7 +14,6 @@ import UserStats from "./UserStats";
 import { checkHandleExists } from "../../services/signIn";
 import ProfileSkeleton from "../../components/loading/ProfileSkeleton";
 import { getUserPostsAPI } from "../../services/profile";
-import SearchSkeleton from "../../components/loading/SearchSkeleton";
 
 export default function Profile() {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
@@ -210,11 +209,6 @@ export default function Profile() {
       }
     };
     getUserPosts();
-
-    // return () => {
-    //   setPosts([]);
-    //   setIsPostLoading(true);
-    // };
   }, [profile]);
 
   if (isLoading || isPostLoading) return <ProfileSkeleton />;
@@ -384,8 +378,7 @@ export default function Profile() {
           </div>
           <Activity mode={profile && !isPostLoading ? "visible" : "hidden"}>
             <UserPosts posts={posts} setPosts={setPosts} />
-          </Activity> */}
-          <SearchSkeleton />
+          </Activity>
         </div>
       </main>
     </>
