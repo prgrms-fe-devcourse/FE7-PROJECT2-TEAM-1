@@ -14,6 +14,7 @@ import UserStats from "./UserStats";
 import { checkHandleExists } from "../../services/signIn";
 import ProfileSkeleton from "../../components/loading/ProfileSkeleton";
 import { getUserPostsAPI } from "../../services/profile";
+import SearchSkeleton from "../../components/loading/SearchSkeleton";
 
 export default function Profile() {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
@@ -368,9 +369,10 @@ export default function Profile() {
           <div className="w-[1098px] h-auto text-left text-[24px] mt-[60px] mb-[5px]">
             작성한 게시글
           </div>
-          <Activity mode={profile ? "visible" : "hidden"}>
+          {/* <Activity mode={profile ? "visible" : "hidden"}>
             <UserPosts posts={posts} setPosts={setPosts} />
-          </Activity>
+          </Activity> */}
+          <SearchSkeleton />
         </div>
       </main>
     </>
