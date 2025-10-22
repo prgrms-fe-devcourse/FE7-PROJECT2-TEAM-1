@@ -11,8 +11,10 @@ import { Activity, useEffect, useRef } from "react";
 import Alarm from "./alarm/Alarm";
 import { useAlarmStore } from "../stores/alarmStore";
 import { allReadAPI } from "../services/alarm";
+import Toast from "./toast/Toast";
 
 export default function Header() {
+  const notify = (message: string, type: ToastType) => Toast({ message, type });
   const profile = useAuthStore((state) => state.profile);
   const { isOpen, setIsOpen, unReadCount, setUnReadCount, alarms } = useAlarmStore(
     (state) => state,
@@ -35,7 +37,10 @@ export default function Header() {
   }, []);
 
   const alarmClickHandler = async () => {
-    if (!profile) return;
+    if (!profile) {
+      notify("로그인을 해주세요!", "INFO");
+      return;
+    }
 
     if (isOpen && !!alarms.length && !!unReadCount) {
       try {
