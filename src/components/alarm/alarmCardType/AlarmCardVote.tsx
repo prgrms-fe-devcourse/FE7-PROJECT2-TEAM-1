@@ -1,5 +1,6 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { handleOpenPost, winnerOptionAPI } from "../../../services/alarm";
+import AlarmCardSkeleton from "../../loading/AlarmCardSkeleton";
 
 export default function AlarmCardVote({
   alarm,
@@ -15,6 +16,7 @@ export default function AlarmCardVote({
     winner_title: string;
     vote_count: number | null;
   }>({ post_title: "", winner_title: "", vote_count: 0 });
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     if (!openPost) return;
 
@@ -28,22 +30,39 @@ export default function AlarmCardVote({
 
   useEffect(() => {
     const getWinnerOption = async () => {
-      const data = await winnerOptionAPI(alarm.reference_id);
-      if (data) setWinnerData(data);
+      try {
+        const data = await winnerOptionAPI(alarm.reference_id);
+        if (data) setWinnerData(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        const timer = setTimeout(() => setIsLoading(false), 700);
+        return () => clearTimeout(timer);
+      }
     };
     getWinnerOption();
   }, []);
 
+  if (isLoading) return <AlarmCardSkeleton />;
+
   return (
     <>
-      <p className="p-4.5 pb-0 text-[13px] underline text-[#d3cfcf] hover:text-[#bfbcbc]">
-        {winnerData.post_title}
-      </p>
-      <p className="p-4.5 font-normal text-[11px]">
-        해당 게시물에서 "
-        <span className="font-bold text-[#ff8c00cc]">{winnerData.winner_title}</span>" 선택지의 투표
-        수가 {winnerData.vote_count}표차로 우세하고 있습니다.
-      </p>
+      {winnerData ? (
+        <>
+          <p className="p-4.5 pb-0 text-[13px] underline text-[#d3cfcf] hover:text-[#bfbcbc]">
+            {winnerData.post_title}
+          </p>
+          <p className="p-4.5 font-normal text-[11px]">
+            해당 게시물에서 "
+            <span className="font-bold text-[#ff8c00cc]">{winnerData.winner_title}</span>" 선택지의
+            투표 수가 {winnerData.vote_count}표차로 우세하고 있습니다.
+          </p>
+        </>
+      ) : (
+        <div className="flex justify-center items-center mt-9 text-[#999999]">
+          <p>삭제된 게시글입니다</p>
+        </div>
+      )}
     </>
   );
 }
