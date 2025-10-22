@@ -80,6 +80,13 @@ export default function Write() {
     return isError;
   };
 
+  const isAllEmpty =
+    writeOption === "" &&
+    writeTitle.trim() === "" &&
+    writeExplain.trim() === "" &&
+    writeSelectTextA.trim() === "" &&
+    writeSelectTextB.trim() === "";
+
   const writeDataHandler = async () => {
     if (writeOption === "") return;
     if (writeTitle === "") return;
@@ -191,11 +198,28 @@ export default function Write() {
 
   const handleYes = () => {
     setShowSureModal(false);
-    navigate(-1);
+    navigate(`/posts/${writeOption}`);
   };
   const handleClose = () => {
     setShowSureModal(false);
   };
+
+  const handleBackButton = () => {
+    window.history.pushState(null, "", window.location.href);
+    // 바로 페이지가 이동되는 것을 한 번 막아줘서 모달이 뜰 수 있게 함
+    setShowSureModal(true);
+  };
+
+  useEffect(() => {
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handleBackButton);
+    // 페이지 이동을 감지하여 handleBackButton를 발생시킴
+
+    return () => {
+      window.removeEventListener("popstate", handleBackButton);
+      // 클린업 함수, 보통 addEventListener은 실행 후 지워줘서 브라우저를 무겁지 않게 관리함
+    };
+  }, []);
 
   return (
     <>
@@ -207,8 +231,7 @@ export default function Write() {
             src={categoryArrow}
             className="w-[31px] h-[26px] mt-[7px] cursor-pointer"
             onClick={() => {
-              const isError = writeEmptyHandler();
-              isError && setShowSureModal(true);
+              isAllEmpty ? setShowSureModal(false) : setShowSureModal(true);
             }}
           />
           <p className="w-[1000px] text-[#FF8C00] text-3xl">새 밸런스 게임 만들기</p>
