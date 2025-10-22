@@ -364,7 +364,7 @@ export default function PostCard({
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     placeholder="댓글을 작성해보세요 ..."
-                    className="flex-1 bg-transparent border border-[#FF8C00]/40 focus:border-[#FF8C00] rounded-md px-3 py-2 text-white outline-none"
+                    className="flex-1 font-normal bg-transparent border border-[#FF8C00]/40 focus:border-[#FF8C00] rounded-md px-3 py-2 text-white outline-none"
                   />
                   <button
                     type="submit"
