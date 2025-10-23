@@ -16,7 +16,7 @@ import { Activity, useEffect, useRef, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
 import { getAuthorByPostId, getLikeStatusByPostId, getVotesByOptionId } from "../../api/postGet";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import Comments from "./Comments";
 import Report from "../../components/modal/Report";
 import formatRelativeTime from "../../services/formatRelativeTime";
@@ -33,14 +33,11 @@ export default function PostCard({
   searchTerm: string;
 }) {
   const { profile } = useAuthStore();
-  const navigate = useNavigate();
   const notify = (message: string, type: ToastType) => Toast({ message, type });
 
   const requireAuth = () => {
     if (!profile?.uid) {
       notify("로그인이 필요합니다.", "INFO");
-      const from = window.location.pathname + window.location.search;
-      navigate(`/signin?url=${encodeURIComponent(from)}`);
       return false;
     }
     return true;

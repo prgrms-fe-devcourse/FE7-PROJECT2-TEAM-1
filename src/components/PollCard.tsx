@@ -1,5 +1,7 @@
 import person_orange from "../assets/posts/person_orange.svg";
 import { useEffect, useState } from "react";
+import Toast from "./toast/Toast";
+import { useAuthStore } from "../stores/authStore";
 
 type PollCardProps = {
   left: { label: string; img: string; optionId: string };
@@ -34,6 +36,10 @@ export default function PollCard({
   const pctLeft = Math.round((counts.left / total) * 100);
   const pctRight = 100 - pctLeft;
 
+  const { profile } = useAuthStore();
+
+  const notify = (message: string, type: ToastType) => Toast({ message, type });
+
   const Card = ({
     side,
     data,
@@ -45,7 +51,13 @@ export default function PollCard({
   }) => (
     <button
       type="button"
-      onClick={() => vote(side)}
+      onClick={() => {
+        if (!profile) {
+          notify("로그인이 필요합니다.", "INFO");
+          return;
+        }
+        vote(side);
+      }}
       disabled={hasVoted}
       className={[
         "relative w-[488px] h-[406px] overflow-hidden rounded-[12px] transition-all duration-300",
