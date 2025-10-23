@@ -6,12 +6,12 @@ import type { Database } from "../../types/database";
 import SearchUsers from "./SearchUsers";
 import noGhost from "../../assets/search/search_no_ghost.svg";
 import PostCard from "../post/PostCard";
-import { deletePostAPI } from "../../services/post";
 import Toast from "../../components/toast/Toast";
 import PostsSkeleton from "../../components/loading/PostsSkeleton";
 import SearchSkeleton from "../../components/loading/SearchSkeleton";
 import Sure from "../../components/modal/Sure";
 import Report from "../../components/modal/Report";
+import { deletePostAPI } from "../../services/post";
 
 type Post = Database["public"]["Tables"]["posts"]["Row"];
 export default function Search() {
@@ -94,6 +94,16 @@ export default function Search() {
 
   const handleDeleteRequest = (uid: string) => {
     setConfirmingUid(uid);
+  };
+
+  const deletePostHandler = async (uid: string) => {
+    try {
+      await deletePostAPI(uid);
+      setPostSearchResult((prev) => prev.filter((item) => item.uid !== uid));
+      notify("포스트가 삭제되었습니다.", "SUCCESS");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleConfirmYes = async () => {
@@ -218,7 +228,4 @@ export default function Search() {
       </div>
     </div>
   );
-}
-function deletePostHandler(confirmingUid: string) {
-  throw new Error("Function not implemented.");
 }

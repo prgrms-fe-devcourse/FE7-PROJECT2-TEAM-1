@@ -1,7 +1,7 @@
 import { useState } from "react";
 import google from "../../assets/sign/google_logo.png";
 import supabase from "../../utils/supabase";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { checkEmailExists, googleLoginHandler } from "../../services/signIn";
 import { secureRandomString } from "../../services/profile";
 import { useAuthStore } from "../../stores/authStore";
