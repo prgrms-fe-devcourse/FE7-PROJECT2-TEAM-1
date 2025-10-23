@@ -50,6 +50,7 @@ export default function UserPosts({
               post={post}
               onDeleteClick={handleDeleteRequest}
               searchTerm={""}
+              onReportClick={() => {}}
             />
           ))}
         {confirmingUid && <Sure onYes={handleConfirmYes} onClose={handleConfirmClose} />}

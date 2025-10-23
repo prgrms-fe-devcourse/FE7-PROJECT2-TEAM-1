@@ -18,7 +18,6 @@ import { useAuthStore } from "../../stores/authStore";
 import { getAuthorByPostId, getLikeStatusByPostId, getVotesByOptionId } from "../../api/postGet";
 import { Link } from "react-router";
 import Comments from "./Comments";
-import Report from "../../components/modal/Report";
 import formatRelativeTime from "../../services/formatRelativeTime";
 import Comment from "./Comment";
 import Toast from "../../components/toast/Toast";
@@ -27,10 +26,12 @@ export default function PostCard({
   post,
   onDeleteClick,
   searchTerm,
+  onReportClick,
 }: {
   post: Post;
   onDeleteClick: (uid: string) => void;
   searchTerm: string;
+  onReportClick: (id: string) => void;
 }) {
   const { profile } = useAuthStore();
   const notify = (message: string, type: ToastType) => Toast({ message, type });
@@ -65,7 +66,6 @@ export default function PostCard({
     right: 0,
   });
   const [initialSelected, setInitialSelected] = useState<OptionKey | null>(null);
-  const [openReportModal, setOpenReportModal] = useState(false);
   const hasVoted = initialSelected !== null;
 
   const titleParts = post.post_title.split(new RegExp(`(${searchTerm})`, "gi"));
@@ -291,7 +291,7 @@ export default function PostCard({
                     <div
                       onClick={() => {
                         if (!requireAuth()) return;
-                        setOpenReportModal(true);
+                        onReportClick(post.uid);
                       }}
                       className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#5d5757]"
                     >
@@ -301,13 +301,6 @@ export default function PostCard({
                         alt="author_logo"
                       />
                       <span className="h-[20px] ml-[6px] translate-x-[-6px]">신고하기</span>
-                      <Activity mode={openReportModal ? "visible" : "hidden"}>
-                        <Report
-                          id={post.uid}
-                          type={"post"}
-                          setOpenReportModal={setOpenReportModal}
-                        />
-                      </Activity>
                     </div>
                   </>
                 )}

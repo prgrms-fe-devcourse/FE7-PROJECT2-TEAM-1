@@ -13,8 +13,11 @@ import ChatButton from "../../components/chat/ChatButton";
 import { useAuthStore } from "../../stores/authStore";
 import Sure from "../../components/modal/Sure";
 import NoResultHome from "./NoResultHome";
+import Report from "../../components/modal/Report";
 
 export default function Posts() {
+  const [openReportModal, setOpenReportModal] = useState(false);
+  const [reportTargetId, setReportTargetId] = useState<string | null>(null);
   const profile = useAuthStore((state) => state.profile);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,8 +121,15 @@ export default function Posts() {
               post={post}
               onDeleteClick={handleDeleteRequest}
               searchTerm={" "}
+              onReportClick={(id) => {
+                setReportTargetId(id);
+                setOpenReportModal(true);
+              }}
             />
           ))}
+          {openReportModal && reportTargetId && (
+            <Report id={reportTargetId} type="post" setOpenReportModal={setOpenReportModal} />
+          )}
         </div>
       ) : (
         <div className="flex flex-col justify-center items-center h-screen">
