@@ -88,7 +88,7 @@ export default function Comment({
           <div className="absolute top-5 -right-30 w-[160px]  border-1 border-[#ffffff30] rounded-[10px] mt-3 shadow-lg shadow-[#0A0A0A] overflow-x-hidden overflow-y-auto transition-all duration-200 z-50 backdrop-blur-lg">
             {comment.user_id === profile?.uid ? (
               <div
-                className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#5d5757] "
+                className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] text-white cursor-pointer hover:bg-[#5d5757] "
                 onClick={() => deleteCommentHandler(comment.uid)}
               >
                 <img
@@ -101,7 +101,7 @@ export default function Comment({
             ) : (
               <>
                 <Link to={`/profile/${comment.profiles?.handle}`}>
-                  <div className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#5d5757]">
+                  <div className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] text-white cursor-pointer hover:bg-[#5d5757]">
                     <img className="w-[20px] h-[20px]" src={author_img} alt="author_logo" />
                     <span className="h-[20px] ml-[6px]">프로필가기</span>
                   </div>

@@ -70,7 +70,7 @@ export default function Write() {
     const isError =
       writeOption === "" ||
       writeTitle === "" ||
-      writeExplain === "" ||
+      // writeExplain === "" ||
       writeSelectTextA === "" ||
       writeSelectTextB === "";
 
@@ -81,7 +81,7 @@ export default function Write() {
   const writeDataHandler = async () => {
     if (writeOption === "") return;
     if (writeTitle === "") return;
-    if (writeExplain === "") return;
+    // if (writeExplain === "") return;
     if (writeSelectTextA === "") return;
     if (writeSelectTextB === "") return;
     if (!profile) return;
