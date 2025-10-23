@@ -38,7 +38,7 @@ export default function Header() {
 
   const alarmClickHandler = async () => {
     if (!profile) {
-      notify("로그인을 해주세요!", "INFO");
+      notify("로그인이 필요합니다.", "INFO");
       return;
     }
 

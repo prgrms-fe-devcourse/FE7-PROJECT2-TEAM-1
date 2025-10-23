@@ -15,6 +15,7 @@ import { checkHandleExists } from "../../services/signIn";
 import ProfileSkeleton from "../../components/loading/ProfileSkeleton";
 import { getUserPostsAPI } from "../../services/profile";
 import ghost from "../../assets/search/search_no_ghost.svg";
+import PostsSkeleton from "../../components/loading/PostsSkeleton";
 
 export default function Profile() {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
@@ -39,6 +40,8 @@ export default function Profile() {
 
   const [posts, setPosts] = useState<Post[]>([]);
 
+  const [refreshPosts, setRefreshPosts] = useState(false);
+
   const signout = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -56,7 +59,7 @@ export default function Profile() {
       notify("2글자 이상 입력해주세요!", "ERROR");
       return false;
     }
-    if (!/^[a-zA-Z0-9가-힣._]+$/.test(newHandle)) {
+    if (!/^[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣._]+$/.test(newHandle)) {
       notify(". 또는 @ 기호만 사용 가능합니다.", "ERROR");
       return false;
     }
@@ -121,7 +124,9 @@ export default function Profile() {
 
       if (error) throw error;
       notify("프로필이 수정되었습니다.", "SUCCESS");
-      hydrateFromAuth();
+      await hydrateFromAuth();
+      // const data = await getUserPostsAPI(users?.uid || "");
+      // if (data) setPosts([...data]);
       setProfile(
         (prev) =>
           ({
@@ -132,6 +137,7 @@ export default function Profile() {
             profile_img: imagePreview || profile?.profile_img,
           }) as Profile,
       );
+      setRefreshPosts((prev) => !prev);
     } catch (error) {
       console.error(error);
     } finally {
@@ -198,19 +204,21 @@ export default function Profile() {
 
   useEffect(() => {
     if (!profile?.uid) return;
+
     const getUserPosts = async () => {
       try {
-        const data = await getUserPostsAPI(profile?.uid);
-        if (data) setPosts(data);
+        setIsPostLoading(true); // 1️⃣ 로딩 시작
+        const data = await getUserPostsAPI(profile.uid);
+        if (data) setPosts([...data]); // 2️⃣ 배열 복사해서 넣기
       } catch (error) {
         console.error(error);
       } finally {
-        const timer2 = setTimeout(() => setIsPostLoading(false), 1000);
-        return () => clearTimeout(timer2);
+        setIsPostLoading(false); // 3️⃣ 끝나면 로딩 종료
       }
     };
+
     getUserPosts();
-  }, [profile]);
+  }, [profile?.uid, refreshPosts]);
 
   if (isLoading || isPostLoading) return <ProfileSkeleton />;
 
@@ -377,8 +385,10 @@ export default function Profile() {
           <div className="w-[1098px] h-auto text-left text-[24px] mt-[60px] mb-[5px]">
             작성한 게시글
           </div>
-          {posts.length !== 0 ? (
-            <Activity mode={profile && !isPostLoading ? "visible" : "hidden"}>
+          {isPostLoading ? (
+            <PostsSkeleton />
+          ) : posts.length !== 0 ? (
+            <Activity mode="visible">
               <UserPosts posts={posts} setPosts={setPosts} />
             </Activity>
           ) : (
