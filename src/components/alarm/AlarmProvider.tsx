@@ -5,7 +5,7 @@ import { useAuthStore } from "../../stores/authStore";
 
 export default function AlarmProvider() {
   const profile = useAuthStore((state) => state.profile);
-  const { addAlarm, getAlarms, unReadCount, setUnReadCount } = useAlarmStore((state) => state);
+  const { addAlarm, getAlarms, setUnReadCount } = useAlarmStore((state) => state);
 
   useEffect(() => {
     if (!profile?.uid) return;
