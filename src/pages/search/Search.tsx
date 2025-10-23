@@ -11,9 +11,12 @@ import Toast from "../../components/toast/Toast";
 import PostsSkeleton from "../../components/loading/PostsSkeleton";
 import SearchSkeleton from "../../components/loading/SearchSkeleton";
 import Sure from "../../components/modal/Sure";
+import Report from "../../components/modal/Report";
 
 type Post = Database["public"]["Tables"]["posts"]["Row"];
 export default function Search() {
+  const [openReportModal, setOpenReportModal] = useState(false);
+  const [reportTargetId, setReportTargetId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<"posts" | "users">("posts");
   const [searchTerm, setSearchTerm] = useState("");
   const [postSearchResult, setPostSearchResult] = useState<Post[]>([]);
@@ -197,8 +200,15 @@ export default function Search() {
                 post={post}
                 searchTerm={searchTerm}
                 onDeleteClick={handleDeleteRequest}
+                onReportClick={(id) => {
+                  setReportTargetId(id);
+                  setOpenReportModal(true);
+                }}
               />
             ))}
+            {openReportModal && reportTargetId && (
+              <Report id={reportTargetId} type="post" setOpenReportModal={setOpenReportModal} />
+            )}
           </div>
         ) : (
           profileSearchResult.map((user) => (

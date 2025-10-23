@@ -1,4 +1,4 @@
-import { Activity, useEffect, useState } from "react";
+import { Activity, useCallback, useEffect, useRef, useState } from "react";
 import categoryArrow from "../../assets/posts/categoryArrow.svg";
 import newPost from "../../assets/posts/newPost.svg";
 import logo from "../../assets/sign/hotpotato_logo.png";
@@ -13,11 +13,18 @@ import ChatButton from "../../components/chat/ChatButton";
 import { useAuthStore } from "../../stores/authStore";
 import Sure from "../../components/modal/Sure";
 import NoResultHome from "./NoResultHome";
+import PostsSkeleton from "../../components/loading/PostsSkeleton";
+import Report from "../../components/modal/Report";
+
+const limitLength = 1;
 
 export default function Posts() {
+  const [openReportModal, setOpenReportModal] = useState(false);
+  const [reportTargetId, setReportTargetId] = useState<string | null>(null);
   const profile = useAuthStore((state) => state.profile);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [postLoadingMore, setPostLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { topic } = useParams<{ topic: string }>();
@@ -25,8 +32,11 @@ export default function Posts() {
   const displayLabel = topic && isCategorySlug(topic) ? SLUG_TO_LABEL[topic] : "전체";
   const notify = (message: string, type: ToastType) => Toast({ message, type });
   const [confirmingUid, setConfirmingUid] = useState<string | null>(null);
-  useEffect(() => {
-    const fetchPosts = async () => {
+  const [hasMore, setHasMore] = useState(true);
+  const [offset, setOffset] = useState(0);
+
+  const fetchPosts = useCallback(
+    async (newOffset: number) => {
       try {
         setLoading(true);
         setError(null);
@@ -34,22 +44,69 @@ export default function Posts() {
         const { data, error } = await supabase
           .from("posts")
           .select("*")
-          .eq("is_visible", true) // 숨김 게시물 제외
+          .eq("is_visible", true)
           .eq("category", topic!)
-          .order("created_at", { ascending: false }); // 최신순 정렬
+          .order("created_at", { ascending: false })
+          .range(newOffset, newOffset + limitLength - 1);
 
         if (error) throw error;
-        setPosts(data);
+        return data ?? [];
       } catch (err: any) {
         console.error("게시물 불러오기 실패:", err.message);
         setError("게시물을 불러오는 중 문제가 발생했습니다.");
+        return [];
       } finally {
         setLoading(false);
       }
-    };
+    },
+    [topic],
+  );
 
-    fetchPosts();
-  }, []);
+  useEffect(() => {
+    (async () => {
+      const data = await fetchPosts(0);
+      setPosts(data);
+      setOffset(data.length);
+      if (data.length < limitLength) setHasMore(false);
+    })();
+  }, [fetchPosts]);
+
+  const isFetching = useRef(false);
+  const observerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!observerRef.current || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      async (entries) => {
+        const target = entries[0];
+        if (target.isIntersecting && !isFetching.current && !loading) {
+          isFetching.current = true;
+          setPostLoadingMore(true);
+
+          await new Promise((r) => setTimeout(r, 500)); // optional delay
+
+          const data = await fetchPosts(offset);
+
+          if (data.length > 0) {
+            setPosts((prev) => [...prev, ...data]);
+            setOffset((prev) => prev + data.length);
+          } else {
+            setHasMore(false);
+          }
+
+          setPostLoadingMore(false);
+          isFetching.current = false;
+        }
+      },
+      { threshold: 1.0, rootMargin: "0px 0px 300px 0px" },
+    );
+
+    observer.observe(observerRef.current);
+
+    return () => observer.disconnect();
+  }, [fetchPosts, offset, hasMore, loading]);
+
   const deletePostHandler = async (uid: string) => {
     try {
       await deletePostAPI(uid);
@@ -75,8 +132,6 @@ export default function Posts() {
     setConfirmingUid(null);
   };
 
-  if (loading)
-    return <div className="text-center text-[#FF8C00] mt-10">게시물을 불러오는 중...</div>;
   if (error) return <div className="text-center text-red-500 mt-10">{error}</div>;
   return (
     <div>
@@ -109,19 +164,12 @@ export default function Posts() {
       <Activity mode={profile ? "visible" : "hidden"}>
         <ChatButton category={topic!} />
       </Activity>
-      {posts.length !== 0 ? (
-        <div className="max-w-[1200px] mx-auto">
-          {confirmingUid && <Sure onYes={handleConfirmYes} onClose={handleConfirmClose} />}
-          {posts.map((post) => (
-            <PostCard
-              key={post.uid}
-              post={post}
-              onDeleteClick={handleDeleteRequest}
-              searchTerm={" "}
-            />
-          ))}
-        </div>
-      ) : (
+      
+      {openReportModal && reportTargetId && (
+            <Report id={reportTargetId} type="post" setOpenReportModal={setOpenReportModal} />
+          )}
+
+      {!loading && posts.length === 0 ? (
         <div className="flex flex-col justify-center items-center h-screen">
           <img src={logo} alt="logo" className="opacity-[25%] w-[630px] h-[680px] absolute mb-60" />
           <p className="text-[40px] text-[#FFE99C] mt-60">게시물이 없습니다</p>
@@ -129,6 +177,32 @@ export default function Posts() {
           <p className="text-[15px] text-[#999999] mt-40">Press any key to go back</p>
           <NoResultHome />
         </div>
+      ) : (
+        <>
+          {confirmingUid && <Sure onYes={handleConfirmYes} onClose={handleConfirmClose} />}
+          {posts.map((post) => (
+            <PostCard
+              key={post.uid}
+              post={post}
+              onDeleteClick={handleDeleteRequest}
+              searchTerm={" "}
+              onReportClick={(id) => {
+                setReportTargetId(id);
+                setOpenReportModal(true);
+              }}
+            />
+          ))}
+
+          {/* 무한스크롤 트리거 */}
+          {hasMore && !loading && <div ref={observerRef} className="h-[1px]" />}
+
+          {/* 로딩 시 스켈레톤 */}
+          {postLoadingMore && (
+            <div className="flex justify-center items-center py-5">
+              <PostsSkeleton />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

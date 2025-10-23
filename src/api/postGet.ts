@@ -95,6 +95,7 @@ export async function getCommentsByPostId(postId: string) {
       "uid, created_at, user_id, post_id, comment_content, report_count, is_visible, profiles(username, handle, profile_img)",
     )
     .eq("post_id", postId)
+    .eq("is_visible", true)
     .order("created_at", { ascending: true });
   if (error) throw error;
   return (data ?? []) as CommentWithProfile[];

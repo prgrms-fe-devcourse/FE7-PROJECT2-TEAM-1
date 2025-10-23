@@ -84,7 +84,7 @@ export default function PostAlarm({
   const modal = (
     <div className="fixed inset-0 z-[1000] bg-[rgb(132_124_124_/_0.3)] flex justify-center items-center font-normal">
       <div
-        className={`w-[1400px] max-h-[1150px] scale-60 bg-black border-2 border-[#FF8C00] flex justify-center items-center rounded-[12px] shadow-[20px_20px_4px_rgba(0,0,0,0.25)] transition-all duration-300 ease-out font-normal p-10 flex-col gap-10 ${closing ? "opacity-0 translate-y-10" : opening ? "opacity-0 translate-y-10" : "opacity-100 translate-y-0"}`}
+        className={`w-[1400px] scale-60 bg-black border-2 border-[#FF8C00] flex justify-center items-center rounded-[12px] shadow-[20px_20px_4px_rgba(0,0,0,0.25)] transition-all duration-300 ease-out font-normal p-10 flex-col gap-10 ${closing ? "opacity-0 translate-y-10" : opening ? "opacity-0 translate-y-10" : "opacity-100 translate-y-0"}`}
       >
         {confirmingUid && <Sure onYes={handleConfirmYes} onClose={handleConfirmClose} />}
         {loading && (

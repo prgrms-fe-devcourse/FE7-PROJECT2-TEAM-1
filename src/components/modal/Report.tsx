@@ -3,7 +3,6 @@ import redLight from "../../assets/report/redLight.svg";
 import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
-import { createPortal } from "react-dom";
 import Toast from "../toast/Toast";
 
 export default function Report({
@@ -34,9 +33,9 @@ export default function Report({
     setClosing(true);
     setTimeout(() => {
       setOpenReportModal(false);
+      setClosing(false);
+      setOpening(true);
     }, 350);
-    setClosing(false);
-    setOpening(true);
   }, [setOpenReportModal, closing]);
 
   const handleCompleted = async (e: React.FormEvent<HTMLButtonElement>) => {
@@ -59,10 +58,28 @@ export default function Report({
     try {
       const { data, error } = await supabase.from("reports").insert([insertData]).select().single();
       if (error) throw error;
-      alert("신고가 정상적으로 접수되었습니다.");
+
+      const table = type === "post" ? "posts" : "comments";
+      try {
+        const { data: target, error: selErr } = await supabase
+          .from(table)
+          .select("report_count, is_visible")
+          .eq("uid", id)
+          .maybeSingle();
+        if (selErr) throw selErr;
+        const count: number = (target as any)?.report_count ?? 0;
+        const visible: boolean | null | undefined = (target as any)?.is_visible;
+        if (count >= 5 && visible != false) {
+          await supabase.from(table).update({ is_visible: false }).eq("uid", id);
+        }
+      } catch (inner) {
+        console.error("신고 후 is_visible 갱신 실패:", inner);
+      }
+
       setReportText("");
-      console.log(data);
       handleCloseAnimation();
+      notify("신고가 정상적으로 접수되었습니다.", "SUCCESS");
+      console.log(data);
     } catch (error) {
       const err = error as { code: string; message: string };
       if (err.code === "23505") {
@@ -74,7 +91,7 @@ export default function Report({
     }
   };
 
-  const modal = (
+  return (
     <>
       <div className="fixed inset-0 z-[9999] bg-[rgb(132_124_124_/_0.3)] flex justify-center items-center font-normal">
         <div
@@ -132,6 +149,4 @@ export default function Report({
       </div>
     </>
   );
-
-  return createPortal(modal, document.body);
 }
