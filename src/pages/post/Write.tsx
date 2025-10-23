@@ -6,6 +6,7 @@ import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
 import { useLocation, useNavigate } from "react-router";
 import Toast from "../../components/toast/Toast";
+import { badWords } from "../../components/badWords";
 
 type Choices = { key: string; label: string; image: string }[];
 
@@ -44,9 +45,69 @@ export default function Write() {
 
   const [showError, setShowError] = useState(false);
 
+  const [hasBadTitle, setHasBadTitle] = useState(false);
+  const [hasBadDesc, setHasBadDesc] = useState(false);
+  const [hasBadA, setHasBadA] = useState(false);
+  const [hasBadB, setHasBadB] = useState(false);
+
   const profile = useAuthStore((state) => state.profile);
 
   const notify = (message: string, type: ToastType) => Toast({ message, type });
+
+  // 의미 있는 특수문자들
+  const escapeRegex = (src: string) => {
+    return src.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  };
+
+  const handleChangeTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValueTitle = e.target.value;
+
+    if (inputValueTitle.length <= 50) setWriteTitle(inputValueTitle);
+    setShowError(false);
+
+    // 욕설
+    const hasBad = badWords.some((word) => {
+      const safeWord = escapeRegex(word);
+      const regex = new RegExp(safeWord, "i");
+      return regex.test(inputValueTitle); // ← 최신 입력값으로 검사
+    });
+
+    setHasBadTitle(hasBad);
+  };
+
+  const handleChangeOptions = (e: React.ChangeEvent<HTMLInputElement>, key: "A" | "B") => {
+    const inputValue = e.target.value;
+
+    if (key === "A" && inputValue.length <= 25) setWriteSelectTextA(inputValue);
+    else if (key === "B" && inputValue.length <= 25) setWriteSelectTextB(inputValue);
+
+    // 욕설 감지
+    const hasBad = badWords.some((word) => {
+      const safeWord = escapeRegex(word);
+      const regex = new RegExp(safeWord, "i");
+      return regex.test(inputValue);
+    });
+
+    if (key === "A") setHasBadA(hasBad);
+    else setHasBadB(hasBad);
+  };
+
+  const handleChangeDesc = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const inputValueDesc = e.target.value;
+
+    if (e.target.value.length <= 200 && e.target.value.split("\n").length <= 5)
+      setWriteExplain(e.target.value);
+    setShowError(false);
+
+    // 욕설
+    const hasBad = badWords.some((word) => {
+      const safeWord = escapeRegex(word);
+      const regex = new RegExp(safeWord, "i");
+      return regex.test(inputValueDesc); // ← 최신 입력값으로 검사
+    });
+
+    setHasBadDesc(hasBad);
+  };
 
   const imageUploadHandler = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
     if (!e.target.files) return;
@@ -85,6 +146,10 @@ export default function Write() {
     if (writeSelectTextA === "") return;
     if (writeSelectTextB === "") return;
     if (!profile) return;
+    if (hasBadDesc || hasBadTitle || hasBadA || hasBadB) {
+      notify("적절하지 못한 내용이 포함되어 있습니다", "ERROR");
+      return;
+    }
     try {
       const { data, error } = await supabase
         .from("posts")
@@ -252,14 +317,14 @@ export default function Write() {
               className="w-full h-[45px] mb-2.5 pl-[15px] border-2 border-[#FF8C00]/60 rounded-md outline-none
               focus:border-[#FF8C00] focus:shadow-[0_0_10px_4px_rgba(255,140,0,0.5)]"
               value={writeTitle}
-              onChange={(e) => {
-                {
-                  if (e.target.value.length <= 50) setWriteTitle(e.target.value);
-                  setShowError(false);
-                }
-              }}
+              onChange={handleChangeTitle}
             ></input>
-            <p className="mb-[30px] text-right">{writeTitle.length}/50</p>
+            <p className=" text-right">{writeTitle.length}/50</p>
+            {hasBadTitle ? (
+              <p className="text-[#c85c5c] mb-[30px]">적절하지 못한 제목입니다</p>
+            ) : (
+              ""
+            )}
 
             <p className="mb-[10px]">설명</p>
             <textarea
@@ -268,13 +333,10 @@ export default function Write() {
               className="w-full mb-[10px] p-[15px] pt-[12px] font-normal border-2 border-[#FF8C00]/60 rounded-md outline-none
               focus:border-[#FF8C00] focus:shadow-[0_0_10px_4px_rgba(255,140,0,0.5)] "
               value={writeExplain}
-              onChange={(e) => {
-                if (e.target.value.length <= 200 && e.target.value.split("\n").length <= 5)
-                  setWriteExplain(e.target.value);
-                setShowError(false);
-              }}
+              onChange={handleChangeDesc}
             ></textarea>
-            <p className="mb-[46px] text-right">{writeExplain.length}/200</p>
+            <p className=" text-right">{writeExplain.length}/200</p>
+            {hasBadDesc ? <p className="text-[#c85c5c] mb-[85px]">적절하지 못한 내용입니다</p> : ""}
           </div>
           {/*  */}
           <div className="flex items-center mb-[42px]">
@@ -322,16 +384,18 @@ export default function Write() {
                   className="w-full h-[40px] mb-[10px] pl-[15px] border-2 border-[#FF8C00]/60 rounded-md outline-none focus:border-[#FF8C00]
                 focus-within:shadow-[0_0_10px_4px_rgba(255,140,0,0.5)] "
                   value={choice.key === "A" ? writeSelectTextA : writeSelectTextB}
-                  onChange={(e) => {
-                    if (choice.key === "A" && e.target.value.length <= 25)
-                      setWriteSelectTextA(e.target.value);
-                    else if (choice.key === "B" && e.target.value.length <= 25)
-                      setWriteSelectTextB(e.target.value);
-                  }}
+                  onChange={(e) => handleChangeOptions(e, choice.key as "A" | "B")}
                 ></input>
-                <p className="mb-[16px] text-right">
+                <p className=" text-right">
                   {choice.key === "A" ? writeSelectTextA.length : writeSelectTextB.length}/25
                 </p>
+                <div className="h-[20px] mb-[25px]">
+                  {(hasBadA && choice.key === "A") || (hasBadB && choice.key === "B") ? (
+                    <p className="text-[#c85c5c]">적절하지 못한 내용입니다</p>
+                  ) : (
+                    ""
+                  )}
+                </div>
                 {/* 3 */}
                 <div
                   className="w-full h-[350px] border-2 border-dashed border-[#FF8C00]/60 rounded-lg
@@ -370,7 +434,7 @@ export default function Write() {
           {/*  */}
           <div className="grid justify-items-center">
             <button
-              className="w-[426px] h-[41px] mt-[35px] bg-[#FF8C00] text-black rounded-md
+              className=" w-[426px] h-[41px] mt-[60px] bg-[#FF8C00] text-black rounded-md
               cursor-pointer transition-shadow duration-200 hover:scale-101 hover:drop-shadow-[0_0_5px_#ff8c00]"
               onClick={() => {
                 writeDataHandler();
