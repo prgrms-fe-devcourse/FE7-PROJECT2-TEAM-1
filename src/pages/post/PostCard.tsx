@@ -16,11 +16,12 @@ import { Activity, useEffect, useRef, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
 import { getAuthorByPostId, getLikeStatusByPostId, getVotesByOptionId } from "../../api/postGet";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Comments from "./Comments";
 import Report from "../../components/modal/Report";
 import formatRelativeTime from "../../services/formatRelativeTime";
 import Comment from "./Comment";
+import Toast from "../../components/toast/Toast";
 
 export default function PostCard({
   post,
@@ -32,6 +33,19 @@ export default function PostCard({
   searchTerm: string;
 }) {
   const { profile } = useAuthStore();
+  const navigate = useNavigate();
+  const notify = (message: string, type: ToastType) => Toast({ message, type });
+
+  const requireAuth = () => {
+    if (!profile?.uid) {
+      notify("로그인이 필요합니다.", "INFO");
+      const from = window.location.pathname + window.location.search;
+      navigate(`/signin?url=${encodeURIComponent(from)}`);
+      return false;
+    }
+    return true;
+  };
+
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -278,7 +292,10 @@ export default function PostCard({
                       </div>
                     </Link>
                     <div
-                      onClick={() => setOpenReportModal(true)}
+                      onClick={() => {
+                        if (!requireAuth()) return;
+                        setOpenReportModal(true);
+                      }}
                       className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#5d5757]"
                     >
                       <img
@@ -350,9 +367,9 @@ export default function PostCard({
           initialCounts={voteCounts}
           initialSelected={initialSelected}
           onVote={async (choice) => {
+            if (!requireAuth()) return;
             const optionId = choice === "left" ? leftOption?.uid : rightOption?.uid;
             if (!optionId) {
-              ``;
               console.error("투표 실패: optionId가 비어있습니다.");
               return;
             }
@@ -372,6 +389,7 @@ export default function PostCard({
             <div>
               <button
                 onClick={async () => {
+                  if (!requireAuth()) return;
                   const { liked } = await toggleLike(postId);
                   setLikeStatus(liked);
                   try {
