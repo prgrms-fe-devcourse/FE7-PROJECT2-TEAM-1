@@ -151,6 +151,8 @@ export default function PostCard({
     })();
   }, [post.uid]);
 
+  const isMyPost = author?.uid === profile?.uid;
+
   // Options
   useEffect(() => {
     (async () => {
@@ -403,7 +405,7 @@ export default function PostCard({
           {/* 댓글 */}
           <div
             onClick={() => {
-              if (!hasVoted) return;
+              if (!hasVoted && !isMyPost) return;
               setIsCommentsOpen((v) => !v);
             }}
             role="button"
@@ -412,7 +414,9 @@ export default function PostCard({
             aria-disabled={!hasVoted}
             className={[
               "flex items-center mx-auto w-[996px] h-[50px] mb-0 transition-colors duration-300 hover:bg-[#FF8C00]/20 focus:outline-none",
-              hasVoted ? "hover:bg-[#FF8C00]/20 cursor-pointer" : "opacity-60 cursor-not-allowed",
+              hasVoted || isMyPost
+                ? "hover:bg-[#FF8C00]/20 cursor-pointer"
+                : "opacity-60 cursor-not-allowed",
             ].join(" ")}
           >
             <img src={commentIcon} className="ml-[13px] mr-[21px] w-[25px]" />
@@ -421,9 +425,10 @@ export default function PostCard({
           </div>
           <div className="relative mx-auto w-[996px]">
             <div
-              className={["transition-all", !hasVoted ? "pointer-events-none blur-sm" : ""].join(
-                " ",
-              )}
+              className={[
+                "transition-all",
+                !hasVoted && !isMyPost ? "pointer-events-none blur-sm" : "",
+              ].join(" ")}
             >
               <form
                 onSubmit={(e) => {
@@ -468,7 +473,7 @@ export default function PostCard({
                 )}
               </div>
             </div>
-            {!hasVoted && (
+            {!hasVoted && !isMyPost && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="px-4 py-2   text-[#FF8C00] text-[20px]">
                   지금 투표하여 뜨거운 논쟁에 참여하세요!
