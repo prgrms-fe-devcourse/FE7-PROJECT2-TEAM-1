@@ -20,6 +20,7 @@ import { Link } from "react-router";
 import Comments from "./Comments";
 import formatRelativeTime from "../../services/formatRelativeTime";
 import Comment from "./Comment";
+import Toast from "../../components/toast/Toast";
 
 export default function PostCard({
   post,
@@ -33,6 +34,16 @@ export default function PostCard({
   onReportClick: (id: string) => void;
 }) {
   const { profile } = useAuthStore();
+  const notify = (message: string, type: ToastType) => Toast({ message, type });
+
+  const requireAuth = () => {
+    if (!profile?.uid) {
+      notify("로그인이 필요합니다.", "INFO");
+      return false;
+    }
+    return true;
+  };
+
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -150,6 +161,8 @@ export default function PostCard({
       }
     })();
   }, [post.uid]);
+
+  const isMyPost = author?.uid === profile?.uid;
 
   // Options
   useEffect(() => {
@@ -276,7 +289,10 @@ export default function PostCard({
                       </div>
                     </Link>
                     <div
-                      onClick={() => onReportClick(post.uid)}
+                      onClick={() => {
+                        if (!requireAuth()) return;
+                        onReportClick(post.uid);
+                      }}
                       className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#5d5757]"
                     >
                       <img
@@ -341,9 +357,9 @@ export default function PostCard({
           initialCounts={voteCounts}
           initialSelected={initialSelected}
           onVote={async (choice) => {
+            if (!requireAuth()) return;
             const optionId = choice === "left" ? leftOption?.uid : rightOption?.uid;
             if (!optionId) {
-              ``;
               console.error("투표 실패: optionId가 비어있습니다.");
               return;
             }
@@ -363,6 +379,7 @@ export default function PostCard({
             <div>
               <button
                 onClick={async () => {
+                  if (!requireAuth()) return;
                   const { liked } = await toggleLike(postId);
                   setLikeStatus(liked);
                   try {
@@ -383,7 +400,7 @@ export default function PostCard({
                   className="ml-[13px] mr-[21px] w-[25px]"
                 />
               </button>
-              <span className="text-[14px]">{likeCounts}</span>
+              <span className="text-[14px] text-white">{likeCounts}</span>
             </div>
             <div className="flex">
               <img src={hourglass} className="w-3.5" />
@@ -396,7 +413,7 @@ export default function PostCard({
           {/* 댓글 */}
           <div
             onClick={() => {
-              if (!hasVoted) return;
+              if (!hasVoted && !isMyPost) return;
               setIsCommentsOpen((v) => !v);
             }}
             role="button"
@@ -405,7 +422,9 @@ export default function PostCard({
             aria-disabled={!hasVoted}
             className={[
               "flex items-center mx-auto w-[996px] h-[50px] mb-0 transition-colors duration-300 hover:bg-[#FF8C00]/20 focus:outline-none",
-              hasVoted ? "hover:bg-[#FF8C00]/20 cursor-pointer" : "opacity-60 cursor-not-allowed",
+              hasVoted || isMyPost
+                ? "hover:bg-[#FF8C00]/20 cursor-pointer"
+                : "opacity-60 cursor-not-allowed",
             ].join(" ")}
           >
             <img src={commentIcon} className="ml-[13px] mr-[21px] w-[25px]" />
@@ -414,9 +433,10 @@ export default function PostCard({
           </div>
           <div className="relative mx-auto w-[996px]">
             <div
-              className={["transition-all", !hasVoted ? "pointer-events-none blur-sm" : ""].join(
-                " ",
-              )}
+              className={[
+                "transition-all",
+                !hasVoted && !isMyPost ? "pointer-events-none blur-sm" : "",
+              ].join(" ")}
             >
               <form
                 onSubmit={(e) => {
@@ -461,7 +481,7 @@ export default function PostCard({
                 )}
               </div>
             </div>
-            {!hasVoted && (
+            {!hasVoted && !isMyPost && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="px-4 py-2   text-[#FF8C00] text-[20px]">
                   지금 투표하여 뜨거운 논쟁에 참여하세요!
