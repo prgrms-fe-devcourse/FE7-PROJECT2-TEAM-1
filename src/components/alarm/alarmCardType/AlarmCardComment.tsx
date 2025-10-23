@@ -12,9 +12,7 @@ export default function AlarmCardComment({
   setPostData: Dispatch<SetStateAction<Post | null>>;
   openPost: boolean;
 }) {
-  const [commentUser, setCommentUser] = useState<
-    { comment_content: string; profiles: Profile } | undefined
-  >();
+  const [commentUser, setCommentUser] = useState<{ comment_content: string; profiles: Profile }>();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -32,7 +30,7 @@ export default function AlarmCardComment({
     const getCommentUser = async () => {
       try {
         const user = await getCommentUserAPI(alarm.reference_id);
-        setCommentUser(user);
+        if (user) setCommentUser(user);
       } catch (error) {
         console.error(error);
       } finally {

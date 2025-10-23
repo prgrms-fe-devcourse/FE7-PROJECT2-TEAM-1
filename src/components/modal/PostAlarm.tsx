@@ -95,7 +95,12 @@ export default function PostAlarm({
         )}
         {post && !loading && (
           <div className="w-full overflow-y-auto">
-            <PostCard post={post} searchTerm={""} onDeleteClick={handleDeleteRequest} />
+            <PostCard
+              post={post}
+              searchTerm={""}
+              onDeleteClick={handleDeleteRequest}
+              onReportClick={() => {}}
+            />
           </div>
         )}
         <div className="border border-[#FF8C00] w-[1150px] opacity-30"></div>
