@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void | Promise<void>;
@@ -8,16 +8,19 @@ interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 export default function Button({ onClick, children, className = "", ...props }: IButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const loadingRef = useRef<boolean>(false);
 
   const clickHandler = async (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isLoading) return;
+    loadingRef.current = true;
     setIsLoading(true);
     try {
       if (onClick) await onClick(e);
     } catch (error) {
       console.error(error);
     } finally {
-      setIsLoading(false);
+      loadingRef.current = false;
+      setTimeout(() => setIsLoading(false), 50);
     }
   };
 
