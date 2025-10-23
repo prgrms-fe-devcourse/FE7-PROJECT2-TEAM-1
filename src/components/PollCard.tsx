@@ -39,10 +39,6 @@ export default function PollCard({
   const pctLeft = Math.round((counts.left / total) * 100);
   const pctRight = 100 - pctLeft;
 
-  const { profile } = useAuthStore();
-
-  const notify = (message: string, type: ToastType) => Toast({ message, type });
-
   const Card = ({
     side,
     data,
