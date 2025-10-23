@@ -1,4 +1,4 @@
-import homeBanner from "../../assets/home/homeBanner.svg";
+import homeBanner from "../../assets/home/HomeBanner.svg";
 import FriendshipIcon from "../../assets/home/friendship.svg?react";
 import LoveIcon from "../../assets/home/love.svg?react";
 import FoodIcon from "../../assets/home/food.svg?react";
