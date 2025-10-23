@@ -151,10 +151,6 @@ export default function Posts() {
             src={newPost}
             className="mr-[51px] cursor-pointer"
             onClick={() => {
-              if (!profile) {
-                notify("로그인이 필요합니다.", "INFO");
-                return;
-              }
               navigate("/write", {
                 state: {
                   option: displayLabel,
@@ -168,10 +164,10 @@ export default function Posts() {
       <Activity mode={profile ? "visible" : "hidden"}>
         <ChatButton category={topic!} />
       </Activity>
-
+      
       {openReportModal && reportTargetId && (
-        <Report id={reportTargetId} type="post" setOpenReportModal={setOpenReportModal} />
-      )}
+            <Report id={reportTargetId} type="post" setOpenReportModal={setOpenReportModal} />
+          )}
 
       {!loading && posts.length === 0 ? (
         <div className="flex flex-col justify-center items-center h-screen">
