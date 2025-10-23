@@ -3,7 +3,6 @@ import redLight from "../../assets/report/redLight.svg";
 import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
-import { createPortal } from "react-dom";
 import Toast from "../toast/Toast";
 
 export default function Report({
@@ -34,9 +33,9 @@ export default function Report({
     setClosing(true);
     setTimeout(() => {
       setOpenReportModal(false);
+      setClosing(false);
+      setOpening(true);
     }, 350);
-    setClosing(false);
-    setOpening(true);
   }, [setOpenReportModal, closing]);
 
   const handleCompleted = async (e: React.FormEvent<HTMLButtonElement>) => {
@@ -59,7 +58,7 @@ export default function Report({
     try {
       const { data, error } = await supabase.from("reports").insert([insertData]).select().single();
       if (error) throw error;
-      alert("신고가 정상적으로 접수되었습니다.");
+      notify("신고가 정상적으로 접수되었습니다.", "SUCCESS");
       setReportText("");
       console.log(data);
       handleCloseAnimation();
@@ -74,7 +73,7 @@ export default function Report({
     }
   };
 
-  const modal = (
+  return (
     <>
       <div className="fixed inset-0 z-[9999] bg-[rgb(132_124_124_/_0.3)] flex justify-center items-center font-normal">
         <div
@@ -132,6 +131,4 @@ export default function Report({
       </div>
     </>
   );
-
-  return createPortal(modal, document.body);
 }
