@@ -25,16 +25,27 @@ export default function Header() {
   useEffect(() => {
     if (!profile) return;
 
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = async (e: MouseEvent) => {
       const { openModal } = useAlarmStore.getState();
       if (openModal) return;
+
       if (alarmDivRef.current && !alarmDivRef.current.contains(e.target as Node)) {
         setIsOpen(false);
+
+        if (!!alarms.length && !!unReadCount) {
+          try {
+            await allReadAPI(profile.uid);
+            setUnReadCount(0);
+          } catch (error) {
+            console.error(error);
+          }
+        }
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [profile, alarms.length, unReadCount]);
 
   const alarmClickHandler = async () => {
     if (!profile) {
