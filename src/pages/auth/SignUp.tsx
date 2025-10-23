@@ -5,9 +5,9 @@ import { Link, useNavigate } from "react-router";
 import { checkEmailExists, googleLoginHandler } from "../../services/signIn";
 import { secureRandomString } from "../../services/profile";
 import { useAuthStore } from "../../stores/authStore";
+import Toast from "../../components/toast/Toast";
 
 export default function SignUp() {
-  const navigate = useNavigate();
   const hydrateFromAuth = useAuthStore((state) => state.hydrateFromAuth);
   const [inputState, setInputState] = useState({
     email: "",
@@ -22,6 +22,7 @@ export default function SignUp() {
     cofirmPassword: "",
     total: "",
   });
+  const notify = (message: string, type: ToastType) => Toast({ message, type });
 
   // 포커스 벗어날 때 형식 확인
   const blurHandler = async (e: React.FocusEvent<HTMLInputElement>) => {
@@ -102,7 +103,7 @@ export default function SignUp() {
       console.log("status code: ", error.code);
       alert("올바르지 않은 접근 방법입니다.");
     } else {
-      // navigate("/");
+      notify(`선택의 순간을 함께하세요!`, "INFO");
       hydrateFromAuth();
     }
   };
