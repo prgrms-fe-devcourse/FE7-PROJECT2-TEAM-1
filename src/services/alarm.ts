@@ -74,7 +74,7 @@ const getCommentUserAPI = async (uid: string) => {
   `,
       )
       .eq("uid", uid)
-      .single();
+      .maybeSingle();
     if (error) throw error;
     return data;
   } catch (error) {
