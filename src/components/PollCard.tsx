@@ -7,7 +7,7 @@ type PollCardProps = {
   right: { label: string; img: string; optionId: string };
   initialCounts?: { left: number; right: number };
   initialSelected?: OptionKey | null;
-  onVote: (choice: OptionKey) => Promise<void> | void;
+  onVote: (choice: OptionKey) => Promise<boolean> | boolean;
 };
 export default function PollCard({
   left,
@@ -25,14 +25,15 @@ export default function PollCard({
   const hasVoted = selected !== null;
   const notify = (message: string, type: ToastType) => Toast({ message, type });
 
-  const vote = (key: OptionKey) => {
+  const vote = async (key: OptionKey) => {
     if (hasVoted) {
       notify("이미 투표한 게시물입니다.", "INFO");
       return;
     }
+    const ok = await Promise.resolve(onVote(key));
+    if (!ok) return;
     setSelected(key);
     setCounts((c) => ({ ...c, [key]: c[key] + 1 }));
-    onVote(key);
   };
 
   const total = counts.left + counts.right || 1;
@@ -50,7 +51,7 @@ export default function PollCard({
   }) => (
     <button
       type="button"
-      onClick={() => vote(side)}
+      onClick={() => void vote(side)}
       // disabled={hasVoted}
       className={[
         "relative w-[488px] h-[406px] overflow-hidden rounded-[12px] transition-all duration-300",
