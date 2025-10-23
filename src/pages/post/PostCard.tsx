@@ -390,7 +390,7 @@ export default function PostCard({
                   className="ml-[13px] mr-[21px] w-[25px]"
                 />
               </button>
-              <span className="text-[14px]">{likeCounts}</span>
+              <span className="text-[14px] text-white">{likeCounts}</span>
             </div>
             <div className="flex">
               <img src={hourglass} className="w-3.5" />
