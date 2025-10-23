@@ -7,9 +7,11 @@ import Sure from "../../components/modal/Sure";
 export default function UserPosts({
   posts,
   setPosts,
+  onReportClick,
 }: {
   posts: Post[];
   setPosts: Dispatch<SetStateAction<Post[]>>;
+  onReportClick: (id: string) => void;
 }) {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
   const [confirmingUid, setConfirmingUid] = useState<string | null>(null);
@@ -50,7 +52,7 @@ export default function UserPosts({
               post={post}
               onDeleteClick={handleDeleteRequest}
               searchTerm={""}
-              onReportClick={() => {}}
+              onReportClick={onReportClick}
             />
           ))}
         {confirmingUid && <Sure onYes={handleConfirmYes} onClose={handleConfirmClose} />}
