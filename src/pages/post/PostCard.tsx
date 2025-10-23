@@ -113,9 +113,10 @@ export default function PostCard({
         const { data, error } = await supabase
           .from("comments")
           .select(
-            "uid, user_id, post_id, comment_content, created_at, profiles(username, handle, profile_img)",
+            "uid, user_id, post_id, comment_content, created_at, is_visible, profiles(username, handle, profile_img)",
           )
           .eq("post_id", post.uid)
+          .eq("is_visible", true)
           .order("created_at", { ascending: true })
           .limit(1);
         if (error) throw error;

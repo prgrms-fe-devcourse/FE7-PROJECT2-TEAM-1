@@ -9,6 +9,7 @@ import { Link } from "react-router";
 import { Activity, useEffect, useRef, useState } from "react";
 import { useAuthStore } from "../../stores/authStore";
 import formatRelativeTime from "../../services/formatRelativeTime";
+import Report from "../../components/modal/Report";
 
 export default function Comment({
   comment,
@@ -20,6 +21,7 @@ export default function Comment({
   const [menuOpen, setMenuOpen] = useState(false);
   const { profile } = useAuthStore();
   const menuRef = useRef<HTMLDivElement>(null);
+  const [openReportModal, setOpenReportModal] = useState(false);
 
   useEffect(() => {
     const handleClickOutSide = (e: MouseEvent) => {
@@ -74,7 +76,7 @@ export default function Comment({
         </div>
       </div>
       <div className="relative flex my-auto gap-2 px-[10px] whitespace-nowrap">
-        <div className="shirink-0">
+        <div className="shrink-0">
           <Badge post_id={comment.post_id} user_id={comment.user_id} />
         </div>
         <img
@@ -104,13 +106,23 @@ export default function Comment({
                     <span className="h-[20px] ml-[6px]">프로필가기</span>
                   </div>
                 </Link>
-                <div className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#5d5757]">
+                <div
+                  onClick={() => setOpenReportModal(true)}
+                  className="flex items-center justify-center w-full h-[50px] font-normal text-[14px] cursor-pointer hover:bg-[#5d5757]"
+                >
                   <img
                     className="w-[20px] h-[20px] translate-x-[-6px]"
                     src={report}
                     alt="author_logo"
                   />
                   <span className="h-[20px] ml-[6px] translate-x-[-6px]">신고하기</span>
+                  <Activity mode={openReportModal ? "visible" : "hidden"}>
+                    <Report
+                      id={comment.uid}
+                      type={"comment"}
+                      setOpenReportModal={setOpenReportModal}
+                    />
+                  </Activity>
                 </div>
               </>
             )}
