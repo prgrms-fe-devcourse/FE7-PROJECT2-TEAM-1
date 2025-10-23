@@ -151,7 +151,7 @@ export default function ChatCotaniner({
           className="w-full flex-1 border border-[#ffffff30] bg-transparent rounded-lg px-3 py-2 outline-none text-white placeholder-gray-400 text-sm"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && handleSend()}
           placeholder="메시지 입력..."
         />
         <Button

@@ -27,7 +27,7 @@ export default function AlarmProvider() {
         },
         (payload) => {
           addAlarm(payload.new as Alarm);
-          setUnReadCount(unReadCount + 1);
+          setUnReadCount((prev: number) => prev + 1);
         },
       )
       .subscribe((state) => console.log(state));
