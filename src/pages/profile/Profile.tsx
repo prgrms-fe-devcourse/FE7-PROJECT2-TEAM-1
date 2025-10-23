@@ -16,6 +16,7 @@ import ProfileSkeleton from "../../components/loading/ProfileSkeleton";
 import { getUserPostsAPI } from "../../services/profile";
 import ghost from "../../assets/search/search_no_ghost.svg";
 import PostsSkeleton from "../../components/loading/PostsSkeleton";
+import Report from "../../components/modal/Report";
 
 export default function Profile() {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
@@ -25,6 +26,8 @@ export default function Profile() {
   const params = useParams();
   const navigate = useNavigate();
   const users = useAuthStore((state) => state.profile);
+  const [openReportModal, setOpenReportModal] = useState(false);
+  const [reportTargetId, setReportTargetId] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const hydrateFromAuth = useAuthStore((state) => state.hydrateFromAuth);
   const [newName, setNewName] = useState(users?.username);
@@ -389,7 +392,17 @@ export default function Profile() {
             <PostsSkeleton />
           ) : posts.length !== 0 ? (
             <Activity mode="visible">
-              <UserPosts posts={posts} setPosts={setPosts} />
+              <UserPosts
+                posts={posts}
+                setPosts={setPosts}
+                onReportClick={(id) => {
+                  setReportTargetId(id);
+                  setOpenReportModal(true);
+                }}
+              />
+              {openReportModal && reportTargetId && (
+                <Report id={reportTargetId} type="post" setOpenReportModal={setOpenReportModal} />
+              )}
             </Activity>
           ) : (
             <div className="flex mt-40">
