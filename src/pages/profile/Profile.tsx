@@ -17,6 +17,7 @@ import { getUserPostsAPI } from "../../services/profile";
 import ghost from "../../assets/search/search_no_ghost.svg";
 import PostsSkeleton from "../../components/loading/PostsSkeleton";
 import Report from "../../components/modal/Report";
+import Button from "../../components/common/Button";
 
 export default function Profile() {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
@@ -62,7 +63,8 @@ export default function Profile() {
       notify("2글자 이상 입력해주세요!", "ERROR");
       return false;
     }
-    if (!/^[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣._]+$/.test(newHandle)) {
+    const pattern = /^(?=.*[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣])[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣._@]+$/;
+    if (!pattern.test(newHandle)) {
       notify(". 또는 @ 기호만 사용 가능합니다.", "ERROR");
       return false;
     }
@@ -230,12 +232,12 @@ export default function Profile() {
         <div className="flex flex-col items-center">
           <div className="relative w-[1098px] h-auto bg-[#0A0A0A] border-2 border-[#FF8C00] rounded-[12px] shadow-[0_1px_3px_#000000] m-auto mt-[33px] flex flex-col text-white">
             {isEdit && (
-              <button
+              <Button
                 className="absolute top-[20px] right-[90px] w-[31px] h-[31px] rounded-[6px] border-0 bg-[#FF8C00] flex items-center justify-center text-black hover:opacity-80 transition cursor-pointer"
                 onClick={editHandler}
               >
                 <img src={check} alt="edit_check" />
-              </button>
+              </Button>
             )}
 
             {!isEdit ? (
@@ -285,12 +287,13 @@ export default function Profile() {
                     className="w-full h-full object-cover rounded-full"
                   />
                   {isEdit && (
-                    <button
+                    <Button
+                      variant="plain"
                       className="absolute w-[31px] h-[31px] bottom-[5px] right-[-5px] rounded-full border-0 bg-[#EBBA7D] flex items-center justify-center text-black hover:opacity-80 transition cursor-pointer"
                       onClick={() => fileInputRef?.current?.click()}
                     >
                       <img src={img_upload} alt="img_upload" />
-                    </button>
+                    </Button>
                   )}
                 </div>
                 <Activity
@@ -302,12 +305,12 @@ export default function Profile() {
                         : "hidden"
                   }
                 >
-                  <button
+                  <Button
                     className="w-[90px] h-[23px] bg-red-500 rounded-[8px] mt-[10px] text-[14px] hover:opacity-80 cursor-pointer"
                     onClick={signout}
                   >
                     로그아웃
-                  </button>
+                  </Button>
                 </Activity>
               </div>
 
