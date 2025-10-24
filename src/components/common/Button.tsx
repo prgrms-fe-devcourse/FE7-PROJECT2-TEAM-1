@@ -18,7 +18,7 @@ export default function Button({
   const loadingRef = useRef<boolean>(false);
 
   const clickHandler = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (isLoading) return;
+    if (loadingRef.current) return;
     loadingRef.current = true;
     setIsLoading(true);
     try {

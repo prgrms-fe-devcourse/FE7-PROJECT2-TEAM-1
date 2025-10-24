@@ -437,8 +437,8 @@ export default function Write() {
             <Button
               className=" w-[426px] h-[41px] mt-[60px] bg-[#FF8C00] text-black rounded-md
               cursor-pointer transition-shadow duration-200 hover:scale-101 hover:drop-shadow-[0_0_5px_#ff8c00]"
-              onClick={() => {
-                writeDataHandler();
+              onClick={async () => {
+                await writeDataHandler();
                 writeEmptyHandler();
               }}
             >
