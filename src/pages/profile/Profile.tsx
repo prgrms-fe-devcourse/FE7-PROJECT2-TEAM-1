@@ -128,8 +128,6 @@ export default function Profile() {
       if (error) throw error;
       notify("프로필이 수정되었습니다.", "SUCCESS");
       await hydrateFromAuth();
-      // const data = await getUserPostsAPI(users?.uid || "");
-      // if (data) setPosts([...data]);
       setProfile(
         (prev) =>
           ({
@@ -191,6 +189,7 @@ export default function Profile() {
           setProfile(users);
         }
       } catch (error) {
+        navigate("/notFound", { replace: true });
         console.error(error);
       } finally {
         const timer = setTimeout(() => setIsLoading(false), 1000);
@@ -210,13 +209,13 @@ export default function Profile() {
 
     const getUserPosts = async () => {
       try {
-        setIsPostLoading(true); // 1️⃣ 로딩 시작
+        setIsPostLoading(true);
         const data = await getUserPostsAPI(profile.uid);
-        if (data) setPosts([...data]); // 2️⃣ 배열 복사해서 넣기
+        if (data) setPosts([...data]);
       } catch (error) {
         console.error(error);
       } finally {
-        setIsPostLoading(false); // 3️⃣ 끝나면 로딩 종료
+        setIsPostLoading(false);
       }
     };
 
