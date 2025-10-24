@@ -29,7 +29,7 @@ export default function AlarmCard({ alarm }: { alarm: Alarm }) {
   const deleteHandler = async () => {
     await deleteAlarmAPI(alarm.uid);
     if (!alarm.is_read) {
-      setUnReadCount(unReadCount - 1);
+      setUnReadCount(unReadCount > 0 ? unReadCount - 1 : 0);
     }
     setAlarms(alarms.filter((item) => item.uid !== alarm.uid));
   };

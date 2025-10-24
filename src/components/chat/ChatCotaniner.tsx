@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
+import Button from "../common/Button";
 
 export default function ChatCotaniner({
   category,
@@ -150,15 +151,15 @@ export default function ChatCotaniner({
           className="w-full flex-1 border border-[#ffffff30] bg-transparent rounded-lg px-3 py-2 outline-none text-white placeholder-gray-400 text-sm"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && handleSend()}
           placeholder="메시지 입력..."
         />
-        <button
-          onClick={handleSend}
+        <Button
           className="ml-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm transition"
+          onClick={handleSend}
         >
           전송
-        </button>
+        </Button>
       </div>
     </div>
   );

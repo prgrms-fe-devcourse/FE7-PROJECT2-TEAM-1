@@ -1,6 +1,7 @@
 import person_orange from "../assets/posts/person_orange.svg";
 import { useEffect, useState } from "react";
 import Toast from "./toast/Toast";
+import Button from "./common/Button";
 
 type PollCardProps = {
   left: { label: string; img: string; optionId: string };
@@ -49,10 +50,10 @@ export default function PollCard({
     data: { label: string; img: string };
     percent: number;
   }) => (
-    <button
+    <Button
+      variant="plain"
       type="button"
       onClick={() => void vote(side)}
-      // disabled={hasVoted}
       className={[
         "relative w-[488px] h-[406px] overflow-hidden rounded-[12px] transition-all duration-300",
 
@@ -93,7 +94,7 @@ export default function PollCard({
           {percent}%
         </span>
       )}
-    </button>
+    </Button>
   );
 
   const [wLeft, setWLeft] = useState(0);

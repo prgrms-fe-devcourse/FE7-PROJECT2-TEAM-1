@@ -21,6 +21,7 @@ import Comments from "./Comments";
 import formatRelativeTime from "../../services/formatRelativeTime";
 import Comment from "./Comment";
 import Toast from "../../components/toast/Toast";
+import Button from "../../components/common/Button";
 
 export default function PostCard({
   post,
@@ -380,7 +381,8 @@ export default function PostCard({
         <div>
           <div className="flex items-center justify-between mx-auto w-[996px] h-[50px] border-b-[2px] border-[#FF8C00]/20">
             <div>
-              <button
+              <Button
+                variant="plain"
                 onClick={async () => {
                   if (!requireAuth()) return;
                   const { liked } = await toggleLike(postId);
@@ -402,7 +404,7 @@ export default function PostCard({
                   src={likeStatus ? likeFilledIcon : likeIcon}
                   className="ml-[13px] mr-[21px] w-[25px]"
                 />
-              </button>
+              </Button>
               <span className="text-[14px] text-white">{likeCounts}</span>
             </div>
             <div className="flex">

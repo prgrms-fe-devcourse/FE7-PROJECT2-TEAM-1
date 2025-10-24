@@ -28,7 +28,6 @@ export default function Home() {
   };
 
   const goToPostsHandler = (slug: string) => {
-    // navigate("/posts");
     navigate(`/posts/${slug}`);
   };
 

@@ -35,6 +35,12 @@ export default function Posts() {
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
 
+  useEffect(() => {
+    if (topic) {
+      if (!Object.hasOwn(SLUG_TO_LABEL, topic)) navigate("/notFound", { replace: true });
+    }
+  }, [topic, navigate]);
+
   const fetchPosts = useCallback(
     async (newOffset: number) => {
       try {

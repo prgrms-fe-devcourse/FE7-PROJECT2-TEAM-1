@@ -12,6 +12,7 @@ import Alarm from "./alarm/Alarm";
 import { useAlarmStore } from "../stores/alarmStore";
 import { allReadAPI } from "../services/alarm";
 import Toast from "./toast/Toast";
+import Button from "./common/Button";
 
 export default function Header() {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
@@ -25,27 +26,29 @@ export default function Header() {
   useEffect(() => {
     if (!profile) return;
 
-    const handleClickOutside = async (e: MouseEvent) => {
-      const { openModal } = useAlarmStore.getState();
-      if (openModal) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      const { openModal } = useAlarmStore.getState(); // 모달 열림 확인
+      if (openModal) return; // 모달 열림이면 읽음 처리 안 함
+
+      const wasOpen = isOpen; // 알람창 열림 상태
+      if (!wasOpen) return; // 알람창이 닫혀있으면 무시
 
       if (alarmDivRef.current && !alarmDivRef.current.contains(e.target as Node)) {
         setIsOpen(false);
 
-        if (!!alarms.length && !!unReadCount) {
-          try {
-            await allReadAPI(profile.uid);
-            setUnReadCount(0);
-          } catch (error) {
-            console.error(error);
-          }
+        if (alarms.length > 0 && unReadCount > 0) {
+          allReadAPI(profile.uid)
+            .then(() => setUnReadCount(0))
+            .catch((err) => console.error(err));
         }
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [profile, alarms.length, unReadCount]);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [profile, isOpen, alarms.length, unReadCount]);
 
   const alarmClickHandler = async () => {
     if (!profile) {
@@ -104,7 +107,7 @@ export default function Header() {
           </div>
         </Link>
         <div className="relative w-[31px] h-[35px]" ref={alarmDivRef}>
-          <button className="cursor-pointer" onClick={alarmClickHandler}>
+          <Button onClick={alarmClickHandler} variant="plain">
             <Activity mode={unReadCount ? "visible" : "hidden"}>
               <span className="absolute top-4 right-5 bg-red-600 text-white text-[10px] font-normal rounded-full w-4 h-4 flex items-center justify-center shadow-md">
                 {unReadCount}
@@ -115,7 +118,7 @@ export default function Header() {
               alt="header-alarm"
               className="col-start-24 col-span-1 justify-self-start"
             />
-          </button>
+          </Button>
           <Activity mode={isOpen ? "visible" : "hidden"}>
             <Alarm />
           </Activity>

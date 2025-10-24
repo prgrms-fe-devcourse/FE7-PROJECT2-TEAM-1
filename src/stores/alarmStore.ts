@@ -8,7 +8,7 @@ type AlarmStore = {
   alarms: Alarm[];
   unReadCount: number;
   setOpenModal: (value: boolean) => void;
-  setUnReadCount: (value: number) => void;
+  setUnReadCount: (value: number | ((prev: number) => number)) => void;
   setIsOpen: (value: boolean) => void;
   setAlarms: (alarms: Alarm[] | []) => void;
   addAlarm: (alarm: Alarm) => void;
@@ -26,9 +26,9 @@ export const useAlarmStore = create<AlarmStore>()(
       set((state) => {
         state.openModal = value;
       }),
-    setUnReadCount: (value) =>
+    setUnReadCount: (value: number | ((prev: number) => number)) =>
       set((state) => {
-        state.unReadCount = value;
+        state.unReadCount = typeof value === "function" ? value(state.unReadCount) : value;
       }),
     setIsOpen: (value) =>
       set((state) => {
