@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } 
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
 import Toast from "../toast/Toast";
+import Button from "../common/Button";
 
 export default function Report({
   id,
@@ -126,14 +127,15 @@ export default function Report({
               </p>
             </div>
             <div className="flex justify-between mt-10 mr-13 ml-13">
-              <button
+              <Button
+                variant="plain"
                 type="submit"
                 className="hover:bg-[#FF8C00] hover:text-black cursor-pointer rounded-[5px] bg-[#AAAAAA] w-[100px] h-[34px]"
                 onClick={handleCompleted}
               >
                 완료
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 className="hover:bg-[#FF8C00] hover:text-black cursor-pointer rounded-[5px] bg-[#AAAAAA] w-[100px] h-[34px]"
                 onClick={() => {
@@ -142,7 +144,7 @@ export default function Report({
                 }}
               >
                 취소
-              </button>
+              </Button>
             </div>
           </form>
         </div>

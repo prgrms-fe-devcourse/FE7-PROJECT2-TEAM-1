@@ -6,6 +6,7 @@ import { checkEmailExists, googleLoginHandler } from "../../services/signIn";
 import { secureRandomString } from "../../services/profile";
 import { useAuthStore } from "../../stores/authStore";
 import Toast from "../../components/toast/Toast";
+import Button from "../../components/common/Button";
 
 export default function SignUp() {
   const hydrateFromAuth = useAuthStore((state) => state.hydrateFromAuth);
@@ -75,7 +76,7 @@ export default function SignUp() {
     }
   };
 
-  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+  const submitHandler = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
     const isEmptyErrors = Object.values(errors).some((item) => item !== "");
@@ -111,7 +112,7 @@ export default function SignUp() {
   return (
     <>
       <main className="max-w-dvw min-h-dvh bg-black overflow-hidden">
-        <form onSubmit={(e) => submitHandler(e)}>
+        <form>
           <div className="w-[1200px] min-h-[950px] bg-[#0A0A0A] border-2 border-[#FF8C00] rounded-[12px] m-auto mt-[38px] mb-[15px] flex flex-col items-center justify-center text-white">
             <div className="flex flex-col items-center gap-[45px]">
               <div className="flex flex-col items-center gap-[5px]">
@@ -225,16 +226,21 @@ export default function SignUp() {
               </div>
 
               <div className="flex justify-between w-full">
-                <button className="w-[465px] h-[48px] rounded-[6px] bg-[#FF8C00] text-[18px] text-black font-bold transition-shadow duration-200 cursor-pointer hover:shadow-[0_0_10px_#FF8C00] hover:scale-101 ">
+                <Button
+                  className="w-[465px] h-[48px] text-[18px] text-black transition-shadow hover:shadow-[0_0_10px_#FF8C00]"
+                  type="submit"
+                  onClick={submitHandler}
+                >
                   Sign Up
-                </button>
-                <button
+                </Button>
+
+                <Button
                   className="flex items-center justify-center w-[50px] h-[48px] rounded-[6px] bg-[#ffffff] text-[18px] text-black  font-bold transition-shadow duration-200 cursor-pointer hover:shadow-[0_0_10px_#FF8C00] hover:scale-101"
                   type="button"
                   onClick={googleLoginHandler}
                 >
                   <img className="w-[35px] h-[35px] p-auto" src={google} alt="google_logo" />
-                </button>
+                </Button>
               </div>
 
               <div className="flex flex-col items-center gap-[5px]">

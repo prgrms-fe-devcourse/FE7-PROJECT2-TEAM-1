@@ -160,12 +160,6 @@ export default function ChatCotaniner({
         >
           전송
         </Button>
-        {/* <button
-          onClick={handleSend}
-          className="ml-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm transition"
-        >
-          전송
-        </button> */}
       </div>
     </div>
   );
