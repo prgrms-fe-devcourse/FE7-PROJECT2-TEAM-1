@@ -1,7 +1,7 @@
 import uploadButton from "../../assets/write/upload_button.svg";
 import categoryArrow from "../../assets/write/categoryArrow.svg";
 import optionsArrow from "../../assets/write/search_arrow.svg";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
 import { useLocation, useNavigate } from "react-router";
@@ -253,6 +253,11 @@ export default function Write() {
     }
   }, []);
 
+  const handleClick = useCallback(async () => {
+    await writeDataHandler();
+    writeEmptyHandler();
+  }, [writeDataHandler, writeEmptyHandler]);
+
   return (
     <>
       <div className="flex flex-col items-center">
@@ -437,10 +442,7 @@ export default function Write() {
             <Button
               className=" w-[426px] h-[41px] mt-[60px] bg-[#FF8C00] text-black rounded-md
               cursor-pointer transition-shadow duration-200 hover:scale-101 hover:drop-shadow-[0_0_5px_#ff8c00]"
-              onClick={async () => {
-                await writeDataHandler();
-                writeEmptyHandler();
-              }}
+              onClick={handleClick}
             >
               게시하기
             </Button>
