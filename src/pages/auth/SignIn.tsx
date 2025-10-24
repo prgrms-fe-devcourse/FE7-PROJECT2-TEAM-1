@@ -107,10 +107,11 @@ export default function SignIn() {
               <div className="flex justify-between w-full">
                 <Button
                   className="w-[465px] h-[48px] text-[18px] text-black transition-shadow hover:shadow-[0_0_10px_#FF8C00]"
-                  children={"Sign in"}
                   type="submit"
                   onClick={submitHandler}
-                />
+                >
+                  Sign in
+                </Button>
                 <Button
                   className="flex items-center justify-center w-[50px] h-[48px] bg-[#ffffff] text-[18px] text-black hover:shadow-[0_0_10px_#FF8C00] hover:scale-103"
                   type="button"

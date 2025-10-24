@@ -12,6 +12,7 @@ import Alarm from "./alarm/Alarm";
 import { useAlarmStore } from "../stores/alarmStore";
 import { allReadAPI } from "../services/alarm";
 import Toast from "./toast/Toast";
+import Button from "./common/Button";
 
 export default function Header() {
   const notify = (message: string, type: ToastType) => Toast({ message, type });
@@ -106,7 +107,7 @@ export default function Header() {
           </div>
         </Link>
         <div className="relative w-[31px] h-[35px]" ref={alarmDivRef}>
-          <button className="cursor-pointer" onClick={alarmClickHandler}>
+          <Button onClick={alarmClickHandler} variant="plain">
             <Activity mode={unReadCount ? "visible" : "hidden"}>
               <span className="absolute top-4 right-5 bg-red-600 text-white text-[10px] font-normal rounded-full w-4 h-4 flex items-center justify-center shadow-md">
                 {unReadCount}
@@ -117,7 +118,7 @@ export default function Header() {
               alt="header-alarm"
               className="col-start-24 col-span-1 justify-self-start"
             />
-          </button>
+          </Button>
           <Activity mode={isOpen ? "visible" : "hidden"}>
             <Alarm />
           </Activity>

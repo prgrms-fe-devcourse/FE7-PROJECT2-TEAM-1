@@ -1,12 +1,13 @@
 import uploadButton from "../../assets/write/upload_button.svg";
 import categoryArrow from "../../assets/write/categoryArrow.svg";
 import optionsArrow from "../../assets/write/search_arrow.svg";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useAuthStore } from "../../stores/authStore";
 import { useLocation, useNavigate } from "react-router";
 import Toast from "../../components/toast/Toast";
 import { badWords } from "../../components/badWords";
+import Button from "../../components/common/Button";
 
 type Choices = { key: string; label: string; image: string }[];
 
@@ -252,6 +253,11 @@ export default function Write() {
     }
   }, []);
 
+  const handleClick = useCallback(async () => {
+    await writeDataHandler();
+    writeEmptyHandler();
+  }, [writeDataHandler, writeEmptyHandler]);
+
   return (
     <>
       <div className="flex flex-col items-center">
@@ -433,16 +439,13 @@ export default function Write() {
           </div>
           {/*  */}
           <div className="grid justify-items-center">
-            <button
+            <Button
               className=" w-[426px] h-[41px] mt-[60px] bg-[#FF8C00] text-black rounded-md
               cursor-pointer transition-shadow duration-200 hover:scale-101 hover:drop-shadow-[0_0_5px_#ff8c00]"
-              onClick={() => {
-                writeDataHandler();
-                writeEmptyHandler();
-              }}
+              onClick={handleClick}
             >
               게시하기
-            </button>
+            </Button>
             {showError && (
               <p className="text-red-500 text-sm text-center mt-2">
                 모든 필수 입력 항목을 입력해주세요.
